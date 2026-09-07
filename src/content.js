@@ -98,7 +98,7 @@ export const lesson = [
     intro: 'Choose one program you made today. Run it and explain a part you wrote yourself.',
     learn: 'A useful reflection names something specific: a change, a test or an error you fixed.',
     task: 'Keep your work and choose a next step.',
-    steps: ['Open your best task and demonstrate it with a new input.', 'Download your Python file, especially on a shared device.', 'Complete the short reflection below.'],
+    steps: ['Open your best task and demonstrate it with a new input.', 'Add an explanation of your program, then complete the reflection below.', 'Download your learning report as a PDF and attach it to your teacher’s Teams assignment.'],
     starter: '# Return to a task to demonstrate your program.\n', kind: 'reflect',
     hints: ['Try: “I tested ___ because ___. Next I want to ___.”'],
   },

@@ -8,7 +8,13 @@ Choose a learning card or challenge, write Python and press **Run**. When `input
 
 The editor supports Python highlighting, four-space indentation, block indent/outdent, undo and Ctrl/Cmd+Enter to run. Tablets have visible indentation buttons. Press Escape, then Tab to leave the editor using a keyboard.
 
-Drafts, hints and reflection are saved in the current browser. **My files** exports Python files or all drafts as a JSON backup. Import a backup to move devices. Shared-device learners should download their work before using **Start a new learner**. Saving locally is not a cloud account or permanent backup.
+Start with a student name and class, or choose a saved profile on the landing page. Each profile keeps its own drafts, hints, explanations, reflection, check progress and recent run/check evidence in the current browser. Reopening the app returns to the landing page. **Switch student** preserves each profile. An optional checkbox brings existing work from the earlier app into a new profile without deleting the original record.
+
+**My learning report** downloads a real PDF with the student's name/class, progress overview, current code, per-task explanations, reflection, recent attempts, console answers/output, errors and prepared check results. Students attach the PDF to their teacher's Teams assignment and turn it in themselves. There is no automatic submission or teacher dashboard. A passed status applies only when the current code equals the checked version. Supplied checks and self-reported work are formative evidence, not authentication or a grade.
+
+The latest eight attempts per task are retained, along with total run/check counts. Each recorded attempt stores up to 12,000 code characters, 4,000 console characters and the first 30 answers (500 characters each). Long report code is labelled as an excerpt; full drafts remain in Python/JSON downloads. Non-ASCII report lines use the browser's font fallback and are embedded as high-resolution images; ordinary text remains selectable. PDF generation loads on demand using [jsPDF](https://github.com/parallax/jsPDF).
+
+**My files** exports individual Python files or a full JSON lesson backup including progress and evidence. Import a backup to move devices; importing restores its progress and merges its drafts, after downloading the current work first. Imported files are validated against the known tasks. Profile names and classes are not sent to GitHub or any database. Profiles are not password-protected: anyone using the same browser can open them. Clearing browser data removes local profiles, so keep backups. Concurrent tabs with stale profile revisions cannot overwrite newer saved work. Saving failures are visible and leave existing saved data intact. This GitHub Pages version does not sync automatically across devices.
 
 ## Develop and verify
 

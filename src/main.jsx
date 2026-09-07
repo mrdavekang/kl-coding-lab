@@ -4,7 +4,10 @@ import { CodeXml, Play, Square, Check, ArrowRight, ArrowLeft, BookOpen, Flag, Li
 import { Editor } from './Editor.jsx';
 import { PythonRuntime, friendlyError } from './runtime.js';
 import { lesson, challenges, allTasks, lessonPlan } from './content.js';
-import { loadWork, saveWork, downloadFile } from './storage.js';
+import { downloadFile, saveProfileWork } from './storage.js';
+import { StudentStart } from './StudentStart.jsx';
+import { ReportPanel } from './ReportPanel.jsx';
+import { recordAttempt, validateWork } from './evidence.js';
 import './style.css';
 
 function Modal({ title, children, onClose, wide = false }) {
@@ -15,9 +18,9 @@ function Modal({ title, children, onClose, wide = false }) {
   </dialog>;
 }
 
-function App() {
-  const [work, setWork] = useState(loadWork);
-  const [taskId, setTaskId] = useState(() => allTasks.some(x => x.id === loadWork().current) ? loadWork().current : 'hello');
+function LessonApp({ profile, initialWork, onSave, onLeave }) {
+  const [work, setWork] = useState(initialWork);
+  const [taskId, setTaskId] = useState(() => allTasks.some(x => x.id === initialWork.current) ? initialWork.current : 'hello');
   const [page, setPage] = useState('lesson');
   const [modal, setModal] = useState(null);
   const [runtimeState, setRuntimeState] = useState('loading');
@@ -32,6 +35,7 @@ function App() {
   const [toast, setToast] = useState('');
   const [fontSize, setFontSize] = useState(17);
   const editor = useRef(), runtime = useRef(), inputRef = useRef(), consoleRef = useRef(), uploadRef = useRef();
+  const latestWork = useRef(null);
   const active = useRef(null), current = useRef(null), stopReason = useRef('Program stopped. Your code is still here.');
   const task = allTasks.find(x => x.id === taskId) || lesson[0];
   const code = work.drafts?.[task.id] ?? task.starter;
@@ -42,22 +46,24 @@ function App() {
   const checked = work.passed?.[task.id] === code;
   const completed = lesson.filter(item => item.check && work.passed?.[item.id] === (work.drafts?.[item.id] ?? item.starter)).length;
   current.current = { task, code, busy, runtimeState };
+  latestWork.current = { ...work, current: taskId };
 
-  useEffect(() => { const timer = setTimeout(() => setSaved(saveWork({ ...work, current: taskId })), 250); return () => clearTimeout(timer); }, [work, taskId]);
+  useEffect(() => { const timer = setTimeout(() => setSaved(onSave({ ...work, current: taskId })), 250); return () => clearTimeout(timer); }, [work, taskId]);
   useEffect(() => {
-    const persist = () => saveWork({ ...work, current: taskId });
+    const persist = () => onSave(latestWork.current);
     window.addEventListener('pagehide', persist);
     return () => { persist(); window.removeEventListener('pagehide', persist); };
-  }, [work, taskId]);
+  }, []);
   useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(''), 4500); return () => clearTimeout(t); }, [toast]);
   useEffect(() => {
     runtime.current = new PythonRuntime({
       status: (status, message = '') => { setRuntimeState(status); setRuntimeMessage(message); if (status === 'unavailable') { setWaiting(false); setFeedback(null); } },
-      output: text => setConsoleText(old => old + text),
+      output: text => { if (active.current?.kind === 'run') active.current.output += text; setConsoleText(old => old + text); },
       input: () => { setWaiting(true); setAnswer(''); },
       stopping: message => { stopReason.current = message; },
       finish: data => {
         setWaiting(false);
+        if (active.current) { const attempt = active.current; setWork(old => recordAttempt(old, attempt, data)); }
         if (data.type === 'checked') {
           setFeedback(data.result);
           if (data.result.passed && active.current) {
@@ -93,7 +99,7 @@ function App() {
     const { task: liveTask, code: liveCode } = current.current;
     if (!runtime.current?.ready || runtime.current.active) return;
     if (check && !liveTask.check) return;
-    active.current = { taskId: liveTask.id, code: liveCode };
+    active.current = { taskId: liveTask.id, code: liveCode, kind: check ? 'check' : 'run', startedAt: new Date().toISOString(), inputs: [], output: '' };
     stopReason.current = 'Program stopped. Your code is still here.';
     if (!check) { setConsoleText(''); setRunError(null); setRunDone(false); setWaiting(false); setAnswer(''); }
     else setFeedback(null);
@@ -103,22 +109,22 @@ function App() {
   function submitAnswer(e) {
     e.preventDefault();
     try {
-      if (runtime.current.answer(answer)) { setConsoleText(old => old + answer + '\n'); setWaiting(false); setAnswer(''); }
+      if (runtime.current.answer(answer)) { if (active.current) { active.current.inputs.push(answer); active.current.output += answer + '\n'; } setConsoleText(old => old + answer + '\n'); setWaiting(false); setAnswer(''); }
     } catch (error) { setToast(error.message); }
   }
   function downloadCode() { downloadFile('kl-coding-' + task.id + '.py', code); setToast('Python file downloaded.'); }
-  function backup() { downloadFile('kl-coding-lesson-1-backup.json', JSON.stringify({ ...work, current: taskId }, null, 2), 'application/json'); }
+  function backup() { downloadFile('kl-coding-lesson-1-backup.json', JSON.stringify({ format: 'kl-coding-lab-backup', version: 2, student: { name: profile.name, className: profile.className }, work: { ...work, drafts: work.drafts || {}, current: taskId } }, null, 2), 'application/json'); }
   async function importFile(e) {
     const file = e.target.files?.[0]; if (!file) return;
-    if (file.size > 2000000) { setToast('Choose a Python file or lesson backup smaller than 2 MB.'); e.target.value = ''; return; }
+    if (file.size > 5000000) { setToast('Choose a Python file or lesson backup smaller than 5 MB.'); e.target.value = ''; return; }
     try {
       const contents = await file.text();
       if (file.name.endsWith('.json')) {
-        const imported = JSON.parse(contents);
-        if (!imported || typeof imported.drafts !== 'object' || Array.isArray(imported.drafts)) throw new Error('Choose a lesson backup made by this app.');
-        const drafts = Object.fromEntries(Object.entries(imported.drafts).filter(([key, value]) => allTasks.some(t => t.id === key) && typeof value === 'string'));
-        setWork(old => ({ ...old, drafts: { ...old.drafts, ...drafts }, reflection: typeof imported.reflection === 'string' ? imported.reflection : old.reflection }));
-        setToast('Saved programs imported. Check them again when you are ready.');
+        const payload = JSON.parse(contents);
+        const imported = validateWork(payload.work || payload);
+        setWork(old => ({ ...old, ...imported, drafts: { ...old.drafts, ...imported.drafts }, importedAt: new Date().toISOString() }));
+        if (imported.current) setTaskId(imported.current);
+        setToast('Lesson backup restored to ' + profile.name + '. Recorded checks are practice evidence.');
       } else { changeCode(contents); setToast('Python file opened in this task. Undo restores the previous code.'); }
       setFeedback(null); setModal(null);
     } catch (error) { setToast(error.message || 'That file could not be opened.'); }
@@ -133,6 +139,7 @@ function App() {
       <button className="quiet-button lesson-plan" onClick={() => setModal('teacher')}><Clock size={18}/><span>60-minute lesson</span></button>
     </header>
     <main>
+      <div className="student-bar"><div><span className="student-avatar" aria-hidden="true">{profile.name.slice(0, 1).toUpperCase()}</span><span><b>{profile.name}</b><small>{profile.className}</small></span><button className="text-button" disabled={busy} onClick={() => { if (onSave({ ...work, current: taskId })) onLeave(); else setToast('Saving is unavailable. Download your backup from My files before switching.'); }}>Switch student</button></div><button className="outline-button" onClick={() => setModal('report')}><FileCode2 size={18}/> My learning report</button></div>
       <div className="lesson-heading"><div><div className="eyebrow">LESSON 01 <span>·</span> 8 SEPTEMBER 2026</div><h1>{page === 'challenges' ? 'Choose your next challenge' : 'Your first Python program'}</h1></div><button className="outline-button" onClick={() => setModal('map')}><List size={18}/> Lesson map</button></div>
 
       {page === 'challenges' ? <section className="challenge-page">
@@ -162,7 +169,7 @@ function App() {
               ['stretch', 'I’m ready to stretch', 'Explore an open challenge.', 'challenges'],
             ].map(([id, label, detail, destination]) => <button key={id} onClick={() => { setWork(old => ({ ...old, pitstop: id })); destination === 'challenges' ? setPage('challenges') : selectTask(destination); }}><span><b>{label}</b><small>{detail}</small></span><ArrowRight size={18}/></button>)}</div>}
             {task.kind === 'choose' && <button className="primary-button full" onClick={() => setPage('challenges')}>Explore challenges <ArrowRight size={18}/></button>}
-            {task.kind === 'reflect' && <div className="reflection"><label htmlFor="reflection">One test I tried… My next step…</label><textarea id="reflection" rows={4} value={work.reflection || ''} onChange={e => setWork(old => ({ ...old, reflection: e.target.value }))} placeholder="I tested… because… Next I want to…"/><button className="outline-button" onClick={() => downloadFile('kl-coding-reflection.txt', work.reflection || '')}><Download size={17}/> Download reflection</button></div>}
+            {task.kind === 'reflect' && <div className="reflection"><label htmlFor="reflection">One test I tried… My next step…</label><textarea id="reflection" rows={4} maxLength={6000} value={work.reflection || ''} onChange={e => setWork(old => ({ ...old, reflection: e.target.value }))} placeholder="I tested… because… Next I want to…"/><button className="primary-button" onClick={() => setModal('report')}><Download size={17}/> Get my learning report</button></div>}
             <div className="hint-box"><button className="hint-toggle" onClick={showHint} disabled={hintCount >= task.hints.length}><span><Lightbulb size={18}/>{hintCount ? 'Show another hint' : 'Need a small hint?'}</span><Plus size={17}/></button>{task.hints.slice(0, hintCount).map((hint, n) => <p key={hint}><b>Hint {n + 1}.</b> {hint}</p>)}</div>
             {task.extension && <details className="extension"><summary>Take it further</summary><p>{task.extension}</p></details>}
             <div className="card-bottom"><button className="text-button" disabled={index === 0} onClick={() => isChallenge ? setPage('challenges') : selectTask(lesson[Math.max(0, index - 1)].id)}><ArrowLeft size={17}/> Back</button><span>{isChallenge ? 'Your route, your pace' : `Card ${index + 1} of ${lesson.length}`}</span><button className="primary-button" onClick={() => isChallenge ? setPage('challenges') : index === lesson.length - 1 ? setModal('save') : selectTask(lesson[index + 1].id)}>{isChallenge ? 'All challenges' : index === lesson.length - 1 ? 'Save my work' : 'Next card'}<ArrowRight size={17}/></button></div>
@@ -187,6 +194,7 @@ function App() {
             <div className="check-panel"><div><CheckCircle2 size={20}/><span>{checked ? 'Your current code passed' : task.check ? 'Ready to test your work?' : 'A space to experiment'}</span></div><button className="outline-button" onClick={() => run(true)} disabled={!task.check || runtimeState !== 'ready'}>{runtimeState === 'checking' ? <LoaderCircle size={16} className="spin"/> : <Check size={16}/>}{runtimeState === 'checking' ? 'Checking…' : 'Check work'}</button></div>
             {task.goal && <p className="check-goal">{task.goal}</p>}
             {feedback && <div className={'feedback ' + (feedback.passed ? 'success' : 'retry')} role="status"><b>{feedback.message}</b>{feedback.error && <details><summary>Python error</summary><pre>{feedback.error}</pre></details>}{feedback.cases?.map((item, n) => <details key={n}><summary><span>{item.passed ? '✓' : '○'} Test {n + 1}</span><span>{item.passed ? 'Passed' : 'Try again'}</span></summary><div className="test-details"><p><b>Input</b></p><pre>{item.input || '(no input)'}</pre><p><b>Expected</b></p><pre>{item.expected}</pre><p><b>Your output</b></p><pre>{item.actual || '(no output)'}</pre>{item.error && <pre>{item.error}</pre>}</div></details>)}</div>}
+            <details className="explain-program" key={'explain-' + task.id}><summary>Explain my program <span>Optional · included in my report</span></summary><label htmlFor="explanation">How does your code work? What did you change or test?</label><textarea id="explanation" rows={3} maxLength={3000} value={work.explanations?.[task.id] || ''} onChange={e => setWork(old => ({ ...old, explanations: { ...old.explanations, [task.id]: e.target.value } }))} placeholder="My variable keeps… When I enter… I fixed…"/></details>
             <div className="workspace-foot"><span>{saved ? <Check size={14}/> : <HelpCircle size={14}/>} {saved ? 'Saved on this device' : 'Saving unavailable — download your work'}</span><button className="text-button" onClick={() => setModal('save')}>My files <ChevronRight size={15}/></button></div>
             <p className="keyboard-note">Tab indents · Shift + Tab outdents · Escape, then Tab leaves the editor</p>
           </section>
@@ -198,11 +206,17 @@ function App() {
     {toast && <div className="toast" role="status">{toast}</div>}
     {modal === 'map' && <Modal title="Your lesson map" onClose={() => setModal(null)}><p className="modal-intro">Go straight to any card. Your draft stays with its task.</p><div className="lesson-map">{lesson.map((item, n) => <button key={item.id} className={task.id === item.id ? 'selected' : ''} onClick={() => selectTask(item.id)}><span className="map-number">{n + 1}</span><span><b>{item.title}</b><small>{item.phase} · {item.time}</small></span>{work.passed?.[item.id] === (work.drafts?.[item.id] ?? item.starter) ? <CheckCircle2 size={19}/> : <ChevronRight size={19}/>}</button>)}</div></Modal>}
     {modal === 'reset' && <Modal title="Reset this task?" onClose={() => setModal(null)}><p>Your editor will return to this task’s starter code. You can use Undo to recover your current version.</p><div className="modal-actions"><button className="outline-button" onClick={() => setModal(null)}>Keep my code</button><button className="primary-button" onClick={() => { changeCode(task.starter); setModal(null); setToast('Starter code restored. Undo brings back your last version.'); }}>Reset task</button></div></Modal>}
-    {modal === 'save' && <Modal title="Keep your work" onClose={() => setModal(null)}><p>Drafts are saved in this browser. Download a copy to use another device or keep work from a shared computer.</p><div className="file-actions"><button onClick={downloadCode}><FileCode2/><span><b>Download this Python file</b><small>{task.title}</small></span><Download size={18}/></button><button onClick={backup}><Download/><span><b>Download all my drafts</b><small>A lesson backup you can import later</small></span><ChevronRight size={18}/></button><button disabled={busy} onClick={() => { backup(); uploadRef.current.click(); }}><Upload/><span><b>Import a file or backup</b><small>We download your current drafts first</small></span><ChevronRight size={18}/></button></div><div className="new-learner"><h3>Sharing this device?</h3><p>Download your drafts before the next learner starts.</p><button className="outline-button" disabled={busy} onClick={() => setModal('new')}>Start a new learner</button></div></Modal>}
-    {modal === 'new' && <Modal title="Start a new learner" onClose={() => setModal(null)}><p>This clears this app’s drafts and reflection from this browser. Download your work first.</p><div className="modal-actions"><button className="outline-button" onClick={backup}><Download size={17}/> Download drafts</button><button className="primary-button" onClick={() => { saveWork({}); setWork({}); setTaskId('hello'); setPage('lesson'); setConsoleText(''); setRunError(null); setFeedback(null); setRunDone(false); setModal(null); }}>Start fresh</button></div></Modal>}
+    {modal === 'report' && <Modal title="My learning report" onClose={() => setModal(null)}><ReportPanel profile={profile} work={work} setWork={setWork} busy={busy} onBackup={backup}/></Modal>}
+    {modal === 'save' && <Modal title="Keep your work" onClose={() => setModal(null)}><p>Your work is saved under {profile.name} in this browser. Download a backup to move to another device or protect your work if browser data is cleared.</p><div className="file-actions"><button onClick={() => setModal('report')}><FileCode2/><span><b>My learning report (PDF)</b><small>Code, tests and reflection to upload to Teams</small></span><ChevronRight size={18}/></button><button onClick={downloadCode}><FileCode2/><span><b>Download this Python file</b><small>{task.title}</small></span><Download size={18}/></button><button onClick={backup}><Download/><span><b>Download my lesson backup</b><small>All drafts, progress and recorded attempts</small></span><ChevronRight size={18}/></button><button disabled={busy} onClick={() => { backup(); uploadRef.current.click(); }}><Upload/><span><b>Import a file or backup</b><small>Your current work downloads first. A backup restores its progress and merges its drafts.</small></span><ChevronRight size={18}/></button></div><div className="new-learner"><h3>Sharing this device?</h3><p>Download your backup and report before switching. Saved profiles are visible to other people using this browser.</p><button className="outline-button" disabled={busy} onClick={() => { if (onSave({ ...work, current: taskId })) onLeave(); else setToast('Download a backup first: this browser could not save your work.'); }}>Switch student</button></div></Modal>}
     {modal === 'help' && <Modal title="Make this your learning space" onClose={() => setModal(null)}><div className="help-section"><h3>Try, test and explain</h3><p>Errors are clues. Make a small change, run again and explain what happened. Use the hints or ask your teacher when you need help.</p><h3>Working together</h3><p>The coder types and runs. The checker asks questions and suggests test inputs. Swap roles, and each show something you can do independently.</p><h3>Using the editor</h3><p>Use four spaces for a Python block. Tab and Shift + Tab indent and outdent; the buttons do the same on a tablet. Press Escape, then Tab to move out of the editor.</p><h3>Run and Check work</h3><p>Run uses your answers in the console. Check work tries prepared inputs separately. You can keep running and improving your code after any result.</p><h3>Keeping your work</h3><p>Drafts stay in this browser. Use My files to download them before changing devices. The lesson needs an internet connection to load Python.</p></div></Modal>}
     {modal === 'teacher' && <Modal title="Lesson 1 · 60-minute guide" wide onClose={() => setModal(null)}><p className="modal-intro">8 September 2026 · KS2–KS4 · Input, output and variables</p><div className="teacher-objective"><b>Learning intention</b><p>Write and test a Python program that takes input and produces useful output.</p></div><div className="table-scroll"><table><thead><tr><th>Minutes</th><th>Phase</th><th>Pupils</th><th>Teacher</th></tr></thead><tbody>{lessonPlan.map(row => <tr key={row[0]}>{row.map((cell, i) => <td key={i}>{cell}</td>)}</tr>)}</tbody></table></div><div className="teacher-differentiation"><div><b>KS2 starting support</b><p>Short prompts, visible vocabulary and starter lines.</p></div><div><b>KS3 starting support</b><p>Less starter code and an optional numerical-input primer.</p></div><div><b>KS4 starting support</b><p>Fast access to list and grid challenges; explain test choices.</p></div></div><p>Any learner can use any route. Keep whole-class explanation to about 10–12 minutes; coach individuals during practice. Under-13s follow the planned school practice and internal competition route.</p></Modal>}
   </>;
 }
 
-createRoot(document.getElementById('root')).render(<App/>);
+function App() {
+  const [profile, setProfile] = useState(null);
+  return profile ? <LessonApp key={profile.id} profile={profile} initialWork={profile.work || {}} onSave={work => saveProfileWork(profile, work)} onLeave={() => setProfile(null)}/> : <StudentStart onStart={setProfile}/>;
+}
+const root = import.meta.hot?.data.root || createRoot(document.getElementById('root'));
+if (import.meta.hot) import.meta.hot.data.root = root;
+root.render(<App/>);
