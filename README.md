@@ -1,6 +1,20 @@
 # KL Coding Lab
 
-A static Python learning app for a mixed KS2–KS4 coding club. Lesson 1 contains ten learning cards, a 60-minute teacher guide, four open challenge routes, original scenarios, staged hints and task checks. There are no output-prediction activities or predictive code-completion extensions.
+A static Python learning app for a mixed KS2–KS4 coding club. Weeks 1 and 2 each contain a 60-minute learning sequence, a teacher guide, open challenge routes, reading examples, staged hints and practice checks. There are no output-prediction activities or predictive code-completion extensions.
+
+## Week 2: lists, loops and running totals
+
+The landing page opens Week 2 by default. Choose Week 1 to revisit input/output and variables. Direct links use `?week=2` and `?week=1`. Each student profile keeps Week 2 under `week2Work`; the existing Week 1 `work` remains intact. Reports, progress and validated backups are separate for the two weeks. A backup for the wrong week is rejected with a clear message.
+
+Week 2 moves through return/roles, a list Do Now, Types of Learning, a loop reading card, the score announcer, Pit Stop 1, total/counter reading, the score desk, Pit Stop 2 and plenary. The four levels live in the **Extensions** area and are always open. Worked examples have their own temporary editor space so exploring them does not replace the student's draft. Check work uses fresh lists and accepts the total-only or count-and-total route for Main Task 2.
+
+**Walk through** pauses real Python execution using CPython's trace events inside the Pyodide worker. It shows the completed line and next line, actual old/new values, loop iteration and item, and output at each recorded step. Previous step replays history; it does not rerun input. Enter submits input through the same interactive console. Next iteration records intermediate steps but pauses at the next iteration or loop end. The last step has a Finish walkthrough button. Stop interrupts running, waiting or stepping code. Editing after stopping starts a fresh trace.
+
+The teaching subset supports single-line assignments, lists, arithmetic, print/input, conversions, for loops, conditions and ordinary function definitions/calls/returns used by the extensions. Imports, while loops, comprehensions, arbitrary method calls and multi-statement/multiline simple statements receive an explicit unsupported-walkthrough message; **Run** remains available. Trace capture stops at 300 events, and displayed strings/lists are bounded. Explanations describe executed operations, not a guessed purpose for arbitrary code. This is an educational tool, not a general debugger or a security sandbox.
+
+Students can keep one selected trace step per task, with the source used for that run, in their PDF and backup. Reading/walkthrough use does not pass checks. Types of Learning uses six statements about lists, iterations, indentation, totals, initialisation and counting versus totalling. Both pit stops are stored independently with the original starting points, topic stages, evidence and next focus.
+
+The **Teacher guide** contains the sequence, suggested KS2/KS3/KS4 support, explicit camelCase solutions, actual line/iteration explanations, expected tests and common errors. [Download the reference](public/week-2-teacher-guide.md). These examples follow the classroom conventions informed by [AQA Python guidance](https://filestore.aqa.org.uk/resources/computing/AQA-8525-NG-PY.PDF). See [Python trace events](https://docs.python.org/3/library/sys.html#sys.settrace) and [Pyodide streams](https://pyodide.org/en/stable/usage/streams.html) for the underlying execution APIs.
 
 ## Use the app
 
@@ -27,6 +41,7 @@ npm ci
 npm run dev
 npm test
 python3 tests/checks_test.py
+python3 tests/week2_test.py
 npm run build
 ```
 
@@ -40,7 +55,7 @@ The app runs Python in a module worker using pinned Pyodide 314.0.6. The runtime
 
 The Run controller sends UTF-8 input through a shared buffer and streams output from the worker. Interrupts are checked while waiting for input. Stop recreates a worker if a normal interrupt does not complete. Runs have fresh program namespaces; task checks have their own inputs and captured output. Excessive output is capped, and checks have a time limit. This is a learning checker running on the pupil's device, not a tamper-resistant competition judge.
 
-Only Lesson 1 is implemented. The content data is structured to support later lessons. Silver and Gold are optional extensions informed by the club's competition practice, not a claim of qualification or contest readiness.
+Weeks 1 and 2 are implemented. Silver and Gold are optional extensions informed by the club's competition practice, not a claim of qualification or contest readiness.
 
 ## Classroom validation
 

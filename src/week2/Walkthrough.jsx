@@ -1,0 +1,30 @@
+import React from 'react';
+import { ArrowLeft, ArrowRight, RotateCcw, BookmarkPlus, Square } from 'lucide-react';
+const format = value => value === undefined ? 'Not set' : JSON.stringify(value);
+export function stepDescription(step, example = false) {
+  const changes = [...new Set([...Object.keys(step.before),...Object.keys(step.after)])].filter(name => JSON.stringify(step.before[name]) !== JSON.stringify(step.after[name])).map(name => `${name}: ${format(step.before[name])} -> ${format(step.after[name])}`);
+  return `${example ? 'Worked example' : 'My program'} | Line ${step.executedLine || 'not executed yet'} | ${step.scope === '<module>' ? 'main program' : step.scope}\n${step.loops.map(loop=>`Iteration ${loop.iteration}: ${loop.variable} = ${format(loop.value)}`).join('\n')}\n${step.explanation}\n${changes.join('\n')}\nOutput at this step:\n${step.output || '(none)'}`;
+}
+export function Walkthrough({trace,position,paused,busy,waiting,onPosition,onNext,onRestart,onStop,onSave,onClose}) {
+  const step=trace.steps[position];
+  if(!step) return <section className="walkthrough"><h3>{trace.error ? 'Walkthrough unavailable' : 'Preparing your walkthrough…'}</h3><p>{trace.error || 'Python will pause before the first line.'}</p>{busy ? <button className="outline-button" onClick={onStop}>Stop</button> : <button className="outline-button" onClick={onClose}>Close walkthrough</button>}</section>;
+  const live = position === trace.steps.length - 1;
+  const names=[...new Set([...step.names,...Object.keys(step.before),...Object.keys(step.after)])];
+  const loops=step.loops || [];
+  return <section className="walkthrough" aria-label="Python walkthrough">
+    <div className="walk-heading"><div><span className="card-type">{live && busy ? 'LIVE EXECUTION' : 'RECORDED EXECUTION'}</span><h3>See what Python just did</h3></div><button className="text-button" disabled={busy} onClick={onClose}>Close walkthrough</button></div>
+    <p className="walk-legend"><span className="done-key">Just executed: {step.executedLine ? 'line '+step.executedLine : 'none'}</span><span className="next-key">Next: {step.nextLine ? 'line '+step.nextLine : 'program ends'}</span></p>
+    <p className="walk-scope">{step.scope === '<module>' ? 'Main program' : 'Inside function '+step.scope} · Step {position+1} of {trace.steps.length}{busy ? ' recorded so far' : ''}</p>
+    <div className="walk-controls"><button className="outline-button" disabled={position===0 || (!paused && busy && live)} onClick={()=>onPosition(position-1)}><ArrowLeft size={16}/>Previous step</button><button className="primary-button" disabled={live && (!paused || waiting || !busy)} onClick={()=>onNext(false)}>{live && step.event === 'end' ? 'Finish walkthrough' : 'Next line'}<ArrowRight size={16}/></button><button className="outline-button" disabled={live && (!paused || waiting || !busy)} onClick={()=>onNext(true)}>Next iteration</button><button className="text-button" disabled={busy} onClick={onRestart}><RotateCcw size={16}/>Restart</button>{busy && <button className="text-button" onClick={onStop}><Square size={15}/>Stop</button>}</div>
+    {!live && <p className="review-note">You are viewing a recorded step. Earlier inputs and output are being replayed. <button className="text-button" onClick={()=>onPosition(trace.steps.length-1)}>Return to latest step</button></p>}
+    {waiting && <p className="walk-input-note" role="status">Python is waiting for an answer in the console above. Enter it, then continue stepping.</p>}
+    {trace.error && <p className="review-help-now" role="alert">{trace.error}</p>}
+    <div className="walk-source" aria-label="Code for this recorded run"><div className="walk-source-title">Code for this run</div><pre>{trace.code.split('\n').map((line,i)=><div key={i} className={i+1===step.nextLine?'next':i+1===step.executedLine?'executed':''}><span className="trace-line-number">{i+1}</span><code>{line || ' '}</code><small>{i+1===step.nextLine?'← next':i+1===step.executedLine?'← just ran':''}</small></div>)}</pre></div>
+    <div className="walk-explanation" role="status"><b>{step.iterationChanged ? 'A new iteration' : step.loopFinished ? 'The loop has finished' : 'Why this value?'}</b><p>{step.explanation}</p></div>
+    {loops.map(loop=><div className="walk-list" key={loop.line}><b>Loop on line {loop.line} · iteration {loop.iteration}</b><p>{loop.variable} holds <code>{format(loop.value)}</code>. The iteration number counts visits; it is not the item value.</p>{Array.isArray(step.after[loop.listName]) && <div className="list-items" aria-label={'Items in '+loop.listName}>{step.after[loop.listName].map((value,i)=><span key={i} className={i===loop.iteration-1?'current':''}><code>{format(value)}</code>{i===loop.iteration-1 && <small>current item</small>}</span>)}</div>}</div>)}
+    <div className="walk-values"><h4>Values before → after</h4><div className="table-scroll"><table><thead><tr><th>Variable</th><th>Before this step</th><th>After this step</th></tr></thead><tbody>{names.map(name=><tr key={name} className={JSON.stringify(step.before[name])!==JSON.stringify(step.after[name])?'changed':''}><th scope="row">{name}</th><td><code>{format(step.before[name])}</code></td><td><code>{format(step.after[name])}</code></td></tr>)}</tbody></table></div></div>
+    <div className="walk-output"><h4>Output at this step</h4><pre>{step.output || '(No output yet.)'}</pre></div>
+    <button className="outline-button" onClick={()=>onSave(step)}><BookmarkPlus size={17}/>Keep this step in my report</button><p className="review-note">Keep a step you can explain. Watching a walkthrough does not pass a practice check.</p>
+    <details className="trace-table"><summary>Open the recorded trace table</summary><div className="table-scroll"><table><thead><tr><th>Step</th><th>Line</th><th>What happened</th></tr></thead><tbody>{trace.steps.map((item,i)=><tr key={i}><td><button className="text-button" onClick={()=>onPosition(i)}>{i+1}</button></td><td>{item.executedLine || 'Start'}</td><td>{item.explanation}</td></tr>)}</tbody></table></div></details>
+  </section>;
+}

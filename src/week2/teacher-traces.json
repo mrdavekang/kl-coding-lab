@@ -1,0 +1,752 @@
+{
+  "list": [
+    {
+      "line": null,
+      "iteration": "",
+      "explanation": "No program line has run yet. Choose Next line to begin."
+    },
+    {
+      "line": 1,
+      "iteration": "",
+      "explanation": "Store [4, 8, 2, 5] in scores. Previous value: Not set."
+    },
+    {
+      "line": 2,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    }
+  ],
+  "loop": [
+    {
+      "line": null,
+      "iteration": "",
+      "explanation": "No program line has run yet. Choose Next line to begin."
+    },
+    {
+      "line": 1,
+      "iteration": "",
+      "explanation": "Store [4, 7, 2] in scores. Previous value: Not set."
+    },
+    {
+      "line": 3,
+      "iteration": "1",
+      "explanation": "Iteration 1: take the next item from scores and store 4 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 4,
+      "iteration": "1",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 3,
+      "iteration": "2",
+      "explanation": "Iteration 2: take the next item from scores and store 7 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 4,
+      "iteration": "2",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 3,
+      "iteration": "3",
+      "explanation": "Iteration 3: take the next item from scores and store 2 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 4,
+      "iteration": "3",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 3,
+      "iteration": "",
+      "explanation": "The loop has no more items. It has finished 3 iterations. Continue after the indented block."
+    }
+  ],
+  "announcer": [
+    {
+      "line": null,
+      "iteration": "",
+      "explanation": "No program line has run yet. Choose Next line to begin."
+    },
+    {
+      "line": 1,
+      "iteration": "",
+      "explanation": "Store [6, 0, 3, 8] in scores. Previous value: Not set."
+    },
+    {
+      "line": 3,
+      "iteration": "1",
+      "explanation": "Iteration 1: take the next item from scores and store 6 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 4,
+      "iteration": "1",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 3,
+      "iteration": "2",
+      "explanation": "Iteration 2: take the next item from scores and store 0 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 4,
+      "iteration": "2",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 3,
+      "iteration": "3",
+      "explanation": "Iteration 3: take the next item from scores and store 3 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 4,
+      "iteration": "3",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 3,
+      "iteration": "4",
+      "explanation": "Iteration 4: take the next item from scores and store 8 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 4,
+      "iteration": "4",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 3,
+      "iteration": "",
+      "explanation": "The loop has no more items. It has finished 4 iterations. Continue after the indented block."
+    }
+  ],
+  "totals": [
+    {
+      "line": null,
+      "iteration": "",
+      "explanation": "No program line has run yet. Choose Next line to begin."
+    },
+    {
+      "line": 1,
+      "iteration": "",
+      "explanation": "Store [4, 7, 2] in scores. Previous value: Not set."
+    },
+    {
+      "line": 2,
+      "iteration": "",
+      "explanation": "Store 0 in totalScore. Previous value: Not set."
+    },
+    {
+      "line": 4,
+      "iteration": "1",
+      "explanation": "Iteration 1: take the next item from scores and store 4 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 5,
+      "iteration": "1",
+      "explanation": "Calculate 0 + 4 = 4. Store the result back in totalScore."
+    },
+    {
+      "line": 4,
+      "iteration": "2",
+      "explanation": "Iteration 2: take the next item from scores and store 7 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 5,
+      "iteration": "2",
+      "explanation": "Calculate 4 + 7 = 11. Store the result back in totalScore."
+    },
+    {
+      "line": 4,
+      "iteration": "3",
+      "explanation": "Iteration 3: take the next item from scores and store 2 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 5,
+      "iteration": "3",
+      "explanation": "Calculate 11 + 2 = 13. Store the result back in totalScore."
+    },
+    {
+      "line": 4,
+      "iteration": "",
+      "explanation": "The loop has no more items. It has finished 3 iterations. Continue after the indented block."
+    },
+    {
+      "line": 7,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    }
+  ],
+  "desk": [
+    {
+      "line": null,
+      "iteration": "",
+      "explanation": "No program line has run yet. Choose Next line to begin."
+    },
+    {
+      "line": 1,
+      "iteration": "",
+      "explanation": "Store [5, 0, 2, 7] in scores. Previous value: Not set."
+    },
+    {
+      "line": 2,
+      "iteration": "",
+      "explanation": "Store 0 in scoreCount. Previous value: Not set."
+    },
+    {
+      "line": 3,
+      "iteration": "",
+      "explanation": "Store 0 in totalScore. Previous value: Not set."
+    },
+    {
+      "line": 5,
+      "iteration": "1",
+      "explanation": "Iteration 1: take the next item from scores and store 5 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "1",
+      "explanation": "Calculate 0 + 1 = 1. Store the result back in scoreCount."
+    },
+    {
+      "line": 7,
+      "iteration": "1",
+      "explanation": "Calculate 0 + 5 = 5. Store the result back in totalScore."
+    },
+    {
+      "line": 5,
+      "iteration": "2",
+      "explanation": "Iteration 2: take the next item from scores and store 0 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "2",
+      "explanation": "Calculate 1 + 1 = 2. Store the result back in scoreCount."
+    },
+    {
+      "line": 7,
+      "iteration": "2",
+      "explanation": "Calculate 5 + 0 = 5. Store the result back in totalScore."
+    },
+    {
+      "line": 5,
+      "iteration": "3",
+      "explanation": "Iteration 3: take the next item from scores and store 2 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "3",
+      "explanation": "Calculate 2 + 1 = 3. Store the result back in scoreCount."
+    },
+    {
+      "line": 7,
+      "iteration": "3",
+      "explanation": "Calculate 5 + 2 = 7. Store the result back in totalScore."
+    },
+    {
+      "line": 5,
+      "iteration": "4",
+      "explanation": "Iteration 4: take the next item from scores and store 7 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "4",
+      "explanation": "Calculate 3 + 1 = 4. Store the result back in scoreCount."
+    },
+    {
+      "line": 7,
+      "iteration": "4",
+      "explanation": "Calculate 7 + 7 = 14. Store the result back in totalScore."
+    },
+    {
+      "line": 5,
+      "iteration": "",
+      "explanation": "The loop has no more items. It has finished 4 iterations. Continue after the indented block."
+    },
+    {
+      "line": 9,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 10,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    }
+  ],
+  "plenary": [
+    {
+      "line": null,
+      "iteration": "",
+      "explanation": "No program line has run yet. Choose Next line to begin."
+    },
+    {
+      "line": 1,
+      "iteration": "",
+      "explanation": "Store [5, 0, 2, 7] in scores. Previous value: Not set."
+    },
+    {
+      "line": 2,
+      "iteration": "",
+      "explanation": "Store 0 in scoreCount. Previous value: Not set."
+    },
+    {
+      "line": 3,
+      "iteration": "",
+      "explanation": "Store 0 in totalScore. Previous value: Not set."
+    },
+    {
+      "line": 5,
+      "iteration": "1",
+      "explanation": "Iteration 1: take the next item from scores and store 5 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "1",
+      "explanation": "Calculate 0 + 1 = 1. Store the result back in scoreCount."
+    },
+    {
+      "line": 7,
+      "iteration": "1",
+      "explanation": "Calculate 0 + 5 = 5. Store the result back in totalScore."
+    },
+    {
+      "line": 5,
+      "iteration": "2",
+      "explanation": "Iteration 2: take the next item from scores and store 0 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "2",
+      "explanation": "Calculate 1 + 1 = 2. Store the result back in scoreCount."
+    },
+    {
+      "line": 7,
+      "iteration": "2",
+      "explanation": "Calculate 5 + 0 = 5. Store the result back in totalScore."
+    },
+    {
+      "line": 5,
+      "iteration": "3",
+      "explanation": "Iteration 3: take the next item from scores and store 2 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "3",
+      "explanation": "Calculate 2 + 1 = 3. Store the result back in scoreCount."
+    },
+    {
+      "line": 7,
+      "iteration": "3",
+      "explanation": "Calculate 5 + 2 = 7. Store the result back in totalScore."
+    },
+    {
+      "line": 5,
+      "iteration": "4",
+      "explanation": "Iteration 4: take the next item from scores and store 7 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "4",
+      "explanation": "Calculate 3 + 1 = 4. Store the result back in scoreCount."
+    },
+    {
+      "line": 7,
+      "iteration": "4",
+      "explanation": "Calculate 7 + 7 = 14. Store the result back in totalScore."
+    },
+    {
+      "line": 5,
+      "iteration": "",
+      "explanation": "The loop has no more items. It has finished 4 iterations. Continue after the indented block."
+    },
+    {
+      "line": 9,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 10,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    }
+  ],
+  "prebronze2": [
+    {
+      "line": null,
+      "iteration": "",
+      "explanation": "No program line has run yet. Choose Next line to begin."
+    },
+    {
+      "line": 1,
+      "iteration": "",
+      "explanation": "Store [2, 5, 1] in scores. Previous value: Not set."
+    },
+    {
+      "line": 2,
+      "iteration": "",
+      "explanation": "Store 0 in totalScore. Previous value: Not set."
+    },
+    {
+      "line": 4,
+      "iteration": "1",
+      "explanation": "Iteration 1: take the next item from scores and store 2 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 5,
+      "iteration": "1",
+      "explanation": "Calculate 0 + 2 = 2. Store the result back in totalScore."
+    },
+    {
+      "line": 4,
+      "iteration": "2",
+      "explanation": "Iteration 2: take the next item from scores and store 5 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 5,
+      "iteration": "2",
+      "explanation": "Calculate 2 + 5 = 7. Store the result back in totalScore."
+    },
+    {
+      "line": 4,
+      "iteration": "3",
+      "explanation": "Iteration 3: take the next item from scores and store 1 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 5,
+      "iteration": "3",
+      "explanation": "Calculate 7 + 1 = 8. Store the result back in totalScore."
+    },
+    {
+      "line": 4,
+      "iteration": "",
+      "explanation": "The loop has no more items. It has finished 3 iterations. Continue after the indented block."
+    },
+    {
+      "line": 7,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    }
+  ],
+  "bronze2": [
+    {
+      "line": null,
+      "iteration": "",
+      "explanation": "No program line has run yet. Choose Next line to begin."
+    },
+    {
+      "line": 1,
+      "iteration": "",
+      "explanation": "Store [4, 0, -2, 6] in scores. Previous value: Not set."
+    },
+    {
+      "line": 2,
+      "iteration": "",
+      "explanation": "Store 0 in scoreCount. Previous value: Not set."
+    },
+    {
+      "line": 3,
+      "iteration": "",
+      "explanation": "Store 0 in totalScore. Previous value: Not set."
+    },
+    {
+      "line": 5,
+      "iteration": "1",
+      "explanation": "Iteration 1: take the next item from scores and store 4 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "1",
+      "explanation": "Calculate 0 + 1 = 1. Store the result back in scoreCount."
+    },
+    {
+      "line": 7,
+      "iteration": "1",
+      "explanation": "Calculate 0 + 4 = 4. Store the result back in totalScore."
+    },
+    {
+      "line": 5,
+      "iteration": "2",
+      "explanation": "Iteration 2: take the next item from scores and store 0 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "2",
+      "explanation": "Calculate 1 + 1 = 2. Store the result back in scoreCount."
+    },
+    {
+      "line": 7,
+      "iteration": "2",
+      "explanation": "Calculate 4 + 0 = 4. Store the result back in totalScore."
+    },
+    {
+      "line": 5,
+      "iteration": "3",
+      "explanation": "Iteration 3: take the next item from scores and store -2 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "3",
+      "explanation": "Calculate 2 + 1 = 3. Store the result back in scoreCount."
+    },
+    {
+      "line": 7,
+      "iteration": "3",
+      "explanation": "Calculate 4 + -2 = 2. Store the result back in totalScore."
+    },
+    {
+      "line": 5,
+      "iteration": "4",
+      "explanation": "Iteration 4: take the next item from scores and store 6 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "4",
+      "explanation": "Calculate 3 + 1 = 4. Store the result back in scoreCount."
+    },
+    {
+      "line": 7,
+      "iteration": "4",
+      "explanation": "Calculate 2 + 6 = 8. Store the result back in totalScore."
+    },
+    {
+      "line": 5,
+      "iteration": "",
+      "explanation": "The loop has no more items. It has finished 4 iterations. Continue after the indented block."
+    },
+    {
+      "line": 9,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 10,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    }
+  ],
+  "silver2": [
+    {
+      "line": null,
+      "iteration": "",
+      "explanation": "No program line has run yet. Choose Next line to begin."
+    },
+    {
+      "line": 1,
+      "iteration": "",
+      "explanation": "Define positiveScores. Its body runs when the function is called."
+    },
+    {
+      "line": 13,
+      "iteration": "",
+      "explanation": "Store [5, 0, -2, 7] in scores. Previous value: Not set."
+    },
+    {
+      "line": null,
+      "iteration": "",
+      "explanation": "Enter positiveScores. Its parameters hold the supplied argument values."
+    },
+    {
+      "line": 2,
+      "iteration": "",
+      "explanation": "Store 0 in scoreCount. Previous value: Not set."
+    },
+    {
+      "line": 3,
+      "iteration": "",
+      "explanation": "Store 0 in totalScore. Previous value: Not set."
+    },
+    {
+      "line": 5,
+      "iteration": "1",
+      "explanation": "Iteration 1: take the next item from scoreList and store 5 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "1",
+      "explanation": "The condition currentScore > 0 is true. Follow that branch."
+    },
+    {
+      "line": 7,
+      "iteration": "1",
+      "explanation": "Calculate 0 + 1 = 1. Store the result back in scoreCount."
+    },
+    {
+      "line": 8,
+      "iteration": "1",
+      "explanation": "Calculate 0 + 5 = 5. Store the result back in totalScore."
+    },
+    {
+      "line": 5,
+      "iteration": "2",
+      "explanation": "Iteration 2: take the next item from scoreList and store 0 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "2",
+      "explanation": "The condition currentScore > 0 is false. Follow that branch."
+    },
+    {
+      "line": 5,
+      "iteration": "3",
+      "explanation": "Iteration 3: take the next item from scoreList and store -2 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "3",
+      "explanation": "The condition currentScore > 0 is false. Follow that branch."
+    },
+    {
+      "line": 5,
+      "iteration": "4",
+      "explanation": "Iteration 4: take the next item from scoreList and store 7 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "4",
+      "explanation": "The condition currentScore > 0 is true. Follow that branch."
+    },
+    {
+      "line": 7,
+      "iteration": "4",
+      "explanation": "Calculate 1 + 1 = 2. Store the result back in scoreCount."
+    },
+    {
+      "line": 8,
+      "iteration": "4",
+      "explanation": "Calculate 5 + 7 = 12. Store the result back in totalScore."
+    },
+    {
+      "line": 5,
+      "iteration": "",
+      "explanation": "The loop has no more items. It has finished 4 iterations. Continue after the indented block."
+    },
+    {
+      "line": 10,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 11,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 14,
+      "iteration": "",
+      "explanation": "This line has executed. Compare the values and output."
+    }
+  ],
+  "gold2": [
+    {
+      "line": null,
+      "iteration": "",
+      "explanation": "No program line has run yet. Choose Next line to begin."
+    },
+    {
+      "line": 1,
+      "iteration": "",
+      "explanation": "Store [-5, -2, -9] in scores. Previous value: Not set."
+    },
+    {
+      "line": 2,
+      "iteration": "",
+      "explanation": "Store 0 in scoreCount. Previous value: Not set."
+    },
+    {
+      "line": 3,
+      "iteration": "",
+      "explanation": "Store 0 in totalScore. Previous value: Not set."
+    },
+    {
+      "line": 4,
+      "iteration": "",
+      "explanation": "Store -5 in maximumScore. Previous value: Not set."
+    },
+    {
+      "line": 6,
+      "iteration": "1",
+      "explanation": "Iteration 1: take the next item from scores and store -5 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 7,
+      "iteration": "1",
+      "explanation": "Calculate 0 + 1 = 1. Store the result back in scoreCount."
+    },
+    {
+      "line": 8,
+      "iteration": "1",
+      "explanation": "Calculate 0 + -5 = -5. Store the result back in totalScore."
+    },
+    {
+      "line": 9,
+      "iteration": "1",
+      "explanation": "The condition currentScore > maximumScore is false. Follow that branch."
+    },
+    {
+      "line": 6,
+      "iteration": "2",
+      "explanation": "Iteration 2: take the next item from scores and store -2 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 7,
+      "iteration": "2",
+      "explanation": "Calculate 1 + 1 = 2. Store the result back in scoreCount."
+    },
+    {
+      "line": 8,
+      "iteration": "2",
+      "explanation": "Calculate -5 + -2 = -7. Store the result back in totalScore."
+    },
+    {
+      "line": 9,
+      "iteration": "2",
+      "explanation": "The condition currentScore > maximumScore is true. Follow that branch."
+    },
+    {
+      "line": 10,
+      "iteration": "2",
+      "explanation": "Store -2 in maximumScore. Previous value: -5."
+    },
+    {
+      "line": 6,
+      "iteration": "3",
+      "explanation": "Iteration 3: take the next item from scores and store -9 in currentScore. The indented body runs next."
+    },
+    {
+      "line": 7,
+      "iteration": "3",
+      "explanation": "Calculate 2 + 1 = 3. Store the result back in scoreCount."
+    },
+    {
+      "line": 8,
+      "iteration": "3",
+      "explanation": "Calculate -7 + -9 = -16. Store the result back in totalScore."
+    },
+    {
+      "line": 9,
+      "iteration": "3",
+      "explanation": "The condition currentScore > maximumScore is false. Follow that branch."
+    },
+    {
+      "line": 6,
+      "iteration": "",
+      "explanation": "The loop has no more items. It has finished 3 iterations. Continue after the indented block."
+    },
+    {
+      "line": 12,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 13,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 14,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    }
+  ]
+}

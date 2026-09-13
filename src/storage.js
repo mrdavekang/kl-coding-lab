@@ -50,12 +50,15 @@ export function createProfile(name, className, keepLegacy = false) {
   } catch { throw new Error('This browser could not save a student profile. Allow site storage or try another browser. Existing work has been kept.'); }
 }
 
-export function saveProfileWork(profile, work) {
+export function saveProfileWork(profile, work) { return saveProfileLesson(profile, work, "work"); }
+
+export function saveProfileLesson(profile, work, field = "week2Work") {
+  if (!["work", "week2Work"].includes(field)) return false;
   try {
     const key = PROFILE_PREFIX + profile.id;
     const latest = JSON.parse(localStorage.getItem(key) || 'null');
     if (!latest || latest.revision !== profile.revision) return false;
-    const next = { ...profile, work, revision: profile.revision + 1, updatedAt: new Date().toISOString() };
+    const next = { ...profile, [field]: work, revision: profile.revision + 1, updatedAt: new Date().toISOString() };
     localStorage.setItem(key, JSON.stringify(next));
     // This reference belongs to the current lesson session, so subsequent saves use its revision.
     Object.assign(profile, next);

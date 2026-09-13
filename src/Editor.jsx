@@ -1,6 +1,6 @@
 import { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { EditorState, Compartment } from '@codemirror/state';
-import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection } from '@codemirror/view';
+import { EditorView, Decoration, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection } from '@codemirror/view';
 import { defaultKeymap, history, historyKeymap, indentWithTab, indentMore, indentLess, undo, temporarilySetTabFocusMode } from '@codemirror/commands';
 import { python } from '@codemirror/lang-python';
 import { indentUnit, bracketMatching, syntaxHighlighting, HighlightStyle } from '@codemirror/language';
@@ -26,9 +26,10 @@ const theme = EditorView.theme({
   '&.cm-focused': { outline: 'none' },
 }, { dark: true });
 
-export const Editor = forwardRef(function Editor({ value, onChange, onRun, fontSize = 17 }, ref) {
+export const Editor = forwardRef(function Editor({ value, onChange, onRun, fontSize = 17, readOnly = false, executedLine = null, nextLine = null }, ref) {
   const host = useRef(null), editor = useRef(null), callbacks = useRef({ onChange, onRun });
   const font = useRef(new Compartment());
+  const access = useRef(new Compartment()), traceLines = useRef(new Compartment());
   callbacks.current = { onChange, onRun };
   useImperativeHandle(ref, () => ({
     indent: () => { if (editor.current) { indentMore(editor.current); editor.current.focus(); } },
@@ -40,6 +41,7 @@ export const Editor = forwardRef(function Editor({ value, onChange, onRun, fontS
     editor.current = new EditorView({
       parent: host.current,
       state: EditorState.create({ doc: value, extensions: [
+        access.current.of([EditorState.readOnly.of(readOnly), EditorView.editable.of(!readOnly)]), traceLines.current.of([]),
         lineNumbers(), history(), drawSelection(), highlightActiveLine(), highlightActiveLineGutter(),
         python(), indentUnit.of('    '), EditorState.tabSize.of(4), bracketMatching(), syntaxHighlighting(syntax), theme,
         font.current.of(EditorView.theme({ '&': { fontSize: fontSize + 'px' } })),
@@ -59,5 +61,13 @@ export const Editor = forwardRef(function Editor({ value, onChange, onRun, fontS
   useEffect(() => {
     editor.current?.dispatch({ effects: font.current.reconfigure(EditorView.theme({ '&': { fontSize: fontSize + 'px' } })) });
   }, [fontSize]);
+  useEffect(() => {
+    editor.current?.dispatch({ effects: access.current.reconfigure([EditorState.readOnly.of(readOnly), EditorView.editable.of(!readOnly)]) });
+  }, [readOnly]);
+  useEffect(() => {
+    editor.current?.dispatch({ effects: traceLines.current.reconfigure(EditorView.decorations.of(view => Decoration.set(
+      [...new Set([executedLine, nextLine])].filter(n => n && n <= view.state.doc.lines).sort((a,b) => a-b).map(n => Decoration.line({class: n === nextLine ? 'trace-next-line' : 'trace-done-line'}).range(view.state.doc.line(n).from))
+    ))) });
+  }, [executedLine, nextLine]);
   return <div className="code-editor" ref={host} />;
 });

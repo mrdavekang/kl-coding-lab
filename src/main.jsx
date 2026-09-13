@@ -5,6 +5,8 @@ import { Editor } from './Editor.jsx';
 import { PythonRuntime, friendlyError } from './runtime.js';
 import { lesson, challenges, allTasks, lessonPlan } from './content.js';
 import { downloadFile, saveProfileWork } from './storage.js';
+import { Week2App } from './week2/Week2App.jsx';
+import { saveProfileLesson } from './storage.js';
 import { StudentStart } from './StudentStart.jsx';
 import { ReportPanel } from './ReportPanel.jsx';
 import { LearningReview } from './LearningReview.jsx';
@@ -115,7 +117,7 @@ function LessonApp({ profile, initialWork, onSave, onLeave }) {
     } catch (error) { setToast(error.message); }
   }
   function downloadCode() { downloadFile('kl-coding-' + task.id + '.py', code); setToast('Python file downloaded.'); }
-  function backup() { downloadFile('kl-coding-lesson-1-backup.json', JSON.stringify({ format: 'kl-coding-lab-backup', version: 2, student: { name: profile.name, className: profile.className }, work: { ...work, drafts: work.drafts || {}, current: taskId } }, null, 2), 'application/json'); }
+  function backup() { downloadFile('kl-coding-lesson-1-backup.json', JSON.stringify({ format: 'kl-coding-lab-backup', version: 2, lesson: 1, student: { name: profile.name, className: profile.className }, work: { ...work, drafts: work.drafts || {}, current: taskId } }, null, 2), 'application/json'); }
   async function importFile(e) {
     const file = e.target.files?.[0]; if (!file) return;
     if (file.size > 5000000) { setToast('Choose a Python file or lesson backup smaller than 5 MB.'); e.target.value = ''; return; }
@@ -123,6 +125,7 @@ function LessonApp({ profile, initialWork, onSave, onLeave }) {
       const contents = await file.text();
       if (file.name.endsWith('.json')) {
         const payload = JSON.parse(contents);
+        if (payload.lesson && payload.lesson !== 1) throw new Error('Open Week 2 to restore this Week 2 backup.');
         const imported = validateWork(payload.work || payload);
         setWork(old => ({ ...old, ...imported, drafts: { ...old.drafts, ...imported.drafts }, importedAt: new Date().toISOString() }));
         if (imported.current) setTaskId(imported.current);
@@ -212,7 +215,11 @@ function LessonApp({ profile, initialWork, onSave, onLeave }) {
 
 function App() {
   const [profile, setProfile] = useState(null);
-  return profile ? <LessonApp key={profile.id} profile={profile} initialWork={profile.work || {}} onSave={work => saveProfileWork(profile, work)} onLeave={() => setProfile(null)}/> : <StudentStart onStart={setProfile}/>;
+  const [week, setWeek] = useState(() => new URLSearchParams(location.search).get('week') === '1' ? 1 : 2);
+  useEffect(() => { document.title = week === 2 ? 'KL Coding Lab · Week 2 · Lists and loops' : 'KL Coding Lab · Week 1 · Your first Python program'; }, [week]);
+  function chooseWeek(value) { setWeek(value); const url = new URL(location.href); url.searchParams.set('week', value); history.replaceState(null, '', url); }
+  if (!profile) return <StudentStart onStart={setProfile} week={week} onWeekChange={chooseWeek}/>;
+  return week === 2 ? <Week2App key={profile.id+'-2'} profile={profile} initialWork={profile.week2Work || {}} onSave={work => saveProfileLesson(profile, work)} onLeave={() => setProfile(null)}/> : <LessonApp key={profile.id+'-1'} profile={profile} initialWork={profile.work || {}} onSave={work => saveProfileWork(profile, work)} onLeave={() => setProfile(null)}/>;
 }
 const root = import.meta.hot?.data.root || createRoot(document.getElementById('root'));
 if (import.meta.hot) import.meta.hot.data.root = root;

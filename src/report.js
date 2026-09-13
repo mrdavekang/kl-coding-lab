@@ -3,9 +3,9 @@ import { allTasks } from './content.js';
 import { evidenceTasks, progressSummary, taskStatus, HISTORY_LIMIT } from './evidence.js';
 import { learningReviewReport } from './learningReview.js';
 
-export function reportFilename(profile, extension = 'pdf') {
+export function reportFilename(profile, extension = 'pdf', lessonNumber = 1) {
   const safe = value => value.normalize('NFKC').replace(/[^\p{L}\p{N}_-]+/gu, '-').replace(/^-|-$/g, '').slice(0, 55) || 'student';
-  return `KL-Coding-Lesson-1-${safe(profile.className)}-${safe(profile.name)}.${extension}`;
+  return `KL-Coding-Lesson-${lessonNumber}-${safe(profile.className)}-${safe(profile.name)}.${extension}`;
 }
 
 export function dateLabel(value) {
@@ -28,12 +28,17 @@ function browserRaster(text, size, mono, bold) {
   return { data: canvas.toDataURL('image/png'), width: width / scale, height: canvas.height / scale, baseline: size * 1.2 };
 }
 
-export function createReport(profile, work, { now = new Date().toISOString(), rasterize = browserRaster } = {}) {
+export function createReport(profile, work, { now = new Date().toISOString(), rasterize = browserRaster, lessonConfig = null } = {}) {
+  const number = lessonConfig?.number || 1;
+  const title = lessonConfig?.title || "Input, output and variables";
+  const tasks = lessonConfig?.allTasks || allTasks;
+  const core = lessonConfig?.lesson || tasks.filter(t => t.check && !t.level);
+  const checkCount = core.filter(t => t.check).length;
   const doc = new jsPDF({ unit: 'pt', format: 'a4', compress: true, putOnlyUsedFonts: true });
-  doc.setProperties({ title: `${profile.name} - Python learning evidence`, subject: 'Lesson 1: input, output and variables', author: 'KL Coding Lab', creator: 'KL Coding Lab' });
+  doc.setProperties({ title: `${profile.name} - Python learning evidence`, subject: `Lesson ${number}: ${title}`, author: 'KL Coding Lab', creator: 'KL Coding Lab' });
   const left = 44, width = 507, bottom = 783;
   let y = 55;
-  let continuation = 'Lesson 1 / Learning evidence';
+  let continuation = `Lesson ${number} / Learning evidence`;
   const clean = value => String(value ?? '').replace(/\r\n?/g, '\n').replace(/\t/g, '    ').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '');
   const standard = value => !/[^\x20-\x7e]/.test(value);
   function font(size, mono, bold) { doc.setFont(mono ? 'courier' : 'helvetica', bold ? 'bold' : 'normal'); doc.setFontSize(size); }
@@ -90,47 +95,51 @@ export function createReport(profile, work, { now = new Date().toISOString(), ra
     paragraph(source.slice(0, limit) || '(No code written.)', { size: 9, mono: true, box: true });
     if (source.length > limit) paragraph(`Excerpt: first ${limit.toLocaleString('en-GB')} characters. The lesson backup and Python download contain the full program.`, { size: 9 });
   }
-  const stats = progressSummary(work);
+  const stats = progressSummary(work, tasks, core);
   paragraph('KL CODING LAB', { size: 10, bold: true });
   paragraph('My Python learning report', { size: 24, bold: true });
   paragraph(profile.name, { size: 18, bold: true });
   paragraph(`Class: ${profile.className}`, { size: 12 });
-  paragraph('Lesson 1 / Input, output and variables / 8 September 2026');
+  paragraph(`Lesson ${number} / ${title} / ${lessonConfig?.date || '8 September 2026'}`);
   paragraph(`Report created: ${dateLabel(now)} (Malaysia time)`, { size: 9 });
   y += 3;
-  paragraph(`${stats.tasks} tasks with work     ${stats.passed}/6 core practice checks passed\n${stats.runs} recorded runs     ${stats.checks} recorded checks`, { bold: true, box: true });
+  paragraph(`${stats.tasks} tasks with work     ${stats.passed}/${checkCount} core practice checks passed\n${stats.runs} recorded runs     ${stats.checks} recorded checks`, { bold: true, box: true });
   paragraph('This report contains learner work and practice-check evidence from this browser or an imported backup. Passing the supplied checks is evidence for those cases, not a grade or proof of independent understanding.', { size: 9.5 });
   heading('My reflection');
   paragraph(work.reflection?.trim() || 'Not completed yet.');
   const choices = { support: 'I need a hand', practice: 'I want more practice', stretch: 'I am ready to stretch' };
-  const review = learningReviewReport(work.learningReview);
+  const review = lessonConfig?.reviewReport ? lessonConfig.reviewReport(work) : learningReviewReport(work.learningReview);
   if (!review.length) paragraph(`Learning pit stop: ${choices[work.pitstop] || 'No choice recorded'}`, { size: 10 });
-  else paragraph('My starting points and learning pit stop are recorded on the following pages.', { size: 10 });
+  else paragraph('My starting points and learning pit stops are recorded on the following pages.', { size: 10 });
   room(135);
   heading('Teacher review');
-  paragraph('Ask the learner to explain a variable, demonstrate a new input and explain a test or a change. Use the work and their explanation together to decide the next step.', { size: 10 });
+  paragraph(number === 2 ? 'Ask the learner to explain one loop iteration using its old and new values, demonstrate a changed list, and distinguish counting from totalling. Use code, tests and their explanation together.' : 'Ask the learner to explain a variable, demonstrate a new input and explain a test or a change. Use the work and their explanation together to decide the next step.', { size: 10 });
   paragraph('Feedback / next step: ___________________________________________________\n______________________________________________________________________', { size: 10 });
 
   if (review.length) {
-    continuation = 'Lesson 1 / My learning reflections'; newPage();
+    continuation = `Lesson ${number} / My learning reflections`; newPage();
     heading('My learning: before and now', 19);
     paragraph('Student self-reports, not automatically verified attainment. Each topic can have a different stage. Unanswered statements are not treated as gaps. A recorded help request does not send an alert to the teacher.', { size: 9.5 });
-    for (const [title, details] of review) { heading(title, 12); paragraph(details, { size: 10 }); }
+    for (const [title, details] of review) {
+      const detailHeight = wrap(details, 10, false, false, width).length * 15 + 8;
+      room((detailHeight < 180 ? detailHeight : 60) + 45);
+      heading(title, 12); paragraph(details, { size: 10 });
+    }
   }
-  continuation = 'Lesson 1 / Progress overview'; newPage();
+  continuation = `Lesson ${number} / Progress overview`; newPage();
   heading('My route through the lesson', 19);
   paragraph('Every challenge level is open. An opened card does not count as a completed task.', { size: 10 });
-  for (const task of allTasks) {
+  for (const task of tasks) {
     room(49);
     paragraph(`${task.level ? task.level + ': ' : ''}${task.title}`, { bold: true, size: 10.5 });
     paragraph(`${taskStatus(task, work)} | Hints opened: ${work.hints?.[task.id] || 0} | Runs: ${work.activity?.[task.id]?.runs || 0} | Checks: ${work.activity?.[task.id]?.checks || 0}`, { size: 9 });
   }
-  const included = evidenceTasks(work);
+  const included = evidenceTasks(work, tasks);
   if (!included.length) { heading('Your work will appear here'); paragraph('No edited programs or recorded attempts yet. Write and run a program, then download a new report.'); }
   for (const task of included) {
     continuation = task.title.replace(/[^\x20-\x7e]/g, ''); newPage();
     heading(`${task.level ? task.level + ' / ' : ''}${task.title}`, 18);
-    paragraph(task.task, { size: 10 });
+    paragraph(task.task || task.goal || task.intro, { size: 10 });
     paragraph(`Status: ${taskStatus(task, work)} | Hints opened: ${work.hints?.[task.id] || 0}`, { size: 10, bold: true });
     heading('My explanation', 12);
     paragraph(work.explanations?.[task.id]?.trim() || 'Not added yet. Ask me how my program works.');
@@ -140,6 +149,14 @@ export function createReport(profile, work, { now = new Date().toISOString(), ra
     codeBlock(currentCode);
     const activity = work.activity?.[task.id];
     const entries = activity?.entries || [];
+    if (work.traceEvidence?.[task.id]) {
+      const trace = work.traceEvidence[task.id];
+      heading('My selected walkthrough step', 12);
+      paragraph('This is a student-selected execution observation, not proof of independent understanding. The code below was used for that trace.', { size: 9 });
+      paragraph(trace.description, { size: 10 });
+      codeBlock(trace.code);
+    }
+    if (number === 2) paragraph(`Reading marked: ${work.reading?.[task.id] ? 'Yes' : 'Not recorded'} | Walkthroughs started: ${work.traceUses?.[task.id] || 0}. Reading or watching alone does not mark a task mastered.`, { size: 9 });
     heading('My attempts and tests', 12);
     paragraph(`Showing the latest ${Math.min(HISTORY_LIMIT, entries.length)} recorded attempts. Total recorded: ${activity?.runs || 0} runs and ${activity?.checks || 0} checks. Earlier app versions did not record attempts.`, { size: 9 });
     entries.forEach((entry, i) => {
@@ -171,7 +188,7 @@ export function createReport(profile, work, { now = new Date().toISOString(), ra
   const pages = doc.getNumberOfPages();
   for (let page = 1; page <= pages; page++) {
     doc.setPage(page); doc.setDrawColor('#dce2ee'); doc.line(left, 803, left + width, 803);
-    draw('KL Coding Lab / Lesson 1 / Student learning evidence', left, 821, 8);
+    draw(`KL Coding Lab / Lesson ${number} / Student learning evidence`, left, 821, 8);
     draw(`${page} / ${pages}`, 514, 821, 8);
   }
   return doc;

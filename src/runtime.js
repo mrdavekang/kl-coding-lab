@@ -26,6 +26,7 @@ export class PythonRuntime {
       }
       if (!this.active || data.id !== this.active.id) return;
       if (data.type === 'output') this.events.output(data.text);
+      if (data.type === 'trace-step') this.events.trace?.(data.step, data.paused);
       if (data.type === 'input') { this.request = data.request; this.events.input(); }
       if (['done', 'error', 'checked'].includes(data.type)) {
         const previous = this.active;
@@ -48,6 +49,21 @@ export class PythonRuntime {
     this.events.status(check ? 'checking' : 'running');
     this.worker.postMessage({ type: check ? 'check' : 'run', id, code, check });
     if (check) this.checkTimer = setTimeout(() => this.stop('The checks took too long. Look for a loop that does not finish.'), 6000);
+    return true;
+  }
+  walk(code) {
+    if (!this.ready || this.active) return false;
+    const id = ++this.serial;
+    this.active = { id, kind: 'trace' }; this.request = null;
+    Atomics.store(this.control, 3, 0);
+    this.events.status('tracing');
+    this.worker.postMessage({ type: 'trace', id, code });
+    return true;
+  }
+  nextTrace(iteration = false) {
+    if (this.active?.kind !== 'trace' || this.request) return false;
+    Atomics.store(this.control, 3, iteration ? 2 : 1);
+    Atomics.notify(this.control, 3);
     return true;
   }
   answer(value) {

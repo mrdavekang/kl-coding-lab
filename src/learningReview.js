@@ -107,15 +107,15 @@ export const learningTopics = [
 
 const object = value => value && typeof value === 'object' && !Array.isArray(value) ? value : {};
 const text = value => typeof value === 'string' ? value.slice(0, 3000) : '';
-export function cleanLearningReview(value) {
+export function cleanLearningReview(value, topics = learningTopics) {
   const source = object(value), before = {}, after = {};
-  for (const topic of learningTopics) {
+  for (const topic of topics) {
     if (startingPoints.some(choice => choice.id === object(source.before)[topic.id])) before[topic.id] = source.before[topic.id];
     if (learningStages.some(choice => choice.id === object(source.after)[topic.id])) after[topic.id] = source.after[topic.id];
   }
   return { before, after,
-    focus: learningTopics.some(t => t.id === source.focus) ? source.focus : '',
-    priority: learningTopics.some(t => t.id === source.priority) ? source.priority : '',
+    focus: topics.some(t => t.id === source.focus) ? source.focus : '',
+    priority: topics.some(t => t.id === source.priority) ? source.priority : '',
     reason: text(source.reason), evidence: text(source.evidence),
   };
 }
@@ -123,20 +123,20 @@ export function suggestedAction(topic, stage) {
   if (!topic || !learningStages.some(choice => choice.id === stage)) return null;
   return stage === 'unattempted' ? topic.start : topic.actions[stage];
 }
-export function startingAdvice(review) {
-  const state = cleanLearningReview(review);
-  const needs = learningTopics.filter(t => ['new', 'unsure', 'prompt'].includes(state.before[t.id]));
+export function startingAdvice(review, topics = learningTopics) {
+  const state = cleanLearningReview(review, topics);
+  const needs = topics.filter(t => ['new', 'unsure', 'prompt'].includes(state.before[t.id]));
   if (needs.length) return 'Possible focus: ' + needs.map(t => t.title.toLowerCase()).join('; ') + '. Choose one that matters to you.';
-  if (learningTopics.every(t => state.before[t.id] === 'prior')) return 'You report that these are familiar. Choose one to apply in a new situation and show an example.';
+  if (topics.every(t => state.before[t.id] === 'prior')) return 'You report that these are familiar. Choose one to apply in a new situation and show an example.';
   return 'Use your starter work to choose a focus. Unanswered statements are left open; you can ask for help checking them.';
 }
-export function learningReviewReport(value) {
-  const state = cleanLearningReview(value);
+export function learningReviewReport(value, topics = learningTopics) {
+  const state = cleanLearningReview(value, topics);
   if (!Object.keys(state.before).length && !Object.keys(state.after).length && !state.focus && !state.priority && !state.reason && !state.evidence) return [];
-  const title = id => learningTopics.find(t => t.id === id)?.title || 'Not chosen';
+  const title = id => topics.find(t => t.id === id)?.title || 'Not chosen';
   return [
-    ['Types of learning - my starting point', `Chosen focus: ${title(state.focus)}\nMy reason: ${state.reason || 'Not recorded'}\n${startingAdvice(state)}`],
-    ...learningTopics.map(topic => [`${topic.group}: ${topic.title}`, `${topic.statement}\nStarting point: ${startingPoints.find(c => c.id === state.before[topic.id])?.label || 'Not recorded'}\nLearning pit stop: ${learningStages.find(c => c.id === state.after[topic.id])?.label || 'Not recorded'}\nSuggested action: ${suggestedAction(topic, state.after[topic.id])?.[0] || 'Not selected'}`]),
-    ['Learning pit stop - my next step', `Chosen focus: ${title(state.priority)}\nMy evidence or help request: ${state.evidence || 'Not recorded'}\nNext action: ${suggestedAction(learningTopics.find(t => t.id === state.priority), state.after[state.priority])?.[0] || 'Not selected'}`],
+    ['Types of learning - my starting point', `Chosen focus: ${title(state.focus)}\nMy reason: ${state.reason || 'Not recorded'}\n${startingAdvice(state, topics)}`],
+    ...topics.map(topic => [`${topic.group}: ${topic.title}`, `${topic.statement}\nStarting point: ${startingPoints.find(c => c.id === state.before[topic.id])?.label || 'Not recorded'}\nLearning pit stop: ${learningStages.find(c => c.id === state.after[topic.id])?.label || 'Not recorded'}\nSuggested action: ${suggestedAction(topic, state.after[topic.id])?.[0] || 'Not selected'}`]),
+    ['Learning pit stop - my next step', `Chosen focus: ${title(state.priority)}\nMy evidence or help request: ${state.evidence || 'Not recorded'}\nNext action: ${suggestedAction(topics.find(t => t.id === state.priority), state.after[state.priority])?.[0] || 'Not selected'}`],
   ];
 }

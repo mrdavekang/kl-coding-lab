@@ -34,26 +34,26 @@ export function taskStatus(task, work) {
   return 'Not started';
 }
 
-export function evidenceTasks(work) {
-  return allTasks.filter(task => work.attempted?.[task.id] || work.activity?.[task.id]?.entries?.length ||
+export function evidenceTasks(work, tasks = allTasks) {
+  return tasks.filter(task => work.traceEvidence?.[task.id] || work.attempted?.[task.id] || work.activity?.[task.id]?.entries?.length ||
     work.explanations?.[task.id]?.trim() || (work.drafts?.[task.id] !== undefined && work.drafts[task.id] !== task.starter));
 }
 
-export function progressSummary(work) {
+export function progressSummary(work, tasks = allTasks, core = lesson) {
   return {
-    tasks: evidenceTasks(work).length,
-    passed: lesson.filter(task => task.check && taskStatus(task, work) === 'Current code passed').length,
+    tasks: evidenceTasks(work, tasks).length,
+    passed: core.filter(task => task.check && taskStatus(task, work) === 'Current code passed').length,
     runs: Object.values(work.activity || {}).reduce((n, item) => n + (item.runs || 0), 0),
     checks: Object.values(work.activity || {}).reduce((n, item) => n + (item.checks || 0), 0),
   };
 }
 
 // Backups are untrusted input. Copy only known fields and bounded evidence.
-export function validateWork(value) {
+export function validateWork(value, tasks = allTasks) {
   const source = object(value);
   if (!source.drafts || typeof source.drafts !== 'object' || Array.isArray(source.drafts)) throw new Error('Choose a lesson backup made by this app.');
   const work = { drafts: {}, hints: {}, visited: {}, attempted: {}, passed: {}, explanations: {}, activity: {}, reflection: text(source.reflection, 6000) };
-  for (const task of allTasks) {
+  for (const task of tasks) {
     const id = task.id;
     if (typeof source.drafts[id] === 'string') work.drafts[id] = source.drafts[id].slice(0, 100000);
     work.hints[id] = Math.min(task.hints.length, Math.max(0, Number(object(source.hints)[id]) || 0));
@@ -76,7 +76,7 @@ export function validateWork(value) {
       work.activity[id] = { entries, runs: Math.max(entries.filter(e => e.kind === 'run').length, Math.min(100000, Number(activity.runs) || 0)), checks: Math.max(entries.filter(e => e.kind === 'check').length, Math.min(100000, Number(activity.checks) || 0)) };
     }
   }
-  if (allTasks.some(t => t.id === source.current)) work.current = source.current;
+  if (tasks.some(t => t.id === source.current)) work.current = source.current;
   if (['support', 'practice', 'stretch'].includes(source.pitstop)) work.pitstop = source.pitstop;
   if (source.learningReview) work.learningReview = cleanLearningReview(source.learningReview);
   return work;
