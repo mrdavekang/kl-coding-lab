@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createProfile,saveProfileWork,saveProfileLesson,listProfiles} from '../src/storage.js';
 import {reviewAt,updateReview,reviewReport,validateWeek2,topics,stats} from '../src/week2/review.js';
-import {allTasks,lesson} from '../src/week2/content.js';
+import {allTasks,lesson,coreTasks,coreChecks,practiceGroups,practiceFor,stageIndex,adjacentTask} from '../src/week2/content.js';
 import {learningStages,suggestedAction} from '../src/learningReview.js';
 import {evidenceTasks} from '../src/evidence.js';
 function memoryStorage(){const data=new Map();return {get length(){return data.size;},key:i=>[...data.keys()][i],getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,String(v))};}
@@ -36,4 +36,25 @@ test('every Week 2 reflection suggestion has an open destination and every pract
  for(const topic of topics)for(const stage of learningStages)assert.ok(allTasks.some(t=>t.id===suggestedAction(topic,stage.id)[1]));
  for(const task of allTasks.filter(t=>t.check)){assert.ok(task.learn);assert.ok(task.example);assert.ok(task.solution);assert.ok(task.tests);assert.ok(task.teacher);}
  assert.equal(lesson.filter(t=>t.kind==='review').length,3);
+});
+test('practice groups keep ten stages while navigation visits all eight scenarios and both pit stops',()=>{
+ assert.equal(lesson.length,10); assert.equal(coreChecks,10);
+ assert.deepEqual(practiceGroups.map(g=>g.cards.length),[3,5]);
+ assert.equal(new Set(allTasks.map(t=>t.id)).size,allTasks.length);
+ assert.equal(adjacentTask('announcer',1),'badges'); assert.equal(adjacentTask('badges',1),'laps');
+ assert.equal(adjacentTask('laps',1),'pitstop1'); assert.equal(adjacentTask('pitstop1',-1),'laps');
+ assert.equal(adjacentTask('desk',1),'shelves'); assert.equal(adjacentTask('supplies',1),'pitstop2');
+ assert.equal(adjacentTask('plenary',1),undefined); assert.equal(adjacentTask('silver2',1),undefined);
+ for(const group of practiceGroups)for(const id of group.cards){
+  assert.equal(practiceFor(id),group); assert.equal(stageIndex(id),stageIndex(group.id));
+  assert.ok(coreTasks.some(t=>t.id===id&&t.check));
+ }
+});
+test('each scenario preserves its own code, explanation, trace and passed status in restored evidence',()=>{
+ const drafts=Object.fromEntries(practiceGroups.flatMap(g=>g.cards).map(id=>[id,allTasks.find(t=>t.id===id).solution]));
+ const restored=validateWeek2(JSON.parse(JSON.stringify({drafts,passed:{...drafts},explanations:{tickets:'Two tickets give RM 6.'},traceEvidence:{rainfall:{code:drafts.rainfall,description:'The zero runs once.',savedAt:'2026-09-15'}}})));
+ assert.deepEqual(restored.drafts,drafts);assert.equal(stats(restored).passed,8);
+ assert.equal(evidenceTasks(restored,allTasks).filter(t=>practiceFor(t.id)).length,8);
+ assert.equal(restored.explanations.tickets,'Two tickets give RM 6.');assert.ok(restored.traceEvidence.rainfall);
+ restored.drafts.tickets+='\n# changed';assert.equal(stats(restored).passed,7);
 });

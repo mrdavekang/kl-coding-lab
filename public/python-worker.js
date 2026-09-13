@@ -1,3 +1,8 @@
+function helperUrl(file) {
+  const url = new URL(file, self.location.href);
+  url.search = self.location.search;
+  return url;
+}
 const PYODIDE_URL = 'https://cdn.jsdelivr.net/pyodide/v314.0.6/full/';
 let python, controls, inputBytes, interrupts;
 let job = null, requestNumber = 0, pendingInput = new Uint8Array(), pendingOffset = 0;
@@ -69,11 +74,11 @@ self.onmessage = async ({ data }) => {
       python.setStdin({ read, isatty: true });
       python.setStdout({ write });
       python.setStderr({ write });
-      const response = await fetch(new URL('./checks.py', self.location.href));
+      const response = await fetch(helperUrl('./checks.py'));
       if (!response.ok) throw new Error('The task checks could not load. Please reload.');
       await python.runPythonAsync(await response.text());
       for (const file of ['checks2.py', 'trace.py']) {
-        const extra = await fetch(new URL('./' + file, self.location.href));
+        const extra = await fetch(helperUrl('./' + file));
         if (!extra.ok) throw new Error('The Week 2 learning tools could not load. Please reload.');
         await python.runPythonAsync(await extra.text());
       }

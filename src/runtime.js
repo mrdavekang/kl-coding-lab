@@ -11,7 +11,7 @@ export class PythonRuntime {
     this.input = new Uint8Array(new SharedArrayBuffer(65536));
     this.interrupt = new Uint8Array(new SharedArrayBuffer(1));
     // A new URL also refreshes the runner for students returning from Week 1.
-    this.worker = new Worker(new URL('python-worker.js?v=week2-20260913', document.baseURI), { type: 'module' });
+    this.worker = new Worker(new URL('python-worker.js?v=week2-practice-20260913', document.baseURI), { type: 'module' });
     const currentWorker = this.worker;
     this.bootTimer = setTimeout(() => {
       if (this.worker !== currentWorker || this.ready) return;

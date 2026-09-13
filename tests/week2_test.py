@@ -63,4 +63,31 @@ class Week2Tests(unittest.TestCase):
         code=TOTAL.replace('totalScore = 0','totalScore = 0\nscoreCount = 0').replace('    totalScore = totalScore + currentScore','    totalScore = totalScore + currentScore\n    scoreCount = scoreCount + 1').replace('print(totalScore)','print(scoreCount)\nprint(totalScore)')
         self.assertTrue(json.loads(check(code,'w2-count-total'))['passed'])
 
+    def test_scenario_checks_use_named_lists_and_handle_empty_and_repeated_items(self):
+        models = {
+            'w2-badges': 'memberNames = ["Ari"]\nfor currentName in memberNames:\n    print(currentName)',
+            'w2-laps': 'lapCounts = [3]\nfor currentLaps in lapCounts:\n    targetLaps = currentLaps * 2\n    print(targetLaps)',
+            'w2-shelves': 'booksOnShelves = [4]\nshelfCount = 0\nfor currentBooks in booksOnShelves:\n    shelfCount = shelfCount + 1\nprint(shelfCount)',
+            'w2-tickets': 'ticketCounts = [2]\ntotalIncome = 0\nfor currentTickets in ticketCounts:\n    groupIncome = currentTickets * 3\n    totalIncome = totalIncome + groupIncome\nprint(totalIncome)',
+            'w2-rainfall': 'rainfall = [3]\ntotalRainfall = 0\nfor currentRainfall in rainfall:\n    totalRainfall = totalRainfall + currentRainfall\nprint(totalRainfall)',
+            'w2-supplies': 'pencilsInBoxes = [6]\nboxCount = 0\ntotalPencils = 0\nfor currentPencils in pencilsInBoxes:\n    boxCount = boxCount + 1\n    totalPencils = totalPencils + currentPencils\nprint(boxCount)\nprint(totalPencils)',
+        }
+        for task, code in models.items():
+            with self.subTest(task=task):
+                result = json.loads(check(code, task))
+                self.assertTrue(result['passed'], result)
+                self.assertEqual(len(result['cases']), 4)
+                self.assertTrue(any('[]' in case['input'] for case in result['cases']))
+                self.assertEqual(self.capture(code)[-1]['event'], 'end')
+        bad_count = models['w2-shelves'].replace('shelfCount + 1', 'shelfCount + currentBooks')
+        bad_income = models['w2-tickets'].replace('currentTickets * 3', 'currentTickets')
+        for task, code in [('w2-shelves', bad_count), ('w2-tickets', bad_income)]:
+            self.assertFalse(json.loads(check(code, task))['passed'])
+        self.assertFalse(json.loads(check(TOTAL, 'w2-rainfall'))['passed'])
+
+    def test_rainfall_checker_rejects_reset_bug_and_unknown_contract(self):
+        broken = 'rainfall = [3, 0, 5, 2]\nfor currentRainfall in rainfall:\n    totalRainfall = 0\n    totalRainfall = totalRainfall + currentRainfall\nprint(totalRainfall)'
+        self.assertFalse(json.loads(check(broken, 'w2-rainfall'))['passed'])
+        self.assertFalse(json.loads(check(TOTAL, 'w2-unknown'))['passed'])
+
 if __name__=='__main__': unittest.main()

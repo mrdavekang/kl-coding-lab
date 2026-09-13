@@ -120,6 +120,130 @@
       "explanation": "The loop has no more items. It has finished 4 iterations. Continue after the indented block."
     }
   ],
+  "badges": [
+    {
+      "line": null,
+      "iteration": "",
+      "explanation": "No program line has run yet. Choose Next line to begin."
+    },
+    {
+      "line": 1,
+      "iteration": "",
+      "explanation": "Store [\"Mia\", \"Sam\", \"Zara\"] in memberNames. Previous value: Not set."
+    },
+    {
+      "line": 3,
+      "iteration": "1",
+      "explanation": "Iteration 1: take the next item from memberNames and store \"Mia\" in currentName. The indented body runs next."
+    },
+    {
+      "line": 4,
+      "iteration": "1",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 3,
+      "iteration": "2",
+      "explanation": "Iteration 2: take the next item from memberNames and store \"Sam\" in currentName. The indented body runs next."
+    },
+    {
+      "line": 4,
+      "iteration": "2",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 3,
+      "iteration": "3",
+      "explanation": "Iteration 3: take the next item from memberNames and store \"Zara\" in currentName. The indented body runs next."
+    },
+    {
+      "line": 4,
+      "iteration": "3",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 3,
+      "iteration": "",
+      "explanation": "The loop has no more items. It has finished 3 iterations. Continue after the indented block."
+    }
+  ],
+  "laps": [
+    {
+      "line": null,
+      "iteration": "",
+      "explanation": "No program line has run yet. Choose Next line to begin."
+    },
+    {
+      "line": 1,
+      "iteration": "",
+      "explanation": "Store [3, 0, 5, 2] in lapCounts. Previous value: Not set."
+    },
+    {
+      "line": 3,
+      "iteration": "1",
+      "explanation": "Iteration 1: take the next item from lapCounts and store 3 in currentLaps. The indented body runs next."
+    },
+    {
+      "line": 4,
+      "iteration": "1",
+      "explanation": "Calculate 3 * 2 = 6. Store the result back in targetLaps."
+    },
+    {
+      "line": 5,
+      "iteration": "1",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 3,
+      "iteration": "2",
+      "explanation": "Iteration 2: take the next item from lapCounts and store 0 in currentLaps. The indented body runs next."
+    },
+    {
+      "line": 4,
+      "iteration": "2",
+      "explanation": "Calculate 0 * 2 = 0. Store the result back in targetLaps."
+    },
+    {
+      "line": 5,
+      "iteration": "2",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 3,
+      "iteration": "3",
+      "explanation": "Iteration 3: take the next item from lapCounts and store 5 in currentLaps. The indented body runs next."
+    },
+    {
+      "line": 4,
+      "iteration": "3",
+      "explanation": "Calculate 5 * 2 = 10. Store the result back in targetLaps."
+    },
+    {
+      "line": 5,
+      "iteration": "3",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 3,
+      "iteration": "4",
+      "explanation": "Iteration 4: take the next item from lapCounts and store 2 in currentLaps. The indented body runs next."
+    },
+    {
+      "line": 4,
+      "iteration": "4",
+      "explanation": "Calculate 2 * 2 = 4. Store the result back in targetLaps."
+    },
+    {
+      "line": 5,
+      "iteration": "4",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 3,
+      "iteration": "",
+      "explanation": "The loop has no more items. It has finished 4 iterations. Continue after the indented block."
+    }
+  ],
   "totals": [
     {
       "line": null,
@@ -257,6 +381,324 @@
       "line": 7,
       "iteration": "4",
       "explanation": "Calculate 7 + 7 = 14. Store the result back in totalScore."
+    },
+    {
+      "line": 5,
+      "iteration": "",
+      "explanation": "The loop has no more items. It has finished 4 iterations. Continue after the indented block."
+    },
+    {
+      "line": 9,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    },
+    {
+      "line": 10,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    }
+  ],
+  "shelves": [
+    {
+      "line": null,
+      "iteration": "",
+      "explanation": "No program line has run yet. Choose Next line to begin."
+    },
+    {
+      "line": 1,
+      "iteration": "",
+      "explanation": "Store [4, 0, 7, 2] in booksOnShelves. Previous value: Not set."
+    },
+    {
+      "line": 2,
+      "iteration": "",
+      "explanation": "Store 0 in shelfCount. Previous value: Not set."
+    },
+    {
+      "line": 4,
+      "iteration": "1",
+      "explanation": "Iteration 1: take the next item from booksOnShelves and store 4 in currentBooks. The indented body runs next."
+    },
+    {
+      "line": 5,
+      "iteration": "1",
+      "explanation": "Calculate 0 + 1 = 1. Store the result back in shelfCount."
+    },
+    {
+      "line": 4,
+      "iteration": "2",
+      "explanation": "Iteration 2: take the next item from booksOnShelves and store 0 in currentBooks. The indented body runs next."
+    },
+    {
+      "line": 5,
+      "iteration": "2",
+      "explanation": "Calculate 1 + 1 = 2. Store the result back in shelfCount."
+    },
+    {
+      "line": 4,
+      "iteration": "3",
+      "explanation": "Iteration 3: take the next item from booksOnShelves and store 7 in currentBooks. The indented body runs next."
+    },
+    {
+      "line": 5,
+      "iteration": "3",
+      "explanation": "Calculate 2 + 1 = 3. Store the result back in shelfCount."
+    },
+    {
+      "line": 4,
+      "iteration": "4",
+      "explanation": "Iteration 4: take the next item from booksOnShelves and store 2 in currentBooks. The indented body runs next."
+    },
+    {
+      "line": 5,
+      "iteration": "4",
+      "explanation": "Calculate 3 + 1 = 4. Store the result back in shelfCount."
+    },
+    {
+      "line": 4,
+      "iteration": "",
+      "explanation": "The loop has no more items. It has finished 4 iterations. Continue after the indented block."
+    },
+    {
+      "line": 7,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    }
+  ],
+  "tickets": [
+    {
+      "line": null,
+      "iteration": "",
+      "explanation": "No program line has run yet. Choose Next line to begin."
+    },
+    {
+      "line": 1,
+      "iteration": "",
+      "explanation": "Store [2, 0, 4, 1] in ticketCounts. Previous value: Not set."
+    },
+    {
+      "line": 2,
+      "iteration": "",
+      "explanation": "Store 0 in totalIncome. Previous value: Not set."
+    },
+    {
+      "line": 4,
+      "iteration": "1",
+      "explanation": "Iteration 1: take the next item from ticketCounts and store 2 in currentTickets. The indented body runs next."
+    },
+    {
+      "line": 5,
+      "iteration": "1",
+      "explanation": "Calculate 2 * 3 = 6. Store the result back in groupIncome."
+    },
+    {
+      "line": 6,
+      "iteration": "1",
+      "explanation": "Calculate 0 + 6 = 6. Store the result back in totalIncome."
+    },
+    {
+      "line": 4,
+      "iteration": "2",
+      "explanation": "Iteration 2: take the next item from ticketCounts and store 0 in currentTickets. The indented body runs next."
+    },
+    {
+      "line": 5,
+      "iteration": "2",
+      "explanation": "Calculate 0 * 3 = 0. Store the result back in groupIncome."
+    },
+    {
+      "line": 6,
+      "iteration": "2",
+      "explanation": "Calculate 6 + 0 = 6. Store the result back in totalIncome."
+    },
+    {
+      "line": 4,
+      "iteration": "3",
+      "explanation": "Iteration 3: take the next item from ticketCounts and store 4 in currentTickets. The indented body runs next."
+    },
+    {
+      "line": 5,
+      "iteration": "3",
+      "explanation": "Calculate 4 * 3 = 12. Store the result back in groupIncome."
+    },
+    {
+      "line": 6,
+      "iteration": "3",
+      "explanation": "Calculate 6 + 12 = 18. Store the result back in totalIncome."
+    },
+    {
+      "line": 4,
+      "iteration": "4",
+      "explanation": "Iteration 4: take the next item from ticketCounts and store 1 in currentTickets. The indented body runs next."
+    },
+    {
+      "line": 5,
+      "iteration": "4",
+      "explanation": "Calculate 1 * 3 = 3. Store the result back in groupIncome."
+    },
+    {
+      "line": 6,
+      "iteration": "4",
+      "explanation": "Calculate 18 + 3 = 21. Store the result back in totalIncome."
+    },
+    {
+      "line": 4,
+      "iteration": "",
+      "explanation": "The loop has no more items. It has finished 4 iterations. Continue after the indented block."
+    },
+    {
+      "line": 8,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    }
+  ],
+  "rainfall": [
+    {
+      "line": null,
+      "iteration": "",
+      "explanation": "No program line has run yet. Choose Next line to begin."
+    },
+    {
+      "line": 1,
+      "iteration": "",
+      "explanation": "Store [3, 0, 5, 2] in rainfall. Previous value: Not set."
+    },
+    {
+      "line": 2,
+      "iteration": "",
+      "explanation": "Store 0 in totalRainfall. Previous value: Not set."
+    },
+    {
+      "line": 4,
+      "iteration": "1",
+      "explanation": "Iteration 1: take the next item from rainfall and store 3 in currentRainfall. The indented body runs next."
+    },
+    {
+      "line": 5,
+      "iteration": "1",
+      "explanation": "Calculate 0 + 3 = 3. Store the result back in totalRainfall."
+    },
+    {
+      "line": 4,
+      "iteration": "2",
+      "explanation": "Iteration 2: take the next item from rainfall and store 0 in currentRainfall. The indented body runs next."
+    },
+    {
+      "line": 5,
+      "iteration": "2",
+      "explanation": "Calculate 3 + 0 = 3. Store the result back in totalRainfall."
+    },
+    {
+      "line": 4,
+      "iteration": "3",
+      "explanation": "Iteration 3: take the next item from rainfall and store 5 in currentRainfall. The indented body runs next."
+    },
+    {
+      "line": 5,
+      "iteration": "3",
+      "explanation": "Calculate 3 + 5 = 8. Store the result back in totalRainfall."
+    },
+    {
+      "line": 4,
+      "iteration": "4",
+      "explanation": "Iteration 4: take the next item from rainfall and store 2 in currentRainfall. The indented body runs next."
+    },
+    {
+      "line": 5,
+      "iteration": "4",
+      "explanation": "Calculate 8 + 2 = 10. Store the result back in totalRainfall."
+    },
+    {
+      "line": 4,
+      "iteration": "",
+      "explanation": "The loop has no more items. It has finished 4 iterations. Continue after the indented block."
+    },
+    {
+      "line": 7,
+      "iteration": "",
+      "explanation": "print() has added its message to the output. Read the output for this step."
+    }
+  ],
+  "supplies": [
+    {
+      "line": null,
+      "iteration": "",
+      "explanation": "No program line has run yet. Choose Next line to begin."
+    },
+    {
+      "line": 1,
+      "iteration": "",
+      "explanation": "Store [6, 0, 3, 5] in pencilsInBoxes. Previous value: Not set."
+    },
+    {
+      "line": 2,
+      "iteration": "",
+      "explanation": "Store 0 in boxCount. Previous value: Not set."
+    },
+    {
+      "line": 3,
+      "iteration": "",
+      "explanation": "Store 0 in totalPencils. Previous value: Not set."
+    },
+    {
+      "line": 5,
+      "iteration": "1",
+      "explanation": "Iteration 1: take the next item from pencilsInBoxes and store 6 in currentPencils. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "1",
+      "explanation": "Calculate 0 + 1 = 1. Store the result back in boxCount."
+    },
+    {
+      "line": 7,
+      "iteration": "1",
+      "explanation": "Calculate 0 + 6 = 6. Store the result back in totalPencils."
+    },
+    {
+      "line": 5,
+      "iteration": "2",
+      "explanation": "Iteration 2: take the next item from pencilsInBoxes and store 0 in currentPencils. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "2",
+      "explanation": "Calculate 1 + 1 = 2. Store the result back in boxCount."
+    },
+    {
+      "line": 7,
+      "iteration": "2",
+      "explanation": "Calculate 6 + 0 = 6. Store the result back in totalPencils."
+    },
+    {
+      "line": 5,
+      "iteration": "3",
+      "explanation": "Iteration 3: take the next item from pencilsInBoxes and store 3 in currentPencils. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "3",
+      "explanation": "Calculate 2 + 1 = 3. Store the result back in boxCount."
+    },
+    {
+      "line": 7,
+      "iteration": "3",
+      "explanation": "Calculate 6 + 3 = 9. Store the result back in totalPencils."
+    },
+    {
+      "line": 5,
+      "iteration": "4",
+      "explanation": "Iteration 4: take the next item from pencilsInBoxes and store 5 in currentPencils. The indented body runs next."
+    },
+    {
+      "line": 6,
+      "iteration": "4",
+      "explanation": "Calculate 3 + 1 = 4. Store the result back in boxCount."
+    },
+    {
+      "line": 7,
+      "iteration": "4",
+      "explanation": "Calculate 9 + 5 = 14. Store the result back in totalPencils."
     },
     {
       "line": 5,

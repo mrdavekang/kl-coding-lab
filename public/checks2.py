@@ -13,9 +13,21 @@ def __kl_check2(source, task):
         tree = _w2_ast.parse(source, 'main.py')
     except Exception:
         return result('Fix the Python error, then check again.', error=_w2_traceback.format_exc())
-    assignments = [n for n in tree.body if isinstance(n, _w2_ast.Assign) and any(isinstance(t, _w2_ast.Name) and t.id == 'scores' for t in n.targets)]
+    scenarios = {
+        'w2-badges': ('memberNames', [['Ari', 'Bo', 'Chen'], ['Kai', 'Kai'], [], ['Noor A']], 'items'),
+        'w2-laps': ('lapCounts', [[3, 0, 5, 2], [2, 2], [], [7]], 'double'),
+        'w2-shelves': ('booksOnShelves', [[4, 0, 7, 2], [0, 0], [], [9]], 'count'),
+        'w2-tickets': ('ticketCounts', [[2, 0, 4, 1], [1], [], [3, 3]], 'income'),
+        'w2-rainfall': ('rainfall', [[3, 0, 5, 2], [0, 4], [], [2, 2, 2]], 'total'),
+        'w2-supplies': ('pencilsInBoxes', [[6, 0, 3, 5], [0], [], [2, 2]], 'both'),
+    }
+    legacy_tasks = {'w2-list', 'w2-announcer', 'w2-total', 'w2-count-total', 'w2-positive', 'w2-maximum', 'w2-prebronze'}
+    if task not in scenarios and task not in legacy_tasks:
+        return result('This practice check is not available. Reload the lesson and try again.')
+    data_name, scenario_cases, operation = scenarios.get(task, ('scores', None, None))
+    assignments = [n for n in tree.body if isinstance(n, _w2_ast.Assign) and any(isinstance(t, _w2_ast.Name) and t.id == data_name for t in n.targets)]
     if not assignments:
-        return result('Keep a scores list near the start. The checks replace that list with fresh test scores.')
+        return result('Keep a ' + data_name + ' list near the start. The checks replace its first assignment with fresh test data.')
     if task != 'w2-list' and not any(isinstance(n, _w2_ast.For) for n in _w2_ast.walk(tree)):
         return result('This practice asks you to use an explicit for loop. Add a loop, then check again.')
     if task != 'w2-list' and any(isinstance(n, _w2_ast.Call) and isinstance(n.func, _w2_ast.Name) and n.func.id in ('sum', 'len', 'max') for n in _w2_ast.walk(tree)):
@@ -26,6 +38,7 @@ def __kl_check2(source, task):
         return result('Define positiveScores(scoreList), then call it with your scores list.')
     cases = [None] if task == 'w2-list' else [[5, 0, 2, 7], [-3, 0, 8], [], [2, 2, -1]]
     if task == 'w2-maximum': cases = [[-5, -2, -9], [4], [0, 0], [6, -3, 8, 1]]
+    if scenario_cases is not None: cases = scenario_cases
     results = []
     for scores in cases:
         test_tree = _w2_copy.deepcopy(tree)
@@ -47,8 +60,14 @@ def __kl_check2(source, task):
             return limit
         expected = ''
         if scores is not None:
-            total = sum(scores); count = len(scores)
-            if task == 'w2-announcer': expected = '\n'.join(str(v) for v in scores)
+            total = sum(scores) if operation != 'items' else 0
+            count = len(scores)
+            if operation == 'items': expected = '\n'.join(scores)
+            elif operation == 'double': expected = '\n'.join(str(value * 2) for value in scores)
+            elif operation == 'count': expected = str(count)
+            elif operation == 'income': expected = str(total * 3)
+            elif operation == 'both': expected = str(count) + '\n' + str(total)
+            elif task == 'w2-announcer': expected = '\n'.join(str(v) for v in scores)
             elif task == 'w2-count-total': expected = str(count) + '\n' + str(total)
             elif task == 'w2-positive': expected = str(sum(v > 0 for v in scores)) + '\n' + str(sum(v for v in scores if v > 0))
             elif task == 'w2-maximum': expected = str(count) + '\n' + str(total) + '\n' + str(max(scores))
@@ -67,9 +86,9 @@ def __kl_check2(source, task):
                 passed = actual in (expected, str(count) + '\n' + expected)
                 expected += '\n(or count ' + str(count) + ' first, then the total)'
             else: passed = actual == expected
-            results.append({'input': 'Your scores list' if scores is None else 'scores = ' + str(scores), 'expected': expected, 'actual': actual, 'passed': passed})
+            results.append({'input': 'Your scores list' if scores is None else data_name + ' = ' + str(scores), 'expected': expected, 'actual': actual, 'passed': passed})
         except Exception:
-            results.append({'input': str(scores), 'expected': expected, 'actual': stream.getvalue()[:8000], 'passed': False, 'error': _w2_traceback.format_exc()})
+            results.append({'input': data_name + ' = ' + str(scores), 'expected': expected, 'actual': stream.getvalue()[:8000], 'passed': False, 'error': _w2_traceback.format_exc()})
         finally:
             _w2_sys.settrace(old_trace)
     passed = all(c['passed'] for c in results)
