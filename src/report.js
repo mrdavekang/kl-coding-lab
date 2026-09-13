@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf';
 import { allTasks } from './content.js';
 import { evidenceTasks, progressSummary, taskStatus, HISTORY_LIMIT } from './evidence.js';
+import { learningReviewReport } from './learningReview.js';
 
 export function reportFilename(profile, extension = 'pdf') {
   const safe = value => value.normalize('NFKC').replace(/[^\p{L}\p{N}_-]+/gu, '-').replace(/^-|-$/g, '').slice(0, 55) || 'student';
@@ -102,12 +103,20 @@ export function createReport(profile, work, { now = new Date().toISOString(), ra
   heading('My reflection');
   paragraph(work.reflection?.trim() || 'Not completed yet.');
   const choices = { support: 'I need a hand', practice: 'I want more practice', stretch: 'I am ready to stretch' };
-  paragraph(`Learning pit stop: ${choices[work.pitstop] || 'No choice recorded'}`, { size: 10 });
+  const review = learningReviewReport(work.learningReview);
+  if (!review.length) paragraph(`Learning pit stop: ${choices[work.pitstop] || 'No choice recorded'}`, { size: 10 });
+  else paragraph('My starting points and learning pit stop are recorded on the following pages.', { size: 10 });
   room(135);
   heading('Teacher review');
   paragraph('Ask the learner to explain a variable, demonstrate a new input and explain a test or a change. Use the work and their explanation together to decide the next step.', { size: 10 });
   paragraph('Feedback / next step: ___________________________________________________\n______________________________________________________________________', { size: 10 });
 
+  if (review.length) {
+    continuation = 'Lesson 1 / My learning reflections'; newPage();
+    heading('My learning: before and now', 19);
+    paragraph('Student self-reports, not automatically verified attainment. Each topic can have a different stage. Unanswered statements are not treated as gaps. A recorded help request does not send an alert to the teacher.', { size: 9.5 });
+    for (const [title, details] of review) { heading(title, 12); paragraph(details, { size: 10 }); }
+  }
   continuation = 'Lesson 1 / Progress overview'; newPage();
   heading('My route through the lesson', 19);
   paragraph('Every challenge level is open. An opened card does not count as a completed task.', { size: 10 });

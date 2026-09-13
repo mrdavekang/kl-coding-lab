@@ -1,4 +1,5 @@
 import { allTasks, lesson } from './content.js';
+import { cleanLearningReview } from './learningReview.js';
 
 export const HISTORY_LIMIT = 8;
 const text = (value, limit = 12000) => typeof value === 'string' ? value.slice(0, limit) : '';
@@ -77,5 +78,6 @@ export function validateWork(value) {
   }
   if (allTasks.some(t => t.id === source.current)) work.current = source.current;
   if (['support', 'practice', 'stretch'].includes(source.pitstop)) work.pitstop = source.pitstop;
+  if (source.learningReview) work.learningReview = cleanLearningReview(source.learningReview);
   return work;
 }

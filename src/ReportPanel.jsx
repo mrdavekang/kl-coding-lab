@@ -19,7 +19,7 @@ export function ReportPanel({ profile, work, setWork, busy, onBackup }) {
   }
   return <div className="report-panel">
     <div className="report-identity"><FileCheck2 size={25}/><div><b>{profile.name}</b><span>{profile.className} · Lesson 1</span></div></div>
-    <p className="modal-intro">Keep a record of what you tried, tested and learned. Your PDF includes your code, recent attempts, check results and explanations.</p>
+    <p className="modal-intro">Keep a record of what you tried, tested and learned. Your PDF includes your code, recent attempts, check results, starting points and learning pit stop.</p>
     <div className="report-stats"><div><b>{stats.tasks}</b><span>tasks with work</span></div><div><b>{stats.passed}<small> / 6</small></b><span>practice checks passed</span></div><div><b>{stats.runs}</b><span>recorded runs</span></div></div>
     <label className="field-label" htmlFor="report-reflection">One test I tried… My next step…</label>
     <textarea id="report-reflection" rows={3} maxLength={6000} value={work.reflection || ''} onChange={e => setWork(old => ({ ...old, reflection: e.target.value }))} placeholder="I tested… because… Next I want to…"/>

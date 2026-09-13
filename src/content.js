@@ -12,7 +12,7 @@ export const lesson = [
     vocab: ['Output', 'Information a program displays.'],
   },
   {
-    id: 'goal', phase: 'Our learning', time: '7–10 min', title: 'Small steps. Your own code.',
+    id: 'goal', phase: 'Types of learning', time: '7–10 min', title: 'What do I need to get better at?',
     intro: 'Today: write and test a program that takes input and produces useful output.',
     learn: 'Read → Run → Change → Build → Check. Work at a pace that helps you understand. Every challenge level is open to everyone.',
     concepts: [ ['Knowledge', 'What input, output and a variable mean.'], ['Skills', 'Edit, run, enter an answer, debug and save.'], ['Understanding', 'Explain how input changes a result and how testing helps.'] ],
@@ -55,7 +55,7 @@ export const lesson = [
     check: 'welcome', goal: 'Read two answers and display both. Check work tries two pairs of answers.',
   },
   {
-    id: 'pitstop', phase: 'Learning pit stop', time: '27–31 min', title: 'Choose your next step',
+    id: 'pitstop', phase: 'Learning pit stop', time: '27–31 min', title: 'Where am I now?',
     intro: 'Pause for a moment. How is this task feeling right now?',
     learn: 'Choose the support that helps you learn. You can change your choice as you go.',
     kind: 'pitstop', task: 'Name one thing you can do and one thing you want to try.',

@@ -7,6 +7,7 @@ import { lesson, challenges, allTasks, lessonPlan } from './content.js';
 import { downloadFile, saveProfileWork } from './storage.js';
 import { StudentStart } from './StudentStart.jsx';
 import { ReportPanel } from './ReportPanel.jsx';
+import { LearningReview } from './LearningReview.jsx';
 import { recordAttempt, validateWork } from './evidence.js';
 import './style.css';
 
@@ -41,6 +42,7 @@ function LessonApp({ profile, initialWork, onSave, onLeave }) {
   const code = work.drafts?.[task.id] ?? task.starter;
   const busy = ['running', 'checking'].includes(runtimeState);
   const isChallenge = !!task.level;
+  const isReview = task.id === 'goal' || task.kind === 'pitstop';
   const index = lesson.findIndex(x => x.id === task.id);
   const hintCount = work.hints?.[task.id] || 0;
   const checked = work.passed?.[task.id] === code;
@@ -154,7 +156,7 @@ function LessonApp({ profile, initialWork, onSave, onLeave }) {
         <button className="text-button" onClick={() => setPage('lesson')}><ArrowLeft size={17}/> Back to my task</button>
       </section> : <>
         <div className="progress-strip"><div className="steps-track" aria-label="Lesson steps">{lesson.map((item, n) => <button key={item.id} aria-label={`${n + 1}. ${item.title}`} aria-current={task.id === item.id ? 'step' : undefined} className={task.id === item.id ? 'current' : work.passed?.[item.id] === (work.drafts?.[item.id] ?? item.starter) ? 'passed' : ''} onClick={() => selectTask(item.id)}>{work.passed?.[item.id] === (work.drafts?.[item.id] ?? item.starter) ? <Check size={13}/> : <span>{n + 1}</span>}</button>)}</div><span>{completed} of 6 practice checks passed</span></div>
-        <div className="workspace">
+        {isReview ? <LearningReview key={task.id} after={task.kind === 'pitstop'} work={work} setWork={setWork} saved={saved} onOpen={selectTask} onBack={() => selectTask(lesson[Math.max(0, index - 1)].id)} onContinue={() => selectTask(lesson[index + 1].id)}/> : <div className="workspace">
           <section className="learning-panel" aria-label="Current learning card">
             <div className="card-meta"><span className={isChallenge ? 'level-pill ' + task.colour : 'card-type'}>{isChallenge ? task.level : task.phase}</span><span><Clock size={14}/>{task.time}</span></div>
             <h2>{task.title}</h2><p className="card-intro">{task.intro}</p>
@@ -163,11 +165,6 @@ function LessonApp({ profile, initialWork, onSave, onLeave }) {
             {task.concepts && <div className="concepts">{task.concepts.map(([label, text]) => <div key={label}><b>{label}</b><p>{text}</p></div>)}</div>}
             <div className="task-box"><div className="box-label"><Flag size={16}/> YOUR TASK</div><h3>{task.task}</h3><ol>{task.steps.map(step => <li key={step}>{step}</li>)}</ol></div>
             {task.sample && <div className="samples">{task.sample.map((sample, n) => <div key={n} className="sample"><div><b>Input {n + 1}</b><pre>{sample.input}</pre></div><ArrowRight size={17}/><div><b>Output</b><pre>{sample.output}</pre></div></div>)}</div>}
-            {task.kind === 'pitstop' && <div className="pitstop-choices">{[
-              ['support', 'I need a hand', 'Open a small input example.', 'input'],
-              ['practice', 'I want more practice', 'Try the club welcome again.', 'welcome'],
-              ['stretch', 'I’m ready to stretch', 'Explore an open challenge.', 'challenges'],
-            ].map(([id, label, detail, destination]) => <button key={id} onClick={() => { setWork(old => ({ ...old, pitstop: id })); destination === 'challenges' ? setPage('challenges') : selectTask(destination); }}><span><b>{label}</b><small>{detail}</small></span><ArrowRight size={18}/></button>)}</div>}
             {task.kind === 'choose' && <button className="primary-button full" onClick={() => setPage('challenges')}>Explore challenges <ArrowRight size={18}/></button>}
             {task.kind === 'reflect' && <div className="reflection"><label htmlFor="reflection">One test I tried… My next step…</label><textarea id="reflection" rows={4} maxLength={6000} value={work.reflection || ''} onChange={e => setWork(old => ({ ...old, reflection: e.target.value }))} placeholder="I tested… because… Next I want to…"/><button className="primary-button" onClick={() => setModal('report')}><Download size={17}/> Get my learning report</button></div>}
             <div className="hint-box"><button className="hint-toggle" onClick={showHint} disabled={hintCount >= task.hints.length}><span><Lightbulb size={18}/>{hintCount ? 'Show another hint' : 'Need a small hint?'}</span><Plus size={17}/></button>{task.hints.slice(0, hintCount).map((hint, n) => <p key={hint}><b>Hint {n + 1}.</b> {hint}</p>)}</div>
@@ -198,7 +195,7 @@ function LessonApp({ profile, initialWork, onSave, onLeave }) {
             <div className="workspace-foot"><span>{saved ? <Check size={14}/> : <HelpCircle size={14}/>} {saved ? 'Saved on this device' : 'Saving unavailable — download your work'}</span><button className="text-button" onClick={() => setModal('save')}>My files <ChevronRight size={15}/></button></div>
             <p className="keyboard-note">Tab indents · Shift + Tab outdents · Escape, then Tab leaves the editor</p>
           </section>
-        </div>
+        </div>}
       </>}
     </main>
     <footer><span>KL Coding Cup · Club practice</span><button onClick={() => setModal('help')}><HelpCircle size={16}/> Help & expectations</button><span className="footer-method">Read · Run · Change · Build · Check</span></footer>
