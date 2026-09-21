@@ -11,7 +11,7 @@ export class PythonRuntime {
     this.input = new Uint8Array(new SharedArrayBuffer(65536));
     this.interrupt = new Uint8Array(new SharedArrayBuffer(1));
     // A new URL also refreshes the runner for students returning from Week 1.
-    this.worker = new Worker(new URL('python-worker.js?v=week2-practice-20260913', document.baseURI), { type: 'module' });
+    this.worker = new Worker(new URL('python-worker.js?v=week3-mcc-20260921', document.baseURI), { type: 'module' });
     const currentWorker = this.worker;
     this.bootTimer = setTimeout(() => {
       if (this.worker !== currentWorker || this.ready) return;
@@ -42,23 +42,23 @@ export class PythonRuntime {
     };
     this.worker.postMessage({ type: 'init', controlBuffer: this.control.buffer, inputBuffer: this.input.buffer, interruptBuffer: this.interrupt.buffer });
   }
-  execute(code, check) {
+  execute(code, check, options = {}) {
     if (!this.ready || this.active) return false;
     const id = ++this.serial;
     this.active = { id, kind: check ? 'check' : 'run' };
     this.request = null;
     this.events.status(check ? 'checking' : 'running');
-    this.worker.postMessage({ type: check ? 'check' : 'run', id, code, check });
+    this.worker.postMessage({ ...options, type: check ? 'check' : 'run', id, code, check });
     if (check) this.checkTimer = setTimeout(() => this.stop('The checks took too long. Look for a loop that does not finish.'), 6000);
     return true;
   }
-  walk(code) {
+  walk(code, options = {}) {
     if (!this.ready || this.active) return false;
     const id = ++this.serial;
     this.active = { id, kind: 'trace' }; this.request = null;
     Atomics.store(this.control, 3, 0);
     this.events.status('tracing');
-    this.worker.postMessage({ type: 'trace', id, code });
+    this.worker.postMessage({ ...options, type: 'trace', id, code });
     return true;
   }
   nextTrace(iteration = false) {

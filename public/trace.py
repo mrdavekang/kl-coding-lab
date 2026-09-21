@@ -20,7 +20,7 @@ def __kl_trace(source, emit):
     for node in _kl_ast.walk(tree):
         if isinstance(node, forbidden):
             raise ValueError('Walk through does not yet support ' + type(node).__name__ + '. Use Run for this program, or try the lesson example.')
-        if isinstance(node, _kl_ast.Call) and (not isinstance(node.func, _kl_ast.Name) or node.func.id not in allowed_calls):
+        if isinstance(node, _kl_ast.Call) and not ((isinstance(node.func, _kl_ast.Name) and node.func.id in allowed_calls) or (isinstance(node.func, _kl_ast.Attribute) and node.func.attr in {'split', 'append', 'count', 'values'})):
             raise ValueError('Walk through supports the lesson functions and simple Python calls. Use Run for other calls.')
         if isinstance(node, _kl_ast.Name) and node.id.startswith('_kl'):
             raise ValueError('Please choose a variable name that does not start with _kl.')
@@ -43,6 +43,8 @@ def __kl_trace(source, emit):
         if isinstance(value, str): return value[:250]
         if isinstance(value, (list, tuple)) and depth < 2:
             return [clean(v, depth + 1) for v in value[:40]] + (['... more items'] if len(value) > 40 else [])
+        if isinstance(value, dict) and depth < 2:
+            return {str(k): clean(v, depth + 1) for k, v in list(value.items())[:40]}
         return '<' + type(value).__name__ + '>'
 
     def values(frame):

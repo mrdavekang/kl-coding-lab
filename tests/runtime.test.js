@@ -69,3 +69,30 @@ test('errors identify the last line in the pupil program', () => {
     line: 6, tip: 'Check the spelling of your variable. Give it a value before you use it.',
   });
 });
+
+test('Week 3 buffered input preserves lines and Unicode, reaches EOF and resets for the next run', async () => {
+  const messages = [], received = [];
+  const context = vm.createContext({ TextDecoder, TextEncoder, Atomics, Int32Array, Uint8Array, SharedArrayBuffer,
+    self: { postMessage: message => messages.push(message) }, received,
+  });
+  vm.runInContext(fs.readFileSync(new URL('../public/python-worker.js', import.meta.url), 'utf8'), context);
+  vm.runInContext(`
+    python = {
+      globals: { has: () => false },
+      toPy: () => ({ destroy() {} }),
+      runPythonAsync: async () => {
+        const bytes = []; let count; const chunk = new Uint8Array(3);
+        while ((count = read(chunk)) > 0) bytes.push(...chunk.slice(0, count));
+        received.push(new TextDecoder().decode(new Uint8Array(bytes)));
+        if (read(chunk) !== 0) throw new Error('EOF must remain EOF');
+      }
+    };
+    controls = new Int32Array(new SharedArrayBuffer(16));
+    interrupts = new Uint8Array(new SharedArrayBuffer(1));
+  `, context);
+  for (const [id, stdin] of [[1, '3\n雪 café\n\nlast'], [2, ''], [3, 'fresh\n']]) {
+    await context.self.onmessage({ data: { type: 'run', id, code: 'input()', stdin } });
+  }
+  assert.deepEqual(received, ['3\n雪 café\n\nlast', '', 'fresh\n']);
+  assert.deepEqual(messages.map(x => x.type), ['done', 'done', 'done']);
+});

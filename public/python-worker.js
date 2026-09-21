@@ -41,6 +41,7 @@ function traceStep(json) {
 }
 function read(buffer) {
   if (pendingOffset >= pendingInput.length) {
+    if (typeof job?.stdin === 'string') return 0;
     flush();
     Atomics.store(controls, 0, 0);
     const request = ++requestNumber;
@@ -77,9 +78,9 @@ self.onmessage = async ({ data }) => {
       const response = await fetch(helperUrl('./checks.py'));
       if (!response.ok) throw new Error('The task checks could not load. Please reload.');
       await python.runPythonAsync(await response.text());
-      for (const file of ['checks2.py', 'trace.py']) {
+      for (const file of ['checks2.py', 'checks3.py', 'trace.py']) {
         const extra = await fetch(helperUrl('./' + file));
-        if (!extra.ok) throw new Error('The Week 2 learning tools could not load. Please reload.');
+        if (!extra.ok) throw new Error('The learning tools could not load. Please reload.');
         await python.runPythonAsync(await extra.text());
       }
       send('ready');
@@ -90,14 +91,15 @@ self.onmessage = async ({ data }) => {
   job = data;
   output = ''; outputLength = 0; truncated = false;
   traceOutput = ''; traceMode = 1;
-  pendingInput = new Uint8Array(); pendingOffset = 0;
+  pendingInput = typeof data.stdin === 'string' ? new TextEncoder().encode(data.stdin) : new Uint8Array(); pendingOffset = 0;
   Atomics.store(interrupts, 0, 0); Atomics.store(controls, 0, 0);
   let completion;
   try {
     if (data.type === 'check') {
       python.globals.set('__kl_source', data.code);
       python.globals.set('__kl_task', data.check);
-      const result = await python.runPythonAsync(data.check.startsWith('w2-') ? '__kl_check2(__kl_source, __kl_task)' : '__kl_check(__kl_source, __kl_task)');
+      python.globals.set('__kl_spec', JSON.stringify(data.spec || {}));
+      const result = await python.runPythonAsync(data.check.startsWith('w3-') ? '__kl_check3(__kl_source, __kl_spec)' : data.check.startsWith('w2-') ? '__kl_check2(__kl_source, __kl_task)' : '__kl_check(__kl_source, __kl_task)');
       completion = { type: 'checked', result: JSON.parse(result) };
     } else if (data.type === 'trace') {
       python.globals.set('__kl_source', data.code);
@@ -119,6 +121,7 @@ self.onmessage = async ({ data }) => {
     if (python.globals.has('__kl_source')) python.globals.delete('__kl_source');
     if (python.globals.has('__kl_task')) python.globals.delete('__kl_task');
     if (python.globals.has('__kl_emit')) python.globals.delete('__kl_emit');
+    if (python.globals.has('__kl_spec')) python.globals.delete('__kl_spec');
     job = null;
   }
   // Announce completion only after the worker can accept its next request.

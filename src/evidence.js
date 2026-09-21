@@ -25,8 +25,8 @@ export function recordAttempt(work, attempt, result, now = new Date().toISOStrin
 }
 
 export function taskStatus(task, work) {
-  const code = work.drafts?.[task.id] ?? task.starter;
-  if (task.check && work.passed?.[task.id] === code) return 'Current code passed';
+  const code = task.kind === 'output' ? (work.answers?.[task.id] || '') : (work.drafts?.[task.id] ?? task.starter);
+  if (task.check && work.passed?.[task.id] === code) return task.kind === 'output' ? 'Current answer passed' : 'Current code passed';
   if (work.activity?.[task.id]?.checks) return 'Check again';
   if (work.attempted?.[task.id]) return 'Tried';
   if (code !== task.starter) return 'Edited';
@@ -35,14 +35,14 @@ export function taskStatus(task, work) {
 }
 
 export function evidenceTasks(work, tasks = allTasks) {
-  return tasks.filter(task => work.traceEvidence?.[task.id] || work.attempted?.[task.id] || work.activity?.[task.id]?.entries?.length ||
+  return tasks.filter(task => work.answers?.[task.id]?.trim() || work.traceEvidence?.[task.id] || work.attempted?.[task.id] || work.activity?.[task.id]?.entries?.length ||
     work.explanations?.[task.id]?.trim() || (work.drafts?.[task.id] !== undefined && work.drafts[task.id] !== task.starter));
 }
 
 export function progressSummary(work, tasks = allTasks, core = lesson) {
   return {
     tasks: evidenceTasks(work, tasks).length,
-    passed: core.filter(task => task.check && taskStatus(task, work) === 'Current code passed').length,
+    passed: core.filter(task => task.check && ['Current code passed','Current answer passed'].includes(taskStatus(task, work))).length,
     runs: Object.values(work.activity || {}).reduce((n, item) => n + (item.runs || 0), 0),
     checks: Object.values(work.activity || {}).reduce((n, item) => n + (item.checks || 0), 0),
   };

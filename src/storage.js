@@ -53,7 +53,7 @@ export function createProfile(name, className, keepLegacy = false) {
 export function saveProfileWork(profile, work) { return saveProfileLesson(profile, work, "work"); }
 
 export function saveProfileLesson(profile, work, field = "week2Work") {
-  if (!["work", "week2Work"].includes(field)) return false;
+  if (!["work", "week2Work", "week3Work"].includes(field)) return false;
   try {
     const key = PROFILE_PREFIX + profile.id;
     const latest = JSON.parse(localStorage.getItem(key) || 'null');

@@ -113,7 +113,7 @@ export function createReport(profile, work, { now = new Date().toISOString(), ra
   else paragraph('My starting points and learning pit stops are recorded on the following pages.', { size: 10 });
   room(135);
   heading('Teacher review');
-  paragraph(number === 2 ? 'Ask the learner to explain one loop iteration using its old and new values, demonstrate a changed list, and distinguish counting from totalling. Use code, tests and their explanation together.' : 'Ask the learner to explain a variable, demonstrate a new input and explain a test or a change. Use the work and their explanation together to decide the next step.', { size: 10 });
+  paragraph(number === 3 ? 'Distinguish a manually calculated answer from a general program. Ask the learner to explain a condition and a fresh test. Record whether hints, starter code or teacher help were used.' : number === 2 ? 'Ask the learner to explain one loop iteration using its old and new values, demonstrate a changed list, and distinguish counting from totalling. Use code, tests and their explanation together.' : 'Ask the learner to explain a variable, demonstrate a new input and explain a test or a change. Use the work and their explanation together to decide the next step.', { size: 10 });
   paragraph('Feedback / next step: ___________________________________________________\n______________________________________________________________________', { size: 10 });
 
   if (review.length) {
@@ -143,10 +143,11 @@ export function createReport(profile, work, { now = new Date().toISOString(), ra
     paragraph(`Status: ${taskStatus(task, work)} | Hints opened: ${work.hints?.[task.id] || 0}`, { size: 10, bold: true });
     heading('My explanation', 12);
     paragraph(work.explanations?.[task.id]?.trim() || 'Not added yet. Ask me how my program works.');
-    heading('My current code', 12);
+    heading(task.kind === 'output' ? 'My answer file (manual or code-assisted)' : 'My current code', 12);
     paragraph('Indentation is preserved. Long lines wrap on the page.', { size: 9 });
-    const currentCode = work.drafts?.[task.id] ?? task.starter;
+    const currentCode = task.kind === 'output' ? (work.answers?.[task.id] || '') : (work.drafts?.[task.id] ?? task.starter);
     codeBlock(currentCode);
+    if (task.kind === 'output' && work.drafts?.[task.id]) { heading('Optional Python used for this answer',12); codeBlock(work.drafts[task.id]); }
     const activity = work.activity?.[task.id];
     const entries = activity?.entries || [];
     if (work.traceEvidence?.[task.id]) {
@@ -164,7 +165,7 @@ export function createReport(profile, work, { now = new Date().toISOString(), ra
       if (entry.code !== currentCode || entry.codeTruncated) {
         paragraph('Code used for this attempt (different from the current version, or an excerpt):', { size: 9 }); codeBlock(entry.code);
         if (entry.codeTruncated) paragraph('Recorded code was shortened to 12,000 characters.', { size: 9 });
-      } else paragraph('Used the current code shown above.', { size: 9 });
+      } else paragraph(task.kind === 'output' ? 'Used the current answer shown above.' : 'Used the current code shown above.', { size: 9 });
       if (entry.kind === 'run') {
         paragraph('Answers entered: ' + (entry.inputs.length ? entry.inputs.map(v => JSON.stringify(v)).join(' / ') : '(none)'), { size: 9 });
         if (entry.inputsTruncated) paragraph('Input excerpt: up to 30 answers, up to 500 characters each.', { size: 9 });

@@ -1,10 +1,24 @@
 # KL Coding Lab
 
-A static Python learning app for a mixed KS2–KS4 coding club. Weeks 1 and 2 each contain a 60-minute learning sequence, a teacher guide, open challenge routes, reading examples, staged hints and practice checks. There are no output-prediction activities or predictive code-completion extensions.
+A static Python learning app for a mixed KS2–KS4 coding club. Weeks 1, 2 and 3 each contain a 60-minute learning sequence, a teacher guide, open challenge routes, reading examples, staged hints and practice checks. There are no output-prediction activities or predictive code-completion extensions.
+
+## Week 3: from problem to submission
+
+The landing page opens Week 3 by default; use `?week=3` for a direct link. Other query parameters, including `classId`, are preserved when changing weeks. Profiles remain local to the browser; `classId` does not enable a server roster or synchronisation.
+
+Week 3 preserves the same ten timed stages. Each practice places a short explanation and analogous worked example before an independent exercise, with sample output, an editable example sandbox, progressive hints and an explanation prompt. Larger reading text, a restrained colour palette and a lesson map support KS2/KS3 learners. Main Task 1 offers **three answer-file practices**; Main Task 2 offers **five Python practices**, progressing from conditional counting through columns and grids to input parsing and debugging. Students pause for both pit stops even with unfinished practices.
+
+The separate extension bank has **2 Pre-Bronze, 4 Bronze, 3 Silver and 1 Gold** questions. These are classroom adaptations of MCC 2025 Building Fences, Fans, Trick or Treat and Word Distance, with source links on the cards. The levels are teaching labels, not official MCC medal standards. Any student may choose any level. The plenary provides a fresh independent grid.
+
+Python runs in the existing Pyodide worker. Week 3 uses a multiline input box or uploaded input file; reaching its end produces normal end-of-file behaviour. Run, Stop, fresh-input checks, optional real-execution walkthroughs, code downloads and recoverable draft resets are available. Checks explicitly replace starter data for fixed-list exercises; general programs are checked without rewriting their code. The trace subset additionally supports `split`, `append`, `count`, and `values`. All examples and reference solutions are exercised by `npm test`, which calls the Python Week 3 checker test.
+
+`week3Work` stores the student's own drafts separately from example drafts, input text, output answers, hints, check evidence and both reflections. Backups restore only Week 3, and download the prior work first. PDF reports distinguish manual answers from programs and include both checkpoints. A visible teacher guide provides reference solutions and source notes; it is not access-controlled.
+
+Release verification: production build, JavaScript/state/runtime/report tests and Python checks passed. Browser visual and interaction verification was unavailable because the browser security check could not run; verify the published lesson on classroom devices before teaching.
 
 ## Week 2: lists, loops and running totals
 
-The landing page opens Week 2 by default. Choose Week 1 to revisit input/output and variables. Direct links use `?week=2` and `?week=1`. Each student profile keeps Week 2 under `week2Work`; the existing Week 1 `work` remains intact. Reports, progress and validated backups are separate for the two weeks. A backup for the wrong week is rejected with a clear message.
+Choose Week 2 on the landing page to revisit lists and loops, or Week 1 for input/output and variables. Direct links use `?week=2` and `?week=1`. Each student profile keeps Week 2 under `week2Work`; the existing Week 1 `work` remains intact. Reports, progress and validated backups are separate for the two weeks. A backup for the wrong week is rejected with a clear message.
 
 Week 2 keeps ten timed stages, with a bank of **three Main Task 1 cards** and **five Main Task 2 cards**. Main Task 1 (14–27 minutes) covers announcing scores, printing name badges and doubling training laps. Main Task 2 (35–50 minutes) covers score totals, counting library shelves, ticket income, repairing a rainfall total and counting/totalling supply boxes. Each card has short reading, an example, its own starter, fresh-data checks, hints, discussion and separate saved code/evidence. Continue moves through the cards in order; any card is open. Pause everyone for the learning pit stops at minutes 27 and 50 even if cards are unfinished. The approximate 4-minute / 3-minute windows are flexible; the teacher can offer a starter or return to unfinished practice later. There are ten core practice checks including Do Now and plenary. The four levels live in the **Extensions** area and are always open. Worked examples have their own temporary editor space so exploring them does not replace the student's draft. Check work uses fresh lists and accepts the total-only or count-and-total route for the first Main Task 2 card.
 
@@ -55,7 +69,7 @@ The app runs Python in a module worker using pinned Pyodide 314.0.6. The runtime
 
 The Run controller sends UTF-8 input through a shared buffer and streams output from the worker. Interrupts are checked while waiting for input. Stop recreates a worker if a normal interrupt does not complete. Runs have fresh program namespaces; task checks have their own inputs and captured output. Excessive output is capped, and checks have a time limit. This is a learning checker running on the pupil's device, not a tamper-resistant competition judge.
 
-Weeks 1 and 2 are implemented. Silver and Gold are optional extensions informed by the club's competition practice, not a claim of qualification or contest readiness.
+Weeks 1, 2 and 3 are implemented. Silver and Gold are optional extensions informed by the club's competition practice, not a claim of qualification or contest readiness.
 
 ## Classroom validation
 
