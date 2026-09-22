@@ -1,14 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
-import {stages,main1,main2,extensions,tasks,checkSpec,levels,plenary} from '../src/week3/content.js';
+import {stages,main1,main2,furtherPractice,extensions,tasks,checkSpec,levels,plenary} from '../src/week3/content.js';
 import {validateWeek3,reviewAt,updateReview,progress,answerResult,reportConfig,topics} from '../src/week3/state.js';
 import {createProfile,saveProfileLesson,listProfiles} from '../src/storage.js';
 import {recordAttempt,taskStatus,evidenceTasks} from '../src/evidence.js';
 import {createReport} from '../src/report.js';
 
-test('Week 3 exposes ten stages, independent 3+5 core practices and exactly 2/4/3/1 extensions',()=>{
- assert.equal(stages.length,10);assert.equal(main1.length,3);assert.equal(main2.length,5);
+test('Week 3 exposes ten stages, 3+3 supported practices, five optional steps and exactly 2/4/3/1 extensions',()=>{
+ assert.equal(stages.length,10);assert.equal(main1.length,3);assert.equal(main2.length,3);assert.equal(furtherPractice.length,5);
  assert.deepEqual(levels.map(l=>extensions.filter(t=>t.level===l).length),[2,4,3,1]);
  assert.equal(new Set(tasks.map(t=>t.id)).size,tasks.length);
  for(const t of [...main1,...main2,...extensions]){assert.ok(t.learn);assert.ok(t.example);assert.ok(t.goal);assert.ok(t.teacher);assert.ok(t.hints.length);if(t.kind!=='output'){assert.ok(t.solution);assert.ok(t.tests.length>=3);}}
@@ -25,7 +25,7 @@ test('manual answer evidence is distinct from program evidence and edits invalid
  assert.equal(progress(work),1);assert.equal(taskStatus(task,work),'Current answer passed');
  assert.equal(answerResult(task,'4').passed,false);assert.equal(answerResult(task,'The answer is 2').passed,false);
  work.answers.a1='4';assert.equal(progress(work),0);
- work.answers.a1='2';work.drafts.b1=main2[0].solution;work.passed.b1=main2[0].solution;
+ work.answers.a1='2';work.drafts.g1=main2[0].solution;work.passed.g1=main2[0].solution;work.attempted={g1:true};
  assert.equal(progress(work),2);assert.equal(evidenceTasks(work,tasks).length,2);
 });
 test('Week 3 backup preserves separate drafts, samples, output files, two pit stops and recoverable reset',()=>{
@@ -56,4 +56,14 @@ test('Week 3 PDF contains manual answers, student code, test evidence and both r
  assert.ok(doc.getNumberOfPages()>=4);assert.ok(doc.output('arraybuffer').byteLength>1000);
  const text=doc.internal.pages.flat().join('\n');
  for(const expected of ['First checkpoint.', 'Second checkpoint.', 'Two new pieces.', 'print', 'My answer file']) assert.ok(text.includes(expected),expected+' missing from PDF');
+});
+
+test('simplified route preserves prior task identities and saved work',()=>{
+ const oldWork={drafts:{b1:'my first counter',b3:'my grid solver'},answers:{a1:'2'},stage:'main2',task:'b3',passed:{b3:'my grid solver'}};
+ const restored=validateWeek3(oldWork);
+ assert.equal(restored.drafts.b3,'my grid solver');assert.equal(restored.task,'b3');
+ assert.equal(evidenceTasks(restored,tasks).some(t=>t.id==='b3'),true);
+ assert.deepEqual(main2.map(t=>t.id),['g1','g2','g3']);
+ assert.equal(main2[1].starter.replace('if cell == "#":','if cell == ".":'),main2[1].solution);
+ assert.equal(main2[2].starter.replace('gapCount + 0','gapCount + 1'),main2[2].solution);
 });

@@ -17,6 +17,8 @@ for task in tasks:
         # A fixed sample answer must not be enough for any code exercise.
         fixed = 'print(' + repr(task['sampleOutput']) + ')'
         assert not json.loads(check(fixed, json.dumps(task['spec'])))['passed'], task['id']
+        if task['id'] in ['g2', 'g3']:
+            assert not json.loads(check(task['starter'], json.dumps(task['spec'])))['passed'], task['id']
         count += 1
     if task['kind'] != 'output' and task.get('example'):
         old = sys.stdin
