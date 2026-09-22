@@ -1,125 +1,665 @@
-export const sources = {
-  fences: {name:'Building Fences · MCC 2025 P1',url:'https://ioimalaysia.org/competition/mcc/2025/archive/p1/'},
-  fans: {name:'Fans · MCC 2025 P2',url:'https://ioimalaysia.org/competition/mcc/2025/archive/p2/'},
-  candy: {name:'Trick or Treat · MCC 2025 P3',url:'https://ioimalaysia.org/competition/mcc/2025/archive/p3/'},
-  words: {name:'Word Distance · MCC 2025 P4',url:'https://ioimalaysia.org/competition/mcc/2025/archive/p4/'},
-};
+// Week 3 revisits only the core skills taught in Weeks 1 and 2.
+// Full reference programs live in test fixtures, never in this student bundle.
+export const curriculum = "weeks-1-2-practice-v1";
+export const levels = [
+  "Pre-Bronze",
+  "Bronze",
+  "Silver",
+  "Gold"
+];
 export const stages = [
-  ['ready','Return & goal','0–2','Count gaps together'],
-  ['donow','Read first · Do Now','2–8','From a list to a grid'],
-  ['focus','Types of Learning','8–10','Choose your learning focus'],
-  ['formats','Read first · MCC formats','10–14','What are you submitting?'],
-  ['main1','Main Task 1','14–27','Count with the pictures'],
-  ['pitstop1','Learning Pit Stop 1','27–30','Where am I now?'],
-  ['condition','Read first · Conditions','30–35','Count only the gaps'],
-  ['main2','Main Task 2','35–50','Three small changes in Python'],
-  ['pitstop2','Learning Pit Stop 2','50–54','What does my work show?'],
-  ['plenary','Plenary & save','54–60','Show it with a fresh field'],
-].map(([id,label,time,title])=>({id,label,time,title}));
-const tc=(input,expected,data)=>({input,expected:String(expected),...(data!==undefined?{data}:{} )});
-const item=x=>({hints:[],steps:[],starter:'',exampleInput:'',sampleInput:'',kind:'code',...x,check:'w3-'+x.id});
-export const countExample = `cells = ["#", ".", "#"]
-gapCount = 0
-for cell in cells:
-    if cell == ".":
-        gapCount = gapCount + 1
-print(gapCount)
-`;
-export const inputReader = `dimensions = input().split()
-rowCount = int(dimensions[0])
-columnCount = int(dimensions[1])
-grid = []
-for rowNumber in range(rowCount):
-    currentRow = input()
-    grid.append(currentRow)
-`;
-export const gridAlgorithm = `bestCount = rowCount
-for columnIndex in range(columnCount):
-    gapCount = 0
-    for currentRow in grid:
-        if currentRow[columnIndex] == ".":
-            gapCount = gapCount + 1
-    if gapCount < bestCount:
-        bestCount = gapCount
-print(bestCount)
-`;
-const oneColumn = `gapCount = 0
-for currentRow in grid:
-    if currentRow[columnIndex] == ".":
-        gapCount = gapCount + 1
-print(gapCount)
-`;
-const fullSolution=inputReader+'\n'+gridAlgorithm;
-const coreGrid='3 4\n.#..\n.#.#\n...#\n';
-const fenceHint=['Look down one column, not across a row.','Count its dots: each dot needs one new fence.','Repeat for the other columns and choose the smallest count.'];
-const manual=(id,title,grid,expected,teacher)=>item({id,title,group:'main1',kind:'output',source:'fences',relation:id==='a1'?'Official sample, adapted teaching instructions.':'Classroom adaptation with fresh data.',grid,answer:String(expected),sampleInput:`${grid.length} ${grid[0].length}\n${grid.join('\n')}\n`,learn:'A dot means a gap. A hash means a fence is already there. Complete one vertical column using as few new pieces as possible. Your answer is the number of pieces, not the column number.',goal:'Find the minimum number of new pieces. Type one integer, check it and download an answer file.',example:'2 3\n.#.\n...\n',exampleOutput:'1',exampleExplanation:'The three columns need 2, 1 and 2 new pieces. The minimum is 1.',hints:fenceHint,steps:['Select a column and count its dots.','Compare the column counts and type your answer.','Check it, download the answer and reopen it.'],teacher});
+  {
+    "id": "ready",
+    "label": "Return & goal",
+    "time": "0–2",
+    "title": "Familiar skills, new scenarios"
+  },
+  {
+    "id": "donow",
+    "label": "Do Now",
+    "time": "2–8",
+    "title": "Make a club sign"
+  },
+  {
+    "id": "focus",
+    "label": "Types of Learning",
+    "time": "8–10",
+    "title": "Choose your focus"
+  },
+  {
+    "id": "formats",
+    "label": "Week 1 reminder",
+    "time": "10–14",
+    "title": "Input, calculate, output"
+  },
+  {
+    "id": "main1",
+    "label": "Main Task 1",
+    "time": "14–27",
+    "title": "Week 1 programming challenges"
+  },
+  {
+    "id": "pitstop1",
+    "label": "Learning Pit Stop 1",
+    "time": "27–30",
+    "title": "Explain one test"
+  },
+  {
+    "id": "condition",
+    "label": "Week 2 reminder",
+    "time": "30–35",
+    "title": "One item, count or total?"
+  },
+  {
+    "id": "main2",
+    "label": "Main Task 2",
+    "time": "35–50",
+    "title": "Week 2 programming challenges"
+  },
+  {
+    "id": "pitstop2",
+    "label": "Learning Pit Stop 2",
+    "time": "50–54",
+    "title": "Explain one loop"
+  },
+  {
+    "id": "plenary",
+    "label": "Plenary & save",
+    "time": "54–60",
+    "title": "One fresh program and your report"
+  }
+];
 export const main1 = [
- manual('a1','Building Fences',['.....','...#.','.##..','...#.'],2,'Column counts: 4, 3, 3, 2, 4. Output 2, not column 4.'),
- {...manual('a2','Theatre aisle lights',['.#..','.#.#','...#'],1,'Column counts: 3, 1, 3, 1. Two columns tie; output one minimum count.'),learn:'Here a dot means a missing light and a hash means an installed light. Complete one vertical strip using the fewest new lights. The counting method is the same as Building Fences.'},
- {...manual('a3','Already complete',['#..','##.','#.#'],0,'Column counts: 0, 2, 2. A complete first column needs zero new pieces.'),example:'2 2\n#.\n#.\n',exampleOutput:'0',exampleExplanation:'The column counts are 0 and 2. Choosing the complete first column needs no new pieces.'},
+  {
+    "id": "rev-w1-1",
+    "group": "main1",
+    "level": "Pre-Bronze",
+    "title": "Festival welcome",
+    "skills": "Week 1 · input, variables and print",
+    "scenario": "The school festival needs a screen that welcomes each visitor by name.",
+    "learn": "The school festival needs a screen that welcomes each visitor by name.",
+    "goal": "Read one name. Print Welcome followed by one space and that name.",
+    "inputHelp": "One line: a visitor name (1–30 letters or spaces).",
+    "sampleInput": "Aisha\n",
+    "sampleOutput": "Welcome Aisha",
+    "sampleExplanation": "The input name Aisha appears after Welcome. A different name must change the message.",
+    "starter": "# Read the visitor name.\n# Display the welcome message.\n",
+    "hints": [
+      "Store the answer from input() in a variable.",
+      "Use the variable when you print the message. Check the capital W and the space."
+    ],
+    "kind": "code",
+    "check": "w3-rev-w1-1",
+    "needsInput": true,
+    "tests": [
+      {
+        "input": "Aisha\n",
+        "expected": "Welcome Aisha"
+      },
+      {
+        "input": "Ben\n",
+        "expected": "Welcome Ben"
+      },
+      {
+        "input": "Mei Lin\n",
+        "expected": "Welcome Mei Lin"
+      }
+    ],
+    "teacher": "Ask the learner to explain one calculation and test different data."
+  },
+  {
+    "id": "rev-w1-2",
+    "group": "main1",
+    "level": "Bronze",
+    "title": "Juice stall",
+    "skills": "Week 1 · integer input and multiplication",
+    "scenario": "A stall sells every juice carton at the same price. Help a helper work out one order.",
+    "learn": "A stall sells every juice carton at the same price. Help a helper work out one order.",
+    "goal": "Read the number of cartons and the price of one carton. Print the total cost as a whole number.",
+    "inputHelp": "Line 1: carton count (0–100). Line 2: price per carton in RM (1–20).",
+    "sampleInput": "4\n3\n",
+    "sampleOutput": "12",
+    "sampleExplanation": "4 cartons at RM3 each cost RM12. Print 12, without RM or extra words.",
+    "starter": "# Read the carton count and price.\n# Calculate and print the cost.\n",
+    "hints": [
+      "Convert each number using int(input()).",
+      "Ask yourself which calculation finds the cost of several equal-price items."
+    ],
+    "kind": "code",
+    "check": "w3-rev-w1-2",
+    "needsInput": true,
+    "tests": [
+      {
+        "input": "4\n3\n",
+        "expected": "12"
+      },
+      {
+        "input": "2\n5\n",
+        "expected": "10"
+      },
+      {
+        "input": "0\n4\n",
+        "expected": "0"
+      },
+      {
+        "input": "1\n8\n",
+        "expected": "8"
+      }
+    ],
+    "teacher": "Ask the learner to explain one calculation and test different data."
+  },
+  {
+    "id": "rev-w1-3",
+    "group": "main1",
+    "level": "Bronze",
+    "title": "Game tokens",
+    "skills": "Week 1 · multiplication and subtraction",
+    "scenario": "A visitor buys several game tokens, then wants to know how much money is left.",
+    "learn": "A visitor buys several game tokens, then wants to know how much money is left.",
+    "goal": "Read starting money, token count and token price. Print the money left after buying the tokens.",
+    "inputHelp": "Three lines: starting RM (0–500), token count (0–50), price per token (1–10). There is always enough money.",
+    "sampleInput": "20\n3\n4\n",
+    "sampleOutput": "8",
+    "sampleExplanation": "3 tokens cost RM12. Starting with RM20 leaves RM8.",
+    "starter": "# Read the three whole numbers.\n# Work out the cost, then the money left.\n# Print the money left.\n",
+    "hints": [
+      "Keep each input in a different variable.",
+      "First find the total token cost. Then subtract it from the starting money."
+    ],
+    "kind": "code",
+    "check": "w3-rev-w1-3",
+    "needsInput": true,
+    "tests": [
+      {
+        "input": "20\n3\n4\n",
+        "expected": "8"
+      },
+      {
+        "input": "12\n3\n4\n",
+        "expected": "0"
+      },
+      {
+        "input": "7\n0\n3\n",
+        "expected": "7"
+      },
+      {
+        "input": "40\n2\n5\n",
+        "expected": "30"
+      }
+    ],
+    "teacher": "Ask the learner to explain one calculation and test different data."
+  },
+  {
+    "id": "rev-w1-4",
+    "group": "main1",
+    "level": "Silver",
+    "title": "Sponsored walk",
+    "skills": "Week 1 · a calculation with three inputs",
+    "scenario": "A sponsor pays for every completed lap and adds a fixed donation at the end.",
+    "learn": "A sponsor pays for every completed lap and adds a fixed donation at the end.",
+    "goal": "Read completed laps, donation per lap and the extra donation. Print the total raised.",
+    "inputHelp": "Three lines: laps (0–100), RM per lap (1–50), extra RM (0–500).",
+    "sampleInput": "6\n4\n10\n",
+    "sampleOutput": "34",
+    "sampleExplanation": "The laps raise RM24. Adding the RM10 donation gives RM34.",
+    "starter": "# Read the three inputs.\n# Work out the total raised.\n# Print one whole number.\n",
+    "hints": [
+      "Separate the amount earned from laps from the fixed donation.",
+      "The extra donation is added once."
+    ],
+    "kind": "code",
+    "check": "w3-rev-w1-4",
+    "needsInput": true,
+    "tests": [
+      {
+        "input": "6\n4\n10\n",
+        "expected": "34"
+      },
+      {
+        "input": "0\n5\n8\n",
+        "expected": "8"
+      },
+      {
+        "input": "3\n2\n0\n",
+        "expected": "6"
+      },
+      {
+        "input": "10\n3\n5\n",
+        "expected": "35"
+      }
+    ],
+    "teacher": "Ask the learner to explain one calculation and test different data.",
+    "stretch": true
+  },
+  {
+    "id": "rev-w1-5",
+    "group": "main1",
+    "level": "Silver",
+    "title": "Picnic budget",
+    "skills": "Week 1 · several variables and two outputs",
+    "scenario": "Children and adults buy different picnic packs. The organiser needs the total cost and the money left.",
+    "learn": "Children and adults buy different picnic packs. The organiser needs the total cost and the money left.",
+    "goal": "Read all five values. Print the total cost on line 1, then the money left on line 2.",
+    "inputHelp": "Five lines: child count, adult count, child-pack price, adult-pack price, budget. Counts are 0–100, prices RM1–50 and budget RM0–10000. The budget covers the cost.",
+    "sampleInput": "4\n2\n3\n5\n30\n",
+    "sampleOutput": "22\n8",
+    "sampleExplanation": "Child packs cost RM12 and adult packs cost RM10. The total is RM22, leaving RM8.",
+    "starter": "# Read counts, prices and budget.\n# Find each group’s cost.\n# Print total cost, then money left.\n",
+    "hints": [
+      "Calculate the two group costs separately.",
+      "Print exactly two lines, in the requested order."
+    ],
+    "kind": "code",
+    "check": "w3-rev-w1-5",
+    "needsInput": true,
+    "tests": [
+      {
+        "input": "4\n2\n3\n5\n30\n",
+        "expected": "22\n8"
+      },
+      {
+        "input": "0\n2\n3\n5\n10\n",
+        "expected": "10\n0"
+      },
+      {
+        "input": "1\n0\n4\n7\n9\n",
+        "expected": "4\n5"
+      },
+      {
+        "input": "0\n0\n2\n3\n6\n",
+        "expected": "0\n6"
+      }
+    ],
+    "teacher": "Ask the learner to explain one calculation and test different data.",
+    "stretch": true
+  }
 ];
-export const furtherPractice = [
- item({id:'b1',group:'main2',title:'Count one column',source:'fences',relation:'Single-column classroom adaptation.',learn:'Your Week 2 counter visited every item. This time an if statement decides whether the counter changes. == compares two values; = stores a value. Indent the update inside the condition.',goal:'Use a loop to count the dots in columnCells. Print only the count.',example:countExample,exampleOutput:'1',tryChange:'In the example, change a hash to a dot. Run it again. What changed?',starter:'columnCells = [".", "#", ".", "."]\ngapCount = 0\nfor cell in columnCells:\n    # Count this cell only if it is a dot.\n    pass\nprint(gapCount)\n',solution:'columnCells = [".", "#", ".", "."]\n'+countExample.slice(countExample.indexOf('gapCount')).replace('in cells','in columnCells'),sampleOutput:'3',dataName:'columnCells',tests:[tc('',3,['.','#','.','.']),tc('',0,['#','#']),tc('',1,['.']),tc('',2,['.','#','.'])],requireLoop:true,hints:['The test is cell == ".".','Put if cell == ".": inside the loop.','Add 1 to gapCount inside the if block.'],teacher:'The counter changes for dots only: 1, 1, 2, 3. Test all fences to catch unconditional counting.'}),
- item({id:'b2',group:'main2',title:'Try another column',source:'fences',relation:'Grid-indexing preparation.',learn:'Each string is a row. Python positions start at zero. currentRow[columnIndex] selects one character from a row. Keep the same index while visiting each row to travel down a column.',goal:'Count the dots at columnIndex in the supplied grid. Both the grid and index will change in tests.',example:'grid = [".#", ".."]\ncolumnIndex = 1\nfor currentRow in grid:\n    print(currentRow[columnIndex])\n',exampleOutput:'#\n.',tryChange:'Change columnIndex from 1 to 0. Which two cells are displayed?',starter:'grid = [".#..", ".#.#", "...#"]\ncolumnIndex = 1\ngapCount = 0\nfor currentRow in grid:\n    # Check the cell at columnIndex.\n    pass\nprint(gapCount)\n',solution:'grid = [".#..", ".#.#", "...#"]\ncolumnIndex = 1\n'+oneColumn,sampleOutput:'1',variables:['grid','columnIndex'],tests:[tc('',1,{grid:['.#..','.#.#','...#'],columnIndex:1}),tc('',3,{grid:['.#..','.#.#','...#'],columnIndex:0}),tc('',0,{grid:['#','#'],columnIndex:0})],requireLoop:true,hints:['currentRow is one whole row.','currentRow[columnIndex] is one cell.','Compare that cell with "." before adding 1.'],teacher:'Index 1 means the second column. Its cells are #, #, .; the answer is 1. Do not confuse grid[1] with a column.'}),
- item({id:'b3',group:'main2',title:'Find the best column',source:'fences',relation:'Supported general solution.',learn:'Use an outer loop to choose a column. Use an inner loop to count its gaps. Reset gapCount for each new column. Keep the smallest count in bestCount; start it at rowCount, because a column has that many cells.',goal:'Complete the nested-loop solution. Print the minimum number of new fences.',example:'repairCosts = [3, 1, 2]\nbestCount = repairCosts[0]\nfor cost in repairCosts:\n    if cost < bestCount:\n        bestCount = cost\nprint(bestCount)\n',exampleOutput:'1',tryChange:'Change the example costs to [4, 0, 3]. Explain when bestCount changes.',starter:inputReader+'\nbestCount = rowCount\nfor columnIndex in range(columnCount):\n    gapCount = 0\n    for currentRow in grid:\n        # Count the gaps in this column.\n        pass\n    # Keep the smaller count.\nprint(bestCount)\n',solution:fullSolution,sampleInput:coreGrid,sampleOutput:'1',tests:[tc(coreGrid,1),tc('2 3\n...\n...\n',2),tc('2 2\n.#\n.#\n',0),tc('3 1\n.\n#\n.\n',2)],hints:['Reuse the condition from the previous exercise.','Reset gapCount inside the column loop, before the row loop.','After counting a column, update bestCount if gapCount is smaller.'],teacher:'Counts for the sample: 3, 1, 3, 1. The parser is supplied. range(columnCount) visits every valid column index.'}),
- item({id:'b4',group:'main2',title:'Read fresh competition input',source:'fences',relation:'Classroom code-format simulation.',learn:'input() reads one line of text. split() separates the header into pieces. Convert its two numbers with int(), then read exactly that many rows. A submitted program must read fresh data each run. It must not print prompts or explanatory labels.',goal:'Write the input-reading section for the supplied solver. Try at least two different grid sizes.',example:'header = input().split()\nheight = int(header[0])\nwidth = int(header[1])\nprint(height)\nprint(width)\n',exampleInput:'2 4\n',exampleOutput:'2\n4',tryChange:'Run the example with 3 2 as input. Which value tells you how many rows to read?',starter:'# Read rowCount, columnCount and grid here.\n\n'+gridAlgorithm,solution:fullSolution,sampleInput:'2 3\n...\n...\n',sampleOutput:'2',tests:[tc('2 3\n...\n...\n',2),tc(coreGrid,1),tc('1 1\n#\n',0),tc('4 2\n..\n#.\n.#\n..\n',3)],hints:['Use input().split() for the first line.','Convert the first piece to rowCount and the second to columnCount.','Start grid = [], then append input() once per row.'],teacher:'Keep all debug prints out of standard output. Different shapes reveal hard-coded dimensions. The algorithm is supplied; assess input handling separately.'}),
- item({id:'b5',group:'main2',title:'Repair the fence checker',source:'fences',relation:'Debugging adaptation.',learn:'A program can print the sample answer without solving every input. Here bestCount starts at zero. No non-negative gap count can be smaller, so it never changes. Find a test that reveals the fault before repairing the program.',goal:'Repair the starting value. Run a grid with no fences, then check fresh inputs.',example:'values = [5, 3]\nsmallest = values[0]\nfor value in values:\n    if value < smallest:\n        smallest = value\nprint(smallest)\n',exampleOutput:'3',tryChange:'In the example, start smallest at 0 and run. Why is the result wrong?',starter:fullSolution.replace('bestCount = rowCount','bestCount = 0'),solution:fullSolution,sampleInput:'2 3\n...\n...\n',sampleOutput:'2',tests:[tc('2 3\n...\n...\n',2),tc(coreGrid,1),tc('1 1\n.\n',1),tc('2 2\n##\n##\n',0)],hints:['Run the all-dot sample before editing.','Can a positive count ever be less than zero?','A column needs at most rowCount new fences.'],teacher:'Set bestCount to rowCount. Initialising inside the column loop would lose earlier results. Ask for the failing test and repair explanation.'}),
-];
-// Three small edits come before the optional full-grid problems.
-for (const task of furtherPractice) task.optional = true;
-const simpleCounter = 'gapCount = 0\nfor cell in columnCells:\n    if cell == ".":\n        gapCount = gapCount + 1\nprint(gapCount)\n';
-const supported=(id,title,values,goal,change,teacher)=>{
- const solution='columnCells = '+JSON.stringify(values)+'\n'+simpleCounter;
- return item({id,group:'main2',title,source:'fences',relation:'Supported single-column MCC preparation.',learn:'A dot is a gap. Count only the dots.',goal,example:countExample,exampleOutput:'1',starter:change(solution),solution,dataName:'columnCells',requireLoop:true,sampleOutput:String(values.filter(v=>v==='.').length),tests:[tc('',values.filter(v=>v==='.').length,values),tc('',0,['#','#']),tc('',1,['.']),tc('',3,['.','.','.'])],hints:['A dot means a gap. A hash means a fence is already there.','if cell == ".": chooses only gaps.','gapCount = gapCount + 1 adds one for a gap.'],teacher});
-};
 export const main2 = [
- supported('g1','Run a working counter',['.','#','.'],'Run the working code. Then change one # to a dot and run again.',code=>code,'Supported exploration, not independent coding. Initial answer 2; changing the hash to a dot makes 3. Checks assess the supplied method, not whether the learner made the change.'),
- supported('g2','Change one symbol',['.','.','#','.'],'The code counts fences. Change one symbol so it counts gaps.',code=>code.replace('if cell == ".":','if cell == "#":'),'Change # to . in the if line only. Do not change the list to make a wrong counter pass.'),
- supported('g3','Change one number',['.','#','#','.'],'The counter adds zero. Change one number so each gap adds one.',code=>code.replace('gapCount + 1','gapCount + 0'),'Change + 0 to + 1. Preserve the starting gapCount = 0. Ask which zero should stay and why.'),
+  {
+    "id": "rev-w2-1",
+    "group": "main2",
+    "level": "Pre-Bronze",
+    "title": "Club name badges",
+    "skills": "Week 2 · lists and for loops",
+    "scenario": "The club needs one badge for every name on its list. Two people may have the same name.",
+    "learn": "The club needs one badge for every name on its list. Two people may have the same name.",
+    "goal": "Use a for loop to print every name in visitorNames on its own line, in the same order.",
+    "inputHelp": "No typed input. The supplied list contains 1–20 names. Keep its variable name so the checker can try other lists.",
+    "sampleInput": "",
+    "sampleOutput": "Mia\nSam\nZara",
+    "sampleExplanation": "There are three names, so the program prints three lines.",
+    "starter": "visitorNames = [\"Mia\", \"Sam\", \"Zara\"]\n\n# Write your loop below.\n",
+    "hints": [
+      "A loop visits one item at a time.",
+      "Print the current name inside the loop."
+    ],
+    "kind": "code",
+    "check": "w3-rev-w2-1",
+    "needsInput": false,
+    "tests": [
+      {
+        "input": "",
+        "expected": "Mia\nSam\nZara",
+        "data": [
+          "Mia",
+          "Sam",
+          "Zara"
+        ]
+      },
+      {
+        "input": "",
+        "expected": "Kai\nKai",
+        "data": [
+          "Kai",
+          "Kai"
+        ]
+      },
+      {
+        "input": "",
+        "expected": "Lea",
+        "data": [
+          "Lea"
+        ]
+      }
+    ],
+    "teacher": "Ask the learner to explain one calculation and test different data.",
+    "dataName": "visitorNames",
+    "requireLoop": true,
+    "dataDisplay": "visitorNames = [\"Mia\", \"Sam\", \"Zara\"]"
+  },
+  {
+    "id": "rev-w2-2",
+    "group": "main2",
+    "level": "Bronze",
+    "title": "Ribbon packs",
+    "skills": "Week 2 · calculate for every list item",
+    "scenario": "Each ribbon pack contains 3 ribbons. A helper lists how many packs each class ordered.",
+    "learn": "Each ribbon pack contains 3 ribbons. A helper lists how many packs each class ordered.",
+    "goal": "Use a for loop. For each value in packCounts, print the number of ribbons for that class on its own line.",
+    "inputHelp": "No typed input. packCounts contains 1–20 whole numbers from 0–50. Each pack always has 3 ribbons.",
+    "sampleInput": "",
+    "sampleOutput": "6\n0\n12",
+    "sampleExplanation": "The orders are 2, 0 and 4 packs. They need 6, 0 and 12 ribbons.",
+    "starter": "packCounts = [2, 0, 4]\n\n# Calculate and print each class’s ribbons.\n",
+    "hints": [
+      "Use the current item, rather than the entire list, in your calculation.",
+      "Both the calculation and its output should happen for every class."
+    ],
+    "kind": "code",
+    "check": "w3-rev-w2-2",
+    "needsInput": false,
+    "tests": [
+      {
+        "input": "",
+        "expected": "6\n0\n12",
+        "data": [
+          2,
+          0,
+          4
+        ]
+      },
+      {
+        "input": "",
+        "expected": "3\n3",
+        "data": [
+          1,
+          1
+        ]
+      },
+      {
+        "input": "",
+        "expected": "0",
+        "data": [
+          0
+        ]
+      },
+      {
+        "input": "",
+        "expected": "15\n9",
+        "data": [
+          5,
+          3
+        ]
+      }
+    ],
+    "teacher": "Ask the learner to explain one calculation and test different data.",
+    "dataName": "packCounts",
+    "requireLoop": true,
+    "dataDisplay": "packCounts = [2, 0, 4]"
+  },
+  {
+    "id": "rev-w2-3",
+    "group": "main2",
+    "level": "Bronze",
+    "title": "Library returns",
+    "skills": "Week 2 · a running total",
+    "scenario": "The librarian records how many books each class returned. Find the number of books returned altogether.",
+    "learn": "The librarian records how many books each class returned. Find the number of books returned altogether.",
+    "goal": "Use a for loop to add every number in returnedBooks. Print the final total once.",
+    "inputHelp": "No typed input. returnedBooks contains 1–20 whole numbers from 0–100.",
+    "sampleInput": "",
+    "sampleOutput": "11",
+    "sampleExplanation": "The classes returned 4, 0, 5 and 2 books. Altogether that is 11 books.",
+    "starter": "returnedBooks = [4, 0, 5, 2]\n\n# Build a running total.\n# Print the final total.\n",
+    "hints": [
+      "Start the total before the loop so it can remember earlier classes.",
+      "Add the current item each time. Display the final total after the loop."
+    ],
+    "kind": "code",
+    "check": "w3-rev-w2-3",
+    "needsInput": false,
+    "tests": [
+      {
+        "input": "",
+        "expected": "11",
+        "data": [
+          4,
+          0,
+          5,
+          2
+        ]
+      },
+      {
+        "input": "",
+        "expected": "0",
+        "data": [
+          0,
+          0
+        ]
+      },
+      {
+        "input": "",
+        "expected": "7",
+        "data": [
+          7
+        ]
+      },
+      {
+        "input": "",
+        "expected": "6",
+        "data": [
+          1,
+          2,
+          3
+        ]
+      }
+    ],
+    "teacher": "Ask the learner to explain one calculation and test different data.",
+    "dataName": "returnedBooks",
+    "requireLoop": true,
+    "dataDisplay": "returnedBooks = [4, 0, 5, 2]"
+  },
+  {
+    "id": "rev-w2-4",
+    "group": "main2",
+    "level": "Silver",
+    "title": "Food bank boxes",
+    "skills": "Week 2 · counting and totalling",
+    "scenario": "Each number tells you how many cans are inside one box. The food bank needs both the number of boxes and the number of cans. Empty boxes still count.",
+    "learn": "Each number tells you how many cans are inside one box. The food bank needs both the number of boxes and the number of cans. Empty boxes still count.",
+    "goal": "Use a for loop. Print the number of boxes on line 1 and the total number of cans on line 2.",
+    "inputHelp": "No typed input. canCounts contains 1–20 whole numbers from 0–100.",
+    "sampleInput": "",
+    "sampleOutput": "4\n10",
+    "sampleExplanation": "The four boxes contain 3, 0, 5 and 2 cans. There are 4 boxes and 10 cans.",
+    "starter": "canCounts = [3, 0, 5, 2]\n\n# Keep a box count and a can total.\n# Print both results in the requested order.\n",
+    "hints": [
+      "Use separate variables for boxes and cans.",
+      "A counter adds 1 for each box. A total adds the number inside that box."
+    ],
+    "kind": "code",
+    "check": "w3-rev-w2-4",
+    "needsInput": false,
+    "tests": [
+      {
+        "input": "",
+        "expected": "4\n10",
+        "data": [
+          3,
+          0,
+          5,
+          2
+        ]
+      },
+      {
+        "input": "",
+        "expected": "2\n0",
+        "data": [
+          0,
+          0
+        ]
+      },
+      {
+        "input": "",
+        "expected": "1\n8",
+        "data": [
+          8
+        ]
+      },
+      {
+        "input": "",
+        "expected": "3\n6",
+        "data": [
+          2,
+          2,
+          2
+        ]
+      }
+    ],
+    "teacher": "Ask the learner to explain one calculation and test different data.",
+    "dataName": "canCounts",
+    "requireLoop": true,
+    "dataDisplay": "canCounts = [3, 0, 5, 2]",
+    "stretch": true
+  },
+  {
+    "id": "rev-w2-5",
+    "group": "main2",
+    "level": "Gold",
+    "title": "Festival delivery bill",
+    "skills": "Weeks 1 + 2 · input, a loop and a running total",
+    "scenario": "Each group orders some activity packs. Every pack has the same price. One delivery fee covers the whole order, including an order of zero packs.",
+    "learn": "Each group orders some activity packs. Every pack has the same price. One delivery fee covers the whole order, including an order of zero packs.",
+    "goal": "Read the pack price and delivery fee. Use a for loop to total orderQuantities. Print total packs on line 1 and the full bill on line 2.",
+    "inputHelp": "Line 1: price per pack (RM1–50). Line 2: delivery fee (RM0–30). orderQuantities already contains 1–20 group orders, each 0–50 packs.",
+    "sampleInput": "4\n5\n",
+    "sampleOutput": "6\n29",
+    "sampleExplanation": "The groups order 2 + 0 + 3 + 1 = 6 packs. At RM4 each they cost RM24. One RM5 delivery fee makes RM29.",
+    "starter": "orderQuantities = [2, 0, 3, 1]\n\n# Read the pack price and delivery fee.\n# Total the packs using a loop.\n# Work out the bill and print both results.\n",
+    "hints": [
+      "Finish counting the packs before calculating the full bill.",
+      "The delivery fee belongs to the whole order. Add it once."
+    ],
+    "kind": "code",
+    "check": "w3-rev-w2-5",
+    "needsInput": true,
+    "tests": [
+      {
+        "input": "4\n5\n",
+        "expected": "6\n29",
+        "data": [
+          2,
+          0,
+          3,
+          1
+        ]
+      },
+      {
+        "input": "2\n0\n",
+        "expected": "4\n8",
+        "data": [
+          1,
+          3
+        ]
+      },
+      {
+        "input": "7\n3\n",
+        "expected": "0\n3",
+        "data": [
+          0,
+          0
+        ]
+      },
+      {
+        "input": "5\n2\n",
+        "expected": "1\n7",
+        "data": [
+          1
+        ]
+      }
+    ],
+    "teacher": "Ask the learner to explain one calculation and test different data.",
+    "dataName": "orderQuantities",
+    "requireLoop": true,
+    "dataDisplay": "orderQuantities = [2, 0, 3, 1]",
+    "stretch": true
+  }
 ];
-const ext=(id,level,title,source,learn,goal,starter,solution,example,exampleOutput,tests,options={})=>item({id,level,title,source,relation:'Classroom adaptation / preparation; not an official award level.',learn,goal,starter,solution,example,exampleOutput,tests,sampleInput:tests[0].input,sampleOutput:tests[0].expected,hints:options.hints||['Read exactly what the output should represent.','Trace a small input before writing the next line.','Compare your output with the sample, then try a boundary case.'],...options});
-export const extensions = [
- ext('pb1','Pre-Bronze','Fill the gaps','fences','Read a column as text. Visit its characters with a loop. A dot needs one new piece; a hash needs none. Start your counter before the loop.','For a string of 1–12 dots/hashes, print its number of gaps.','column = input()\ngapCount = 0\nfor cell in column:\n    # Add a condition and update.\n    pass\nprint(gapCount)\n','column = input()\n'+countExample.slice(countExample.indexOf('gapCount')).replace('in cells','in column'),countExample,'1',[tc('.#..#.\n',4),tc('####\n',0),tc('.\n',1)],{hints:['Compare cell with ".".','Use an if statement inside the loop.','Add 1 inside the condition.'],teacher:'Count dots, not total characters. Expected counter for sample: 1,1,2,3,3,4.'}),
- ext('pb2','Pre-Bronze','Count the fan materials','fans','Each list item is the number of sticks of one colour. Add the item value to a running total. Counting the stock prepares you for Fans, but does not yet arrange the sticks.','Total the supplied stickCounts list (1–6 positive counts, each at most 10).','stickCounts = [2, 4, 1]\ntotalSticks = 0\nfor currentCount in stickCounts:\n    # Add this group to the total.\n    pass\nprint(totalSticks)\n','stickCounts = [2, 4, 1]\ntotalSticks = 0\nfor currentCount in stickCounts:\n    totalSticks = totalSticks + currentCount\nprint(totalSticks)\n','counts = [1, 3]\ntotal = 0\nfor count in counts:\n    total = total + count\nprint(total)\n','4',[tc('',7,[2,4,1]),tc('',5,[5]),tc('',3,[1,1,1])],{dataName:'stickCounts',requireLoop:true,teacher:'The sample has 3 groups but 7 sticks. Add currentCount, not 1. This is a prerequisite rather than the original maximum-arrangement task.'}),
- ext('br1','Bronze','Can we afford this column?','fences','First count the gaps. Then compare that count with the available pieces. At most includes equality: having exactly enough is a YES.','Input K (0–20), then a column of 1–20 dots/hashes. Print YES if K pieces are enough; otherwise NO.','pieceCount = int(input())\ncolumn = input()\n# Count gaps, then compare with pieceCount.\n','pieceCount = int(input())\ncolumn = input()\ngapCount = 0\nfor cell in column:\n    if cell == ".":\n        gapCount = gapCount + 1\nif gapCount <= pieceCount:\n    print("YES")\nelse:\n    print("NO")\n','needed = 3\navailable = 3\nif needed <= available:\n    print("ENOUGH")\nelse:\n    print("NOT ENOUGH")\n','ENOUGH',[tc('2\n.#.#\n','YES'),tc('1\n.#.#\n','NO'),tc('0\n###\n','YES'),tc('0\n.\n','NO')],{hints:['Count dots before making the decision.','Compare gapCount <= pieceCount.','Print YES in that branch and NO in the else branch.'],teacher:'This adds a classroom budget rule. Equality tests expose < instead of <=.'}),
- ext('br2','Bronze','Choose the cheapest repair','fences','These column costs have already been counted. Keep the smallest value seen so far. Start with a real list item so you do not invent a zero cost.','For repairCosts (1–20 values, each 0–20), print the smallest value.','repairCosts = [4, 2, 3, 2]\nbestCost = repairCosts[0]\n# Visit and compare the costs.\nprint(bestCost)\n','repairCosts = [4, 2, 3, 2]\nbestCost = repairCosts[0]\nfor cost in repairCosts:\n    if cost < bestCost:\n        bestCost = cost\nprint(bestCost)\n','values = [5, 3, 4]\nsmallest = values[0]\nfor value in values:\n    if value < smallest:\n        smallest = value\nprint(smallest)\n','3',[tc('',2,[4,2,3,2]),tc('',0,[0,3]),tc('',6,[6])],{dataName:'repairCosts',teacher:'Compare using < and replace the stored best. A tie does not change the answer.'}),
- ext('br3','Bronze','Check a fan design','fans','Only neighbours must differ. Two red sticks are allowed when another colour separates them. Compare each new colour with the previous one; keep any failure you find.','Input 1–30 characters R, G or B. Print YES if every neighbouring pair differs, otherwise NO.','colours = input()\npreviousColour = ""\nvalid = True\n# Visit each colour and compare with the previous one.\n','colours = input()\npreviousColour = ""\nvalid = True\nfor colour in colours:\n    if colour == previousColour:\n        valid = False\n    previousColour = colour\nif valid:\n    print("YES")\nelse:\n    print("NO")\n','colours = "BRRG"\nprevious = ""\nfor colour in colours:\n    print(previous, colour)\n    previous = colour\n',' B\nB R\nR R\nR G',[tc('RGRB\n','YES'),tc('RRG\n','NO'),tc('R\n','YES'),tc('RGBB\n','NO')],{hints:['Compare with the previous character, not every earlier character.','When a pair matches, set valid to False.','Update previousColour each visit; print after the loop.'],teacher:'Validation only, not maximum-length construction. A one-character sequence has no clashing neighbours.'}),
- ext('br4','Bronze','A fair candy split','candy','These six candies have already been selected. Positions do not matter. Count colours and check whether each child could receive three candies of one colour.','Input exactly six R/B characters. Print YES for three R and three B; otherwise NO.','candies = input()\nredCount = 0\nblueCount = 0\n# Count each colour and decide.\n','candies = input()\nredCount = 0\nblueCount = 0\nfor colour in candies:\n    if colour == "R":\n        redCount = redCount + 1\n    else:\n        blueCount = blueCount + 1\nif redCount == 3 and blueCount == 3:\n    print("YES")\nelse:\n    print("NO")\n','colours = "RBRB"\nredCount = 0\nfor colour in colours:\n    if colour == "R":\n        redCount = redCount + 1\nprint(redCount)\n','2',[tc('RBBRBR\n','YES'),tc('RRRRBB\n','NO'),tc('RRRBBB\n','YES'),tc('BBBBBB\n','NO')],{hints:['Keep one counter per colour.','Both required counts are 3.','Use and when both comparisons must be true.'],teacher:'Because input guarantees length six and R/B only, checking just redCount == 3 is also correct. This does not count pack selections.'}),
- ext('si1','Silver','Repair a whole field','fences','Bring together your column counter and smallest-so-far method. Test rectangular grids, a single column and an already complete wall. Plan before opening the parser hint.','Read N M, then N rows. For 1 ≤ N,M ≤ 20, print the minimum new fences needed.','# Read the dimensions and rows.\n# Count each column.\n# Print the minimum count.\n',fullSolution,'costs = [2, 4, 1]\nbest = costs[0]\nfor cost in costs:\n    if cost < best:\n        best = cost\nprint(best)\n','1',[tc('3 4\n..#.\n.##.\n#...\n',1),tc('2 3\n...\n...\n',2),tc('2 2\n.#\n.#\n',0),tc('3 1\n.\n#\n.\n',2)],{hints:['Use two loops: one chooses a column; one visits rows.','Reset the gap counter before starting each column.','Input reader:\n'+inputReader],teacher:'Same underlying fence rule, smaller teaching limits. The sample column counts are 2,2,1,3. O(NM) cell visits.'}),
- ext('si2','Silver','Two-colour fan','fans','Arrange red and blue counters alternately. The scarcer colour limits the pairs. If one colour has extra stock, only one extra stick can fit at an end. Unused sticks are allowed.','Read R B (each 1–30). Print the maximum length of an alternating row.','counts = input().split()\nredCount = int(counts[0])\nblueCount = int(counts[1])\n# Find the longest alternating row.\n','counts = input().split()\nredCount = int(counts[0])\nblueCount = int(counts[1])\nif redCount == blueCount:\n    length = redCount + blueCount\nelse:\n    smallerCount = min(redCount, blueCount)\n    length = 2 * smallerCount + 1\nprint(length)\n','redCount = 4\nblueCount = 3\npairCount = min(redCount, blueCount)\nprint(pairCount)\n','3',[tc('5 2\n',5),tc('3 3\n',6),tc('1 5\n',3),tc('1 1\n',2)],{hints:['Draw a row for 5 red and 2 blue sticks.','Start with pairs using the smaller count.','Equal counts use all sticks; otherwise one extra fits.'],teacher:'For unequal counts, 2*min(R,B)+1. The sample has 7 available but can use only 5. This is a two-colour restriction.'}),
- ext('si3','Silver','Make the letter bags match','words','Anagrams have the same letter counts even when their order differs. Count a, b and c in each word. One replacement removes a surplus letter and fills one shortage. Do not count both halves of the same replacement.','Read two equal-length words (1–30 letters, only a/b/c). Print the fewest replacements in the first so its letters can be rearranged into the second.','firstWord = input()\nsecondWord = input()\nreplacements = 0\n# Compare counts for a, b and c.\nprint(replacements)\n','firstWord = input()\nsecondWord = input()\nreplacements = 0\nfor letter in "abc":\n    firstCount = firstWord.count(letter)\n    secondCount = secondWord.count(letter)\n    if firstCount > secondCount:\n        replacements = replacements + firstCount - secondCount\nprint(replacements)\n','word = "abac"\nfor letter in "abc":\n    print(word.count(letter))\n','2\n1\n1',[tc('aabc\nabbb\n',2),tc('abc\nbca\n',0),tc('aaa\nbbb\n',3),tc('a\na\n',0)],{hints:['word.count(letter) gives a frequency, not a position.','Count letters that are in surplus in the first word.','Add only positive differences between matching letter counts.'],teacher:'Pair-distance prerequisite, not the original multiword optimisation. Anagrams need zero changes. The sample has one surplus a and one surplus c.'}),
- ext('go1','Gold','Choose three candy packs','candy','Each numbered pack is a separate choice, even when the colours match another pack. Choose indices i < j < k so you never repeat a pack or count an ordering twice. Then inspect the six colours. This exhaustive method is suitable only for our small limit.','Read N (1–20), then N pairs of colour numbers (1–5). Count selections with exactly two colours, three candies of each.','packCount = int(input())\npacks = []\nfor packNumber in range(packCount):\n    colours = input().split()\n    packs.append([int(colours[0]), int(colours[1])])\n\n# Choose three distinct packs and test their colours.\n',`packCount = int(input())
-packs = []
-for packNumber in range(packCount):
-    colours = input().split()
-    packs.append([int(colours[0]), int(colours[1])])
-validCount = 0
-for first in range(packCount):
-    for second in range(first + 1, packCount):
-        for third in range(second + 1, packCount):
-            candies = packs[first] + packs[second] + packs[third]
-            frequencies = {}
-            for colour in candies:
-                if colour not in frequencies:
-                    frequencies[colour] = 0
-                frequencies[colour] = frequencies[colour] + 1
-            if len(frequencies) == 2:
-                valid = True
-                for count in frequencies.values():
-                    if count != 3:
-                        valid = False
-                if valid:
-                    validCount = validCount + 1
-print(validCount)
-`,'# Choose each pair of indices once.\nfor first in range(3):\n    for second in range(first + 1, 3):\n        print(first, second)\n','0 1\n0 2\n1 2',[tc('4\n1 2\n1 2\n1 1\n2 2\n',2),tc('4\n1 2\n1 2\n1 2\n1 2\n',4),tc('3\n1 1\n1 1\n1 1\n',0),tc('2\n1 2\n1 2\n',0),tc('3\n1 2\n1 3\n2 3\n',0)],{hints:['Use three loops with strictly increasing indices.','Combine the three pairs into a six-item list. Count each colour using a dictionary.','Require exactly two dictionary keys and both counts equal to 3.'],teacher:'Valid sample selections: packs {1,3,4} and {2,3,4}. At N=20, only 1,140 triples. This method is unsuitable for the published full limit of 200,000 packs.',extraReading:'A dictionary stores a count under a key. Start frequencies = {}. When colour is not in frequencies, store 0 first; then increase its count. len(frequencies) counts distinct colours; frequencies.values() visits their counts. The + operator joins lists of candies.'}),
-];
-export const plenary={...manual('exit','One fresh field',['.#.','##.','..#','.#.'],1,'Counts: 3, 1, 3. Explain that 1 is a piece count, not a column number.'),group:'plenary',relation:'Fresh independent classroom check.',starter:inputReader+'\n# Solve this fresh case using your method.\n',solution:fullSolution};
 export const warmups = [
- item({id:'retrieval',title:'Visit each cell',group:'donow',learn:'A grid is made of rows and columns. A row goes across; a column goes down. Start with a familiar loop. Each visit gives cell the next value from the list.',goal:'Run the counter. Change one value, then add another item. Which change alters the count?',example:'cells = [".", "#"]\nfor cell in cells:\n    print(cell)\n',exampleOutput:'.\n#',starter:'cells = [".", "#", "."]\ncellCount = 0\nfor cell in cells:\n    cellCount = cellCount + 1\nprint(cellCount)\n',sampleOutput:'3',hints:['This loop counts all items, including fences.'],teacher:'Changing a value keeps the count at 3; adding an item increases it to 4.'}),
- item({id:'condition-example',title:'A counter that makes a choice',group:'condition',learn:'if cell == ".": asks whether this cell is a gap. Only the indented update runs when the answer is true. The counter keeps its value for a fence. A colon starts the block; the update needs four more spaces.',goal:'Run and step through this example. Change a fence to a gap, then explain one update.',example:countExample,exampleOutput:'1',starter:countExample,sampleOutput:'1',hints:['Follow gapCount before and after the if block.'],teacher:'Actual counts: 0, 1, 1. The if header is inside the loop; the update is inside the condition.'}),
+  {
+    "id": "rev-warmup",
+    "group": "donow",
+    "level": null,
+    "title": "My club sign",
+    "skills": "Week 1 · a variable and print",
+    "scenario": "The club needs a sign with its name on it.",
+    "learn": "The club needs a sign with its name on it.",
+    "goal": "Store the text Code Club in a variable. Print the value of that variable.",
+    "inputHelp": "No typed input.",
+    "sampleInput": "",
+    "sampleOutput": "Code Club",
+    "sampleExplanation": "The screen should show the two words on one line.",
+    "starter": "# Store the club name in a variable.\n# Print its value.\n",
+    "hints": [
+      "Words need quotation marks when you store them. Use the variable name when you print."
+    ],
+    "kind": "code",
+    "check": "w3-rev-warmup",
+    "needsInput": false,
+    "tests": [
+      {
+        "input": "",
+        "expected": "Code Club"
+      }
+    ],
+    "teacher": "Ask the learner to explain one calculation and test different data."
+  }
 ];
-export const tasks=[...main1,...main2,...furtherPractice,...extensions,plenary,...warmups];
-export const assessed=[...main1,...main2,...furtherPractice,...extensions,plenary];
-export const levels=['Pre-Bronze','Bronze','Silver','Gold'];
-export function taskById(id){return tasks.find(t=>t.id===id);}
-export function checkSpec(task){return {tests:task.tests||[],dataName:task.dataName,variables:task.variables,requireLoop:!!task.requireLoop};}
+export const plenary = {
+  "id": "rev-exit",
+  "group": "plenary",
+  "level": null,
+  "title": "Book collection",
+  "skills": "Week 2 · an independent total",
+  "scenario": "Three classes add books to a shared collection. Work out how many books they donated altogether.",
+  "learn": "Three classes add books to a shared collection. Work out how many books they donated altogether.",
+  "goal": "Use a for loop to total donatedBooks. Print the total once, then explain one update.",
+  "inputHelp": "No typed input. donatedBooks contains 1–20 whole numbers from 0–100.",
+  "sampleInput": "",
+  "sampleOutput": "5",
+  "sampleExplanation": "The sample has 3, 0 and 2 books. Together these make 5.",
+  "starter": "donatedBooks = [3, 0, 2]\n\n# Write your own total program.\n",
+  "hints": [
+    "Keep the total outside the loop until you start adding items."
+  ],
+  "kind": "code",
+  "check": "w3-rev-exit",
+  "needsInput": false,
+  "tests": [
+    {
+      "input": "",
+      "expected": "5",
+      "data": [
+        3,
+        0,
+        2
+      ]
+    },
+    {
+      "input": "",
+      "expected": "0",
+      "data": [
+        0,
+        0
+      ]
+    },
+    {
+      "input": "",
+      "expected": "9",
+      "data": [
+        4,
+        1,
+        4
+      ]
+    }
+  ],
+  "teacher": "Ask the learner to explain one calculation and test different data.",
+  "dataName": "donatedBooks",
+  "requireLoop": true,
+  "dataDisplay": "donatedBooks = [3, 0, 2]"
+};
+export const challenges = [...main1, ...main2];
+export const tasks = [...challenges, ...warmups, plenary];
+export const coreChallenges = [...main1.slice(0,3), ...main2.slice(0,3)];
+export const taskById = id => tasks.find(t=>t.id===id);
+export const checkSpec = task => ({tests:task.tests||[],dataName:task.dataName,requireLoop:!!task.requireLoop});

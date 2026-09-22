@@ -217,7 +217,7 @@ function LessonApp({ profile, initialWork, onSave, onLeave }) {
 function App() {
   const [profile, setProfile] = useState(null);
   const [week, setWeek] = useState(() => [1,2,3].includes(Number(new URLSearchParams(location.search).get('week'))) ? Number(new URLSearchParams(location.search).get('week')) : 3);
-  useEffect(() => { document.title = week === 3 ? 'KL Coding Lab · Week 3 · MCC preparation' : week === 2 ? 'KL Coding Lab · Week 2 · Lists and loops' : 'KL Coding Lab · Week 1 · Your first Python program'; }, [week]);
+  useEffect(() => { document.title = week === 3 ? 'KL Coding Lab · Week 3 · Weeks 1 and 2 practice' : week === 2 ? 'KL Coding Lab · Week 2 · Lists and loops' : 'KL Coding Lab · Week 1 · Your first Python program'; }, [week]);
   function chooseWeek(value) { setWeek(value); const url = new URL(location.href); url.searchParams.set('week', value); history.replaceState(null, '', url); }
   if (!profile) return <StudentStart onStart={setProfile} week={week} onWeekChange={chooseWeek}/>;
   return week === 3 ? <Week3App key={profile.id+'-3'} profile={profile} initialWork={profile.week3Work || {}} onSave={work => saveProfileLesson(profile, work, 'week3Work')} onLeave={() => setProfile(null)}/> : week === 2 ? <Week2App key={profile.id+'-2'} profile={profile} initialWork={profile.week2Work || {}} onSave={work => saveProfileLesson(profile, work)} onLeave={() => setProfile(null)}/> : <LessonApp key={profile.id+'-1'} profile={profile} initialWork={profile.work || {}} onSave={work => saveProfileWork(profile, work)} onLeave={() => setProfile(null)}/>;

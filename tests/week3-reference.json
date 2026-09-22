@@ -1,0 +1,14 @@
+{
+  "rev-w1-1": "visitor = input()\nprint(\"Welcome\", visitor)\n",
+  "rev-w1-2": "cartons = int(input())\nprice = int(input())\nprint(cartons * price)\n",
+  "rev-w1-3": "money = int(input())\ntokens = int(input())\nprice = int(input())\nprint(money - tokens * price)\n",
+  "rev-w1-4": "laps = int(input())\nrate = int(input())\nextra = int(input())\nprint(laps * rate + extra)\n",
+  "rev-w1-5": "children = int(input())\nadults = int(input())\nchildPrice = int(input())\nadultPrice = int(input())\nbudget = int(input())\ntotal = children * childPrice + adults * adultPrice\nprint(total)\nprint(budget - total)\n",
+  "rev-w2-1": "visitorNames = [\"Mia\", \"Sam\", \"Zara\"]\nfor name in visitorNames:\n    print(name)\n",
+  "rev-w2-2": "packCounts = [2, 0, 4]\nfor packs in packCounts:\n    print(packs * 3)\n",
+  "rev-w2-3": "returnedBooks = [4, 0, 5, 2]\ntotal = 0\nfor books in returnedBooks:\n    total = total + books\nprint(total)\n",
+  "rev-w2-4": "canCounts = [3, 0, 5, 2]\nboxes = 0\ncans = 0\nfor current in canCounts:\n    boxes = boxes + 1\n    cans = cans + current\nprint(boxes)\nprint(cans)\n",
+  "rev-w2-5": "orderQuantities = [2, 0, 3, 1]\nprice = int(input())\nfee = int(input())\npacks = 0\nfor quantity in orderQuantities:\n    packs = packs + quantity\nprint(packs)\nprint(packs * price + fee)\n",
+  "rev-warmup": "clubName = \"Code Club\"\nprint(clubName)\n",
+  "rev-exit": "donatedBooks = [3, 0, 2]\ntotal = 0\nfor books in donatedBooks:\n    total = total + books\nprint(total)\n"
+}
