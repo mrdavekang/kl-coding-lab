@@ -3,7 +3,8 @@ import { Download, FileCheck2, LoaderCircle } from 'lucide-react';
 import { evidenceTasks, progressSummary, taskStatus } from './evidence.js';
 import { downloadFile } from './storage.js';
 
-export function ReportPanel({ profile, work, setWork, busy, onBackup, lessonConfig = null }) {
+export function ReportPanel({ profile, work, setWork, busy, onBackup, lessonConfig = null, flat = false }) {
+  const Panel = flat ? 'section' : 'details', Heading = flat ? 'h3' : 'summary';
   const [exporting, setExporting] = useState(false);
   const [message, setMessage] = useState('');
   const tasks = lessonConfig?.allTasks;
@@ -26,7 +27,7 @@ export function ReportPanel({ profile, work, setWork, busy, onBackup, lessonConf
     <div className="report-stats"><div><b>{stats.tasks}</b><span>tasks with work</span></div><div><b>{stats.passed}<small> / {total}</small></b><span>practice checks passed</span></div><div><b>{stats.runs}</b><span>recorded runs</span></div></div>
     <label className="field-label" htmlFor="report-reflection">One test I tried… My next step…</label>
     <textarea id="report-reflection" rows={3} maxLength={6000} value={work.reflection || ''} onChange={e => setWork(old => ({ ...old, reflection: e.target.value }))} placeholder="I tested… because… Next I want to…"/>
-    <details className="report-included"><summary>See the tasks in my report ({stats.tasks})</summary>{evidenceTasks(work, tasks).length ? evidenceTasks(work, tasks).map(task => <div key={task.id}><b>{task.title}</b><span>{taskStatus(task, work)}</span></div>) : <p>Run or edit a program to start collecting evidence.</p>}</details>
+    <Panel className="report-included"><Heading>See the tasks in my report ({stats.tasks})</Heading>{evidenceTasks(work, tasks).length ? evidenceTasks(work, tasks).map(task => <div key={task.id}><b>{task.title}</b><span>{taskStatus(task, work)}</span></div>) : <p>Run or edit a program to start collecting evidence.</p>}</Panel>
     <p className="report-note">The report shows the latest 8 attempts per task and keeps total run and check counts. You can add “Explain my program” notes below the editor. Checks are practice feedback; your explanation helps your teacher understand your learning.</p>
     {busy && <p role="status">Finish or stop your program before downloading the report.</p>}
     <button className="primary-button full" disabled={busy || exporting} onClick={downloadReport}>{exporting ? <LoaderCircle className="spin" size={18}/> : <Download size={18}/>} {exporting ? 'Making your PDF…' : 'Download my learning report (PDF)'}</button>

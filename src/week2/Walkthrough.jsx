@@ -5,7 +5,8 @@ export function stepDescription(step, example = false) {
   const changes = [...new Set([...Object.keys(step.before),...Object.keys(step.after)])].filter(name => JSON.stringify(step.before[name]) !== JSON.stringify(step.after[name])).map(name => `${name}: ${format(step.before[name])} -> ${format(step.after[name])}`);
   return `${example ? 'Worked example' : 'My program'} | Line ${step.executedLine || 'not executed yet'} | ${step.scope === '<module>' ? 'main program' : step.scope}\n${step.loops.map(loop=>`Iteration ${loop.iteration}: ${loop.variable} = ${format(loop.value)}`).join('\n')}\n${step.explanation}\n${changes.join('\n')}\nOutput at this step:\n${step.output || '(none)'}`;
 }
-export function Walkthrough({trace,position,paused,busy,waiting,onPosition,onNext,onRestart,onStop,onSave,onClose}) {
+export function Walkthrough({trace,position,paused,busy,waiting,onPosition,onNext,onRestart,onStop,onSave,onClose,flat=false}) {
+  const Panel=flat?'section':'details',Heading=flat?'h3':'summary';
   const step=trace.steps[position];
   if(!step) return <section className="walkthrough"><h3>{trace.error ? 'Walkthrough unavailable' : 'Preparing your walkthrough…'}</h3><p>{trace.error || 'Python will pause before the first line.'}</p>{busy ? <button className="outline-button" onClick={onStop}>Stop</button> : <button className="outline-button" onClick={onClose}>Close walkthrough</button>}</section>;
   const live = position === trace.steps.length - 1;
@@ -25,6 +26,6 @@ export function Walkthrough({trace,position,paused,busy,waiting,onPosition,onNex
     <div className="walk-values"><h4>Values before → after</h4><div className="table-scroll"><table><thead><tr><th>Variable</th><th>Before this step</th><th>After this step</th></tr></thead><tbody>{names.map(name=><tr key={name} className={JSON.stringify(step.before[name])!==JSON.stringify(step.after[name])?'changed':''}><th scope="row">{name}</th><td><code>{format(step.before[name])}</code></td><td><code>{format(step.after[name])}</code></td></tr>)}</tbody></table></div></div>
     <div className="walk-output"><h4>Output at this step</h4><pre>{step.output || '(No output yet.)'}</pre></div>
     <button className="outline-button" onClick={()=>onSave(step)}><BookmarkPlus size={17}/>Keep this step in my report</button><p className="review-note">Keep a step you can explain. Watching a walkthrough does not pass a practice check.</p>
-    <details className="trace-table"><summary>Open the recorded trace table</summary><div className="table-scroll"><table><thead><tr><th>Step</th><th>Line</th><th>What happened</th></tr></thead><tbody>{trace.steps.map((item,i)=><tr key={i}><td><button className="text-button" onClick={()=>onPosition(i)}>{i+1}</button></td><td>{item.executedLine || 'Start'}</td><td>{item.explanation}</td></tr>)}</tbody></table></div></details>
+    <Panel className="trace-table"><Heading>Recorded trace table</Heading><div className="table-scroll"><table><thead><tr><th>Step</th><th>Line</th><th>What happened</th></tr></thead><tbody>{trace.steps.map((item,i)=><tr key={i}><td><button className="text-button" onClick={()=>onPosition(i)}>{i+1}</button></td><td>{item.executedLine || 'Start'}</td><td>{item.explanation}</td></tr>)}</tbody></table></div></Panel>
   </section>;
 }

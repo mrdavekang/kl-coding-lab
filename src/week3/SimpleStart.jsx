@@ -1,26 +1,22 @@
-import React,{useState} from 'react';
+import React from 'react';
 
-// A worked example only: completing this picture does not mark a practice passed.
-export function FenceDemo(){
- const [column,setColumn]=useState(1),[filled,setFilled]=useState([]);
- const rows=['.#.','...'];
- const missing=rows.reduce((n,row,r)=>n+(row[column]==='.'&&!filled.includes(r)?1:0),0);
+// The worked picture is fully visible: no clicking is required to reveal its method.
+export function FenceDemo({complete=false,noun='Fence'}){
+ const rows=complete?['#.','#.']:['.#.','...'];
+ const counts=complete?[0,2]:[2,1,2];
  return <section className="mcc-demo" aria-label="Worked fence example">
-  <h3>Watch the idea: fill one column</h3>
-  <p>A column goes <b>down ↓</b>. Choose a column, then tap its gaps to add fence pieces.</p>
-  <div className="mcc-picture-grid" style={{gridTemplateColumns:'repeat(3, minmax(60px, 90px))'}}>
-   {[0,1,2].map(c=><button key={'head'+c} aria-pressed={column===c} onClick={()=>{setColumn(c);setFilled([]);}}>Column {c+1} ↓</button>)}
-   {rows.flatMap((row,r)=>[...row].map((cell,c)=>{
-    const added=c===column&&filled.includes(r),gap=cell==='.'&&!added;
-    return <button key={r+'-'+c} disabled={c!==column||!gap} className={'mcc-picture-cell '+(gap?'is-gap':'is-built')+(added?' is-added':'')} aria-label={`Row ${r+1}, column ${c+1}: ${added?'added fence':gap?'gap':'existing fence'}`} onClick={()=>setFilled(old=>[...old,r])}>{added?'Added ✓':gap?'Gap':'Fence'}</button>;
-   }))}
-  </div>
-  <p role="status">{missing?`${filled.length} new pieces added. ${missing} ${missing===1?'gap':'gaps'} left in this column.`:`Column ${column+1} complete! You added ${filled.length} new ${filled.length===1?'piece':'pieces'}.`}</p>
-  <p><b>The lesson:</b> the middle column needs only 1 new piece. Each outside column needs 2. Choose the column that needs the fewest.</p>
+  <h3>1. See an example</h3>
+  <p>Each column goes <b>down ↓</b>. Count its gaps. We only need to finish <b>one</b> column.</p>
+  <table className="mcc-field-table"><caption>Example picture · counts already worked out</caption><thead><tr>{counts.map((_,c)=><th key={c} scope="col">Column {c+1} ↓</th>)}</tr></thead><tbody>{rows.map((row,r)=><tr key={r}>{[...row].map((cell,c)=><td key={c} className={cell==='.'?'is-gap':'is-built'}>{cell==='.'?'Gap':noun}</td>)}</tr>)}</tbody><tfoot><tr>{counts.map((n,c)=><td key={c}><b>{n} new {n===1?'piece':'pieces'}</b></td>)}</tr></tfoot></table>
+  <p><b>Choose the smallest count: {Math.min(...counts)}.</b> {complete?'The first column is already complete.':'The middle column needs only one new piece.'} Write <b>{Math.min(...counts)}</b> as the answer.</p>
  </section>;
 }
+export function SmallCodeExample({task}){
+ const notes=task.id==='retrieval'?['The loop visits each item in the list.','print(cell) shows the item from that visit.']:['Start gapCount at 0.','Visit each cell. Only a dot adds 1.','Print the final count after the loop.'];
+ return <section className="mcc-demo"><h3>1. See an example</h3><p>{task.id==='retrieval'?'This short program shows each cell.':'This working program counts one gap in the list.'}</p><pre className="mcc-code-text"><code>{task.example}</code></pre><p><b>It prints:</b></p><pre className="mcc-code-text">{task.exampleOutput}</pre><ol>{notes.map(note=><li key={note}>{note}</li>)}</ol></section>;
+}
 const simple={
- a1:{idea:'Make one column complete. Count its empty spaces, then try the other columns. Choose the smallest count.',do:['Pick a column in the picture below. Count its gaps going down.','Count the other columns. Type the smallest count.','Choose Check my answer. Then download your answer file.'],done:'I can point to the gaps my answer counts.'},
+ a1:{idea:'Make one column complete. Count its empty spaces, then try the other columns. Choose the smallest count.',do:['Look down the first column in your picture below. Count its gaps going down.','Count the other columns. Type the smallest count.','Choose Check my answer. Then download your answer file.'],done:'I can point to the gaps my answer counts.'},
  a2:{idea:'This time the picture shows lights. Fill one column of lights. Use as few new lights as you can.',do:['Count the gaps going down each column.','Choose the smallest count. If two columns tie, use that count once.','Type your number and choose Check my answer.'],done:'I found how many new lights one column needs.'},
  a3:{idea:'A column with no gaps needs no new pieces. Zero is allowed.',do:['Look down each column. Is one already complete?','Count the gaps, and type the smallest count.','Choose Check my answer. Explain why zero can be a correct answer.'],done:'I can explain a column that needs no work.'},
  retrieval:{idea:'This code counts all the items. You do not need to write any code yet.',do:['Choose Run. Look for 3 in Program output.','Find the # on the first line. Replace it with a dot.','Run again. There are still three items, so the count stays 3.'],done:'I have run the code twice.'},
@@ -33,6 +29,6 @@ const simple={
 export const simpleGuide=id=>simple[id];
 export function SimpleInstruction({id}){
  const guide=simple[id];if(!guide)return null;
- return <section className="mcc-simple-instruction"><h3>One idea</h3><p>{guide.idea}</p><h3>Now do this</h3><ol>{guide.do.map(step=><li key={step}>{step}</li>)}</ol><p className="mcc-simple-done"><b>Finished:</b> {guide.done}</p></section>;
+ return <section className="mcc-simple-instruction"><h3>2. Your task</h3><p>{guide.idea}</p><p><b>Do these three steps:</b></p><ol>{guide.do.map(step=><li key={step}>{step}</li>)}</ol><p className="mcc-simple-done"><b>Finished:</b> {guide.done}</p></section>;
 }
 export function SymbolKey({noun="fence"}){return <p className="mcc-symbol-key"><span><b>.</b> = a gap</span><span><b>#</b> = a {noun} already there</span></p>;}
