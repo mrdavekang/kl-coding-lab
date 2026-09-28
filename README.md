@@ -1,6 +1,14 @@
 # KL Coding Lab
 
-A static Python learning app for a mixed KS2–KS4 coding club. Weeks 1, 2 and 3 each contain a 60-minute learning sequence, teaching notes, open challenge routes and practice checks. Week 3 uses sample data and outputs with visible clues. There are no output-prediction activities or predictive code-completion extensions.
+A static Python learning app for a mixed KS2–KS4 coding club. Weeks 1–4 each contain a 60-minute learning sequence, teaching notes, open challenge routes and practice checks.
+
+## Week 4: conditions, counting and MCC grids
+
+Week 4 introduces AQA-style selection and then applies it to an adaptation of [MCC 2025 Problem 1: Building Fences](https://ioimalaysia.org/competition/mcc/2025/archive/p1/). The ten-stage plan runs from retrieval and Types of Learning through conditions, counting matches, nested loops, minimum tracking, two pit stops and an independent plenary. Main Task 1 contains four condition challenges; Main Task 2 contains four fence/grid challenges, with one Pre-Bronze, Bronze, Silver and Gold route in each bank.
+
+Every task follows the same beginner sequence: **Read first → Study a complete analogous example → Follow written iteration steps → Open the live line-by-line tutor → Write and check your own program**. Worked examples are separate from pupil drafts. The real-execution tutor shows the executed and next source lines, values before and after, the active loop variable, every iteration and current output. `Next iteration` moves to the next loop visit or loop end without hiding the intermediate trace record.
+
+The Week 4 presentation takes its visual cues from the Year 11 classroom app: Raleway-style typography, dark green and warm off-white, compact square teaching cards, WAGBA, timed stages, border accents and a dark code treatment. It remains responsive and uses the existing accessible editor, reports, backups and local student profiles. Direct links use `?week=4`; Week 4 progress is stored separately under `week4Work`.
 
 ## Week 3: Weeks 1 and 2 programming practice
 

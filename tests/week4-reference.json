@@ -1,0 +1,12 @@
+{
+  "w4-warmup": "trainingMinutes = [3, 2, 4]\ntotalMinutes = 0\nfor minutes in trainingMinutes:\n    totalMinutes = totalMinutes + minutes\nprint(totalMinutes)",
+  "w4-positive-scores": "roundScores = [5, -2, 0, 7]\nfor score in roundScores:\n    if score > 0:\n        print(score)",
+  "w4-count-qualifiers": "scores = [9, 12, 7, 15]\nqualifyingCount = 0\nfor score in scores:\n    if score >= 10:\n        qualifyingCount = qualifyingCount + 1\nprint(qualifyingCount)",
+  "w4-total-positive": "donations = [5, 0, -2, 7]\ndonationTotal = 0\nfor donation in donations:\n    if donation > 0:\n        donationTotal = donationTotal + donation\nprint(donationTotal)",
+  "w4-count-range": "targetScores = [9, 10, 14, 20, 21]\ntargetCount = 0\nfor score in targetScores:\n    if score >= 10 and score <= 20:\n        targetCount = targetCount + 1\nprint(targetCount)",
+  "w4-one-column": "fenceColumn = ['.', '#', '.', '#']\nmissingCount = 0\nfor cell in fenceColumn:\n    if cell == '.':\n        missingCount = missingCount + 1\nprint(missingCount)",
+  "w4-each-column": "fenceColumns = [['.', '#', '.'], ['#', '#', '.'], ['#', '#', '#']]\nfor column in fenceColumns:\n    missingCount = 0\n    for cell in column:\n        if cell == '.':\n            missingCount = missingCount + 1\n    print(missingCount)",
+  "w4-best-column": "fenceColumns = [['.', '.', '#', '.'], ['#', '.', '#', '#'], ['.', '.', '.', '.']]\nbestMissing = 5\nfor column in fenceColumns:\n    missingCount = 0\n    for cell in column:\n        if cell == '.':\n            missingCount = missingCount + 1\n    if missingCount < bestMissing:\n        bestMissing = missingCount\nprint(bestMissing)",
+  "w4-building-fences": "dimensions = input().split()\nrowCount = int(dimensions[0])\ncolumnCount = int(dimensions[1])\nfieldRows = []\nfor rowIndex in range(rowCount):\n    fieldRows.append(input())\nbestMissing = rowCount + 1\nfor columnIndex in range(columnCount):\n    missingCount = 0\n    for rowIndex in range(rowCount):\n        if fieldRows[rowIndex][columnIndex] == '.':\n            missingCount = missingCount + 1\n    if missingCount < bestMissing:\n        bestMissing = missingCount\nprint(bestMissing)",
+  "w4-exit": "computerStatus = [1, 0, 1, 1, 0]\navailableCount = 0\nfor status in computerStatus:\n    if status == 1:\n        availableCount = availableCount + 1\nprint(availableCount)"
+}

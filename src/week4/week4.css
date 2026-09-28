@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&display=swap');
+
+.w4-app{
+  --mcc-ink:#17221d;
+  --mcc-muted:#506058;
+  --mcc-accent:#116b40;
+  --mcc-soft:#edf2ed;
+  --mcc-line:#c5d0c8;
+  --w4-green:#116b40;
+  --w4-green-strong:#00833c;
+  --w4-pale:#edf2ed;
+  --w4-paper:#f7f8f6;
+  --w4-dark:#17221d;
+  --w4-focus:#e7b440;
+  background:var(--w4-paper);
+  color:var(--w4-dark);
+  font-family:Raleway,Arial,sans-serif;
+}
+.w4-app .mcc-header{position:sticky;top:0;z-index:20;background:#fff;border-bottom:3px solid var(--w4-green);padding-top:12px;padding-bottom:12px;box-shadow:0 2px 8px rgba(23,34,29,.08)}
+.w4-app .mcc-brand{display:flex;align-items:baseline;gap:5px;color:var(--w4-green);font-weight:500}
+.w4-app .mcc-brand small{font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--mcc-muted);margin-left:8px}
+.w4-app .mcc-header nav button{border-radius:4px}.w4-app .mcc-header nav button:hover:not(:disabled){background:var(--w4-pale);color:var(--w4-green)}
+.w4-app .mcc-student{background:#fff;border-bottom:1px solid var(--mcc-line)}
+.w4-app .mcc-title{max-width:1280px;margin:28px auto 26px}.w4-app .mcc-title h1{color:var(--w4-green);font-weight:750;letter-spacing:-1px}.w4-app .mcc-title>p:last-child{font-weight:500}
+.w4-app .mcc-eyebrow{color:var(--w4-green);font-weight:800;letter-spacing:1.25px}
+.w4-app .mcc-shell{max-width:1280px;grid-template-columns:270px minmax(0,1fr);gap:38px}
+.w4-app .mcc-main{max-width:900px}.w4-app .mcc-sidebar{position:relative}.w4-app .mcc-sidebar>section{background:#fff;border:1px solid var(--mcc-line);border-radius:5px;padding:16px;margin-bottom:16px}
+.w4-app .mcc-sidebar>section>h3{color:var(--w4-green)}
+.w4-app .mcc-sidebar nav button{border-radius:4px}.w4-app .mcc-sidebar nav button[aria-current]{background:#e5eee7;color:var(--w4-green)}.w4-app .mcc-sidebar nav button[aria-current]>span{background:var(--w4-green-strong)}
+.w4-app .w4-wagba{border-top:5px solid var(--w4-green)!important}.w4-app .w4-wagba h3{font-size:17px;line-height:1.4}.w4-app .w4-wagba ul{margin:0;padding-left:20px}.w4-app .w4-wagba li{margin:7px 0;line-height:1.45}
+.w4-app button{border-radius:5px}.w4-app button:focus-visible,.w4-app input:focus-visible,.w4-app textarea:focus-visible,.w4-app summary:focus-visible{outline-color:var(--w4-focus)}
+.w4-app .mcc-primary,.w4-app .primary-button{background:var(--w4-green-strong);border-color:var(--w4-green-strong)}.w4-app .mcc-primary:hover:not(:disabled),.w4-app .primary-button:hover:not(:disabled){background:#075f31}
+.w4-app .mcc-learning-goal{background:#e8efe9;border-left-color:var(--w4-green);border-radius:0 5px 5px 0}
+.w4-app .mcc-start-here{background:#e8efe9;border-left-color:var(--w4-green);border-radius:0 5px 5px 0}
+.w4-app .mcc-practice-bank{background:#fff;border:1px solid var(--mcc-line);border-top:5px solid var(--w4-green);padding:20px;border-radius:5px}.w4-app .mcc-practice-bank nav button[aria-current]{border-color:var(--w4-green);background:#e5eee7}
+.w4-app .w4-task>.mcc-lead{font-size:20px;line-height:1.7;max-width:68ch}
+.w4-teach-block,.w4-example{background:#fff;border:1px solid var(--mcc-line);border-radius:5px;padding:24px;margin:24px 0}.w4-teach-block{border-left:5px solid var(--w4-green)}
+.w4-app .w4-example{background:#f1f4f0;border-radius:5px;border-top:5px solid var(--w4-green);padding:24px}.w4-app .w4-example h3,.w4-teach-block h3{color:var(--w4-green);margin-top:8px}
+.w4-step-label{display:inline-block;font-size:12px;font-weight:800;letter-spacing:1.15px;color:var(--w4-green);text-transform:uppercase}
+.w4-vocab{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:18px}.w4-vocab>div{border:1px solid var(--mcc-line);background:var(--w4-pale);padding:12px;border-radius:4px}.w4-vocab b{display:block;color:var(--w4-green);font-size:15px}.w4-vocab span{display:block;font-size:14px;line-height:1.5;margin-top:3px}
+.w4-app .mcc-code-text{background:var(--w4-dark);color:#edf7f0;border-radius:4px;border-left:4px solid var(--w4-green-strong);font-size:16px;line-height:1.75}.w4-app .w4-example .mcc-code-text{background:var(--w4-dark);padding:18px 20px}
+.w4-app .w4-example ol{padding-left:26px}.w4-app .w4-example li{padding-left:7px;margin:10px 0;line-height:1.65}.w4-example-actions{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 12px}
+.w4-your-task{border-left-color:#3f704f}.w4-your-task h4{margin:22px 0 8px;color:var(--w4-green)}
+.w4-app .mcc-hints{background:#fff9e8;border:1px solid #dfd1a6;padding:18px 22px;border-radius:5px}.w4-app .mcc-hints p{border-left-color:var(--w4-focus)}
+.w4-app .mcc-your-turn{border-top:0;padding-top:0}.w4-app .mcc-python{background:#fff;border:1px solid var(--mcc-line);padding:18px;border-radius:5px}.w4-app .mcc-editor-label{background:#e3ece5;border-radius:4px 4px 0 0}.w4-app .mcc-editor{border-radius:0 0 4px 4px}
+.w4-app .mcc-output{background:#eef2ef;border:1px solid var(--mcc-line);border-radius:4px}.w4-app .mcc-example-banner{background:#e3eee6;border-left:4px solid var(--w4-green);border-radius:0 4px 4px 0}
+.w4-app .mcc-feedback{background:#e7efe9;border-left-color:var(--w4-green)}
+.w4-app .walkthrough{background:#eef3ef;border-color:#adbeaf;border-radius:5px}.w4-app .walk-source{background:var(--w4-dark);color:#edf7f0;border-radius:4px;padding:14px;margin:14px 0}.w4-app .walk-source-title{color:#9bd2ae;font-weight:700}.w4-app .walk-source .next{background:#245c3d}.w4-app .walk-source .executed{background:#34483e}.w4-app .walk-explanation{border-left:4px solid var(--w4-focus);background:#fff9e8;padding:12px 14px;margin:14px 0}.w4-app .walk-list{background:#fff;border:1px solid var(--mcc-line);padding:12px 14px;margin:10px 0}.w4-app .list-items .current{background:#d7eadc;border-color:var(--w4-green)}
+.w4-route-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0 28px}.w4-route-cards section{background:#fff;border:1px solid var(--mcc-line);border-top:4px solid var(--w4-green);padding:16px;border-radius:5px}.w4-route-cards p{font-size:15px;line-height:1.55;margin:6px 0 0}
+.w4-grid-model{display:grid;gap:5px;background:#dfe9df;border:1px solid var(--mcc-line);padding:12px;border-radius:5px;width:max-content;margin:18px 0}.w4-grid-model>div{display:flex;gap:5px}.w4-grid-model span{display:grid;place-items:center;width:52px;height:52px;background:#fff;font:800 28px/1 ui-monospace,monospace;color:var(--w4-green);border:1px solid #aab9ad}
+.w4-app table thead th{background:#dfe9df;color:var(--w4-dark);font-weight:750}.w4-app th,.w4-app td{border-color:var(--mcc-line)}
+.w4-app .mcc-extension-list button{background:#fff;border-radius:5px}.w4-app .mcc-extension-list button:hover{border-color:var(--w4-green)}
+.w4-app .mcc-notice{border-radius:4px;background:#fff3cb;border:1px solid #e2cb7e}
+.w4-app .mcc-bottom{border-color:var(--mcc-line)}
+
+@media(max-width:960px){.w4-app .mcc-shell{grid-template-columns:210px minmax(0,1fr);gap:22px}.w4-route-cards{grid-template-columns:1fr}}
+@media(max-width:720px){.w4-app .mcc-shell{display:block}.w4-app .mcc-sidebar{position:static}.w4-app .mcc-sidebar>section{padding:13px}.w4-app .mcc-sidebar .w4-wagba{display:none}.w4-teach-block,.w4-app .w4-example{padding:18px}.w4-app .mcc-python{padding:12px}.w4-app .mcc-brand small{display:none}.w4-app .mcc-header{position:relative}.w4-app .w4-task>.mcc-lead{font-size:18px}}
