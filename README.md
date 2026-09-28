@@ -2,6 +2,8 @@
 
 A static Python learning app for a mixed KS2–KS4 coding club. Weeks 1–4 each contain a 60-minute learning sequence, teaching notes, open challenge routes and practice checks.
 
+Supabase Classroom Mode provides **Screens down** only. Students use the ordinary app URL and choose their week normally. The teacher opens the same URL with `?teacher=1`, signs in, starts the classroom, and can cover or release every connected student screen. There are no page-pushing, live-code or answer controls, and no student leave button. Profiles, names and code remain local. Run `supabase/30-screen-down-classrooms.sql` once and check that it returns `screen_down_classrooms_ready = true`.
+
 ## Week 4: conditions, counting and MCC grids
 
 Week 4 introduces AQA-style selection and then applies it to an adaptation of [MCC 2025 Problem 1: Building Fences](https://ioimalaysia.org/competition/mcc/2025/archive/p1/). The ten-stage plan runs from retrieval and Types of Learning through conditions, counting matches, nested loops, minimum tracking, two pit stops and an independent plenary. Main Task 1 contains four condition challenges; Main Task 2 contains four fence/grid challenges, with one Pre-Bronze, Bronze, Silver and Gold route in each bank.
