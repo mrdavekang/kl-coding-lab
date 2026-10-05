@@ -1,8 +1,20 @@
 # KL Coding Lab
 
-A static Python learning app for a mixed KS2–KS4 coding club. Weeks 1–4 each contain a 60-minute learning sequence, teaching notes, open challenge routes and practice checks.
+A static Python learning app for a mixed KS2–KS4 coding club. Weeks 1–5 each contain a 60-minute learning sequence, teaching notes, open challenge routes and practice checks.
 
 Supabase Classroom Mode provides **Screens down** only. Students use the ordinary app URL and choose their week normally. The teacher opens the same URL with `?teacher=1`, signs in, starts the classroom, and can cover or release every connected student screen. There are no page-pushing, live-code or answer controls, and no student leave button. Profiles, names and code remain local. Run `supabase/30-screen-down-classrooms.sql` once and check that it returns `screen_down_classrooms_ready = true`.
+
+## Week 5: counters, IDE practice and MCC readiness
+
+Week 5 continues from the running-total and conditions facts covered in Week 4. It follows the school sequence: Do Now, Types of Learning, reading before Main Task 1, Main Task 1, Learning Pit Stop 1, reading before Main Task 2, Main Task 2, Learning Pit Stop 2, Extension and Plenary. Direct links use `?week=5`, and the landing page defaults to Week 5. Previous weeks remain available; Week 5 saves separately under `week5Work`.
+
+Main Task 1 has positive-output support, a core qualifying-score counter and a conditional donations total. Every task includes short reading, syntax/vocabulary, an analogous worked example, an explanation for every nonblank source line, every iteration and the existing live Python tutor. Fresh-data checks include boundaries and no matches. Main Task 2 rehearses opening, running, testing, saving and reopening the pupil's own program in preinstalled Thonny or an organiser-listed browser fallback. Input adaptation and range/repeated-input extensions are available. External-IDE checklist entries are explicitly self-reported, not automatically verified.
+
+The MCC 2026 briefing links to official dates, formats and rules, checked 5 October 2026. It distinguishes output-file and code submission. The school session and registration/payment process remain clearly marked to be confirmed. The Plenary collects participation intent, school/home preference, parent discussion, attendance, readiness and support needs. Responses save locally and are downloadable for the teacher; the app neither registers contestants nor sends the response automatically. The PDF and Week 5 backup also include the responses, fact discussions and rehearsal evidence.
+
+The rehearsal editor imports/downloads Python files, loads/downloads small input files and exports output only after a successful run of the current code and input. Error, tutor, checker and stale output cannot be exported as the current answer. Backups reject other weeks and download existing work before a validated restore. Year 11 colours, Raleway reading text and monospace code carry forward.
+
+Before teaching, prepare Thonny, check the browser fallback and file downloads on school devices, and confirm school logistics. During the contest, learners work independently and follow the official AI restriction. This app is classroom preparation, not the competition platform.
 
 ## Week 4: conditions, counting and MCC grids
 
@@ -77,7 +89,7 @@ The app runs Python in a module worker using pinned Pyodide 314.0.6. The runtime
 
 The Run controller sends UTF-8 input through a shared buffer and streams output from the worker. Interrupts are checked while waiting for input. Stop recreates a worker if a normal interrupt does not complete. Runs have fresh program namespaces; task checks have their own inputs and captured output. Excessive output is capped, and checks have a time limit. This is a learning checker running on the pupil's device, not a tamper-resistant competition judge.
 
-Weeks 1, 2 and 3 are implemented. Silver and Gold are optional extensions informed by the club's competition practice, not a claim of qualification or contest readiness.
+Weeks 1–5 are implemented. Silver and Gold are optional classroom extensions, not a claim of qualification or contest readiness.
 
 ## Classroom validation
 

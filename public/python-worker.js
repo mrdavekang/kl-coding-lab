@@ -99,7 +99,7 @@ self.onmessage = async ({ data }) => {
       python.globals.set('__kl_source', data.code);
       python.globals.set('__kl_task', data.check);
       python.globals.set('__kl_spec', JSON.stringify(data.spec || {}));
-      const result = await python.runPythonAsync(data.check.startsWith('w4-') ? '__kl_check4(__kl_source, __kl_spec)' : data.check.startsWith('w3-') ? '__kl_check3(__kl_source, __kl_spec)' : data.check.startsWith('w2-') ? '__kl_check2(__kl_source, __kl_task)' : '__kl_check(__kl_source, __kl_task)');
+      const result = await python.runPythonAsync(data.check.startsWith('w4-') || data.check.startsWith('w5-') ? '__kl_check4(__kl_source, __kl_spec)' : data.check.startsWith('w3-') ? '__kl_check3(__kl_source, __kl_spec)' : data.check.startsWith('w2-') ? '__kl_check2(__kl_source, __kl_task)' : '__kl_check(__kl_source, __kl_task)');
       completion = { type: 'checked', result: JSON.parse(result) };
     } else if (data.type === 'trace') {
       python.globals.set('__kl_source', data.code);

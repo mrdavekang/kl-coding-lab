@@ -1,0 +1,9 @@
+{
+  "w5-donow": "trainingMinutes = [3, 2, 4]\ntotalMinutes = 0\nfor minutes in trainingMinutes:\n    totalMinutes = totalMinutes + minutes\nprint(totalMinutes)",
+  "w5-positive": "roundScores = [5, -2, 0, 7]\nfor score in roundScores:\n    if score > 0:\n        print(score)",
+  "w5-qualifiers": "scores = [9, 12, 7, 15]\nqualifyingCount = 0\nfor score in scores:\n    if score >= 10:\n        qualifyingCount = qualifyingCount + 1\nprint(qualifyingCount)",
+  "w5-donations": "donations = [5, 0, -2, 7]\ndonationTotal = 0\nfor donation in donations:\n    if donation > 0:\n        donationTotal = donationTotal + donation\nprint(donationTotal)",
+  "w5-input": "scoreText = input()\nscore = int(scoreText)\nqualifyingCount = 0\nif score >= 10:\n    qualifyingCount = qualifyingCount + 1\nprint(qualifyingCount)",
+  "w5-range": "targetScores = [9, 10, 14, 20, 21]\ntargetCount = 0\nfor score in targetScores:\n    if score >= 10 and score <= 20:\n        targetCount = targetCount + 1\nprint(targetCount)",
+  "w5-input-loop": "scoreCountText = input()\nscoreCount = int(scoreCountText)\nqualifyingCount = 0\nfor scoreIndex in range(scoreCount):\n    scoreText = input()\n    score = int(scoreText)\n    if score >= 10:\n        qualifyingCount = qualifyingCount + 1\nprint(qualifyingCount)"
+}
