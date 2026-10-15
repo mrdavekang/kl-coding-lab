@@ -4,6 +4,24 @@ A static Python learning app for a mixed KS2–KS4 coding club. Weeks 1–5 each
 
 Supabase Classroom Mode provides **Screens down** only. Students use the ordinary app URL and choose their week normally. The teacher opens the same URL with `?teacher=1`, signs in, starts the classroom, and can cover or release every connected student screen. There are no page-pushing, live-code or answer controls, and no student leave button. Profiles, names and code remain local. Run `supabase/30-screen-down-classrooms.sql` once and check that it returns `screen_down_classrooms_ready = true`.
 
+## MCC Preparation: MCC 2025 P1 — Building Fences
+
+**MCC Preparation** appears immediately after Week 5 in the lesson chooser and is also linked from the Week 5 footer. The new page contains **MCC 2025 P1: Building Fences**, with five activities and a linear path through 13 short exercises:
+
+1. Decode the input: single-number input, splitting two numbers, then dimensions and area.
+2. Count a chosen symbol: visit characters, select dots, then keep a counter.
+3. Find the smallest cost: read/store costs, then track a minimum.
+4. Explore a field by columns: store rows, visit one column, count it, then count every column.
+5. Solve the original Building Fences past question independently.
+
+Each exercise provides input/process/output planning, a syntax-lookup prompt, prediction/testing notes, a Python editor, buffered standard input and fresh-data checks. Activities 1–4 have separate worked examples and syntax explanations. All five include reviewed teaching images with text alternatives, an enlarged viewer, full-size access and downloads. The last activity keeps its planning board blank and does not display a reference solution. The imagery is generated teaching material; the official problem is linked separately.
+
+Use `?week=mcc` for the preparation overview. A direct lesson link is `?week=mcc&problem=building-fences&activity=1`. The address records the current exercise as the pupil continues. Existing `classId` and teacher parameters are preserved. The landing page still defaults to Week 5, and the same local student-profile flow applies. Learners may revisit earlier activities; this is a linear recommended route, not a completion lock.
+
+Preparation work saves independently under `mccWork`. My files provides a dedicated validated backup/restore and a PDF containing plans, code, explanations and recent practice evidence. Exploring an example does not replace a pupil draft or pass a check. An output file can be downloaded only after a successful run of the current code and input. Readiness checkboxes are explicitly self-reported. These checks award no official contest points and submit nothing to MCC.
+
+Five activity sets are intended for several sessions with beginners; use the short exercises as readiness checks. References live in `tests/mcc-reference.json`, outside the client build. Verification covers all examples, common errors, every field up to 3 × 3, an 800 × 800 boundary field, navigation, assets, saved-work isolation and backup validation. Browser checks cover the complete exercise path, wrong-answer feedback, separate examples, downloads and narrow-screen layout.
+
 ## Week 5: counters, IDE practice and MCC readiness
 
 Week 5 continues from the running-total and conditions facts covered in Week 4. It follows the school sequence: Do Now, Types of Learning, reading before Main Task 1, Main Task 1, Learning Pit Stop 1, reading before Main Task 2, Main Task 2, Learning Pit Stop 2, Extension and Plenary. Direct links use `?week=5`, and the landing page defaults to Week 5. Previous weeks remain available; Week 5 saves separately under `week5Work`.

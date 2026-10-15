@@ -58,7 +58,7 @@ function PreferenceForm({profile,work,setWork,onNotice}){
   </section>;
 }
 
-export function Week5App({profile,initialWork,onSave,onLeave}){
+export function Week5App({profile,initialWork,onSave,onLeave,onOpenMcc}){
   const [work,setWork]=useState(()=>validateWeek5(initialWork));
   const [page,setPage]=useState('lesson'),[stageId,setStageId]=useState(work.stage),[taskId,setTaskId]=useState(work.task);
   const [example,setExample]=useState(false),[status,setStatus]=useState('loading'),[output,setOutput]=useState(''),[feedback,setFeedback]=useState(null),[error,setError]=useState('');
@@ -187,6 +187,6 @@ export function Week5App({profile,initialWork,onSave,onLeave}){
       </main>
     </div>
     <input hidden ref={backupInput} type="file" accept=".json" onChange={restore}/><input hidden ref={dataInput} type="file" accept=".txt,.in" onChange={event=>importText(event,'input')}/><input hidden ref={codeInput} type="file" accept=".py" onChange={event=>importText(event,'code')}/>
-    <footer className="w5-footer"><span>KL Coding Cup · Week 5 practice</span><span>Read · Predict · Run · Explain · Save</span></footer>
+    <footer className="w5-footer"><span>KL Coding Cup · Week 5 practice</span>{onOpenMcc&&<button disabled={busy} onClick={()=>{if(onSave(latest.current))onOpenMcc();else setNotice('Download a backup first: saving is unavailable.');}}>Next: MCC Preparation →</button>}<span>Read · Predict · Run · Explain · Save</span></footer>
   </div>;
 }

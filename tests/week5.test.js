@@ -1,3 +1,4 @@
+import {fileURLToPath} from 'node:url';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
@@ -7,7 +8,7 @@ import {validateWeek5,progress,preferenceText,preferenceComplete,reviewReport,ou
 import {createProfile,saveProfileLesson,listProfiles} from '../src/storage.js';
 
 test('Week 5 solutions and worked examples execute correctly, including every loop iteration',()=>{
-  const run=spawnSync('python3',[new URL('./week5_checks.py',import.meta.url).pathname],{input:JSON.stringify(tasks.map(t=>({...t,spec:checkSpec(t)}))),encoding:'utf8',maxBuffer:2e6});
+  const run=spawnSync('python3',[fileURLToPath(new URL('./week5_checks.py',import.meta.url))],{input:JSON.stringify(tasks.map(t=>({...t,spec:checkSpec(t)}))),encoding:'utf8',maxBuffer:2e6});
   assert.equal(run.status,0,run.stdout+'\n'+run.stderr);
   assert.match(run.stdout,/misconceptions rejected/);
 });
