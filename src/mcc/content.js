@@ -91,5 +91,11 @@ export const activities = [
 export const tasks = activities.flatMap((activity, index) => activity.exercises.map(exercise => ({...exercise, activityId:activity.id, activityNumber:index+1})));
 export const taskById = id => tasks.find(item => item.id === id);
 export const activityFor = id => activities.find(item => item.exercises.some(exercise => exercise.id === id));
-export const checkSpec = item => ({tests:item.tests, requireLoop:!!item.requireLoop, requireCondition:!!item.requireCondition, requireNested:!!item.requireNested});
+export const checkSpec = item => ({tests:item.tests, requireAnd:!!item.requireAnd, requireLoop:!!item.requireLoop, requireCondition:!!item.requireCondition, requireNested:!!item.requireNested});
 export const scoringTasks = [[1,6],[2,6],[3,20],[4,20],[5,150],[6,200],[7,500],[8,500],[9,500],[10,800]];
+export const buildingFences = {
+  problemId,problemTitle,shortTitle:'Building Fences',storageField:'mccWork',filePrefix:'MCC-Building-Fences',imageDirectory:'mcc-building-fences',
+  description:'A field contains grass and existing fences. Build the skills to find the cheapest vertical wall.',
+  activities,tasks,taskById,activityFor,
+  statement:{description:'A grassy field is represented by N rows and M columns. Each cell is grass (.) or an existing fence (#). You can turn any number of grass cells into fences. Find the minimum number of new fences needed to make one complete vertical column of fences.',input:'The first line contains N and M. Each of the next N lines contains M dots or hashes. Output one integer: the minimum number of new fences needed.',constraints:'1 ≤ N, M ≤ 800. The grid contains only . and #.',tableCaption:'Official scoring groups · 10 points each',tableHead:['Task','Maximum N and M'],tableRows:scoringTasks,note:'These are scoring groups for the same problem. Your method should handle fields of different sizes. The classroom checks below are separate from the official judge.',sourceUrl,sourceLabel:'Read the official MCC 2025 question ↗'},
+};

@@ -4,9 +4,27 @@ A static Python learning app for a mixed KS2–KS4 coding club. Weeks 1–5 each
 
 Supabase Classroom Mode provides **Screens down** only. Students use the ordinary app URL and choose their week normally. The teacher opens the same URL with `?teacher=1`, signs in, starts the classroom, and can cover or release every connected student screen. There are no page-pushing, live-code or answer controls, and no student leave button. Profiles, names and code remain local. Run `supabase/30-screen-down-classrooms.sql` once and check that it returns `screen_down_classrooms_ready = true`.
 
-## MCC Preparation: MCC 2025 P1 — Building Fences
+## MCC Preparation: Building Fences and Corner Cover
 
-**MCC Preparation** appears immediately after Week 5 in the lesson chooser and is also linked from the Week 5 footer. The new page contains **MCC 2025 P1: Building Fences**, with five activities and a linear path through 13 short exercises:
+The preparation overview now offers **two separate problem pages**. Existing Building Fences work remains under `mccWork`. **Corner Cover** saves independently under `cornerCoverWork`, with its own code, inputs, plans, evidence, readiness reflections, backup/restore and PDF report. The lesson chooser shows combined practice progress, while each problem page shows only its own checks.
+
+Corner Cover uses the teacher’s explicit solution style: split the input, convert each item in a loop, append it to `numbers`, assign `n`, `m`, `A` and `B`, calculate `landscape` and `portrait`, append one answer per case and print the saved answers. Functions and list comprehensions are not prerequisites. Its five activities contain 11 short exercises:
+
+1. **Unpack the input:** split text, build an integer list, then name the four dimensions.
+2. **Check whether it fits:** compare dimensions separately, then join them with `and`.
+3. **Cover two corners:** recognise full height or width with `==` and `or`, then combine fit and span.
+4. **Rotate and collect answers:** trace both complete orientation checks, accept either one, then practise an answer list using a separate score problem.
+5. **Corner Cover:** combine the earlier programs with the original multiple-case input format.
+
+Each step includes the reviewed Corner Cover visual, a syntax reference, a separate runnable example (activities 1–4), IPO planning, lookup and prediction prompts, hints, explanations and fresh-input checks. Input formats are stated explicitly: early exercises take one case, the batch exercise takes scores, and the final question takes T followed by T dimension lines. The final statement preserves the supplied sample and notes that its B = 1 conflicts with the printed lower bound of 2. No year or official web source is inferred for this supplied question.
+
+Direct links use `?week=mcc&problem=corner-cover&activity=1`. Class and teacher parameters survive navigation. Backup import checks the problem identifier and downloads the previous work before restoring the selected problem. Browser Back/Forward switches between the hub and the separate paths.
+
+`tests/corner-cover-reference.json` contains teacher-style reference programs outside the client bundle. Validation runs all examples and samples, rejects seven common misconceptions, compares the final program with every placement for 1,225 small dimension combinations, and checks 200 cases with dimensions up to 10¹⁸. The existing Building Fences checks remain in place.
+
+### Building Fences pathway
+
+**MCC Preparation** appears immediately after Week 5 in the lesson chooser and is also linked from the Week 5 footer. The Building Fences page contains **MCC 2025 P1: Building Fences**, with five activities and a linear path through 13 short exercises:
 
 1. Decode the input: single-number input, splitting two numbers, then dimensions and area.
 2. Count a chosen symbol: visit characters, select dots, then keep a counter.
