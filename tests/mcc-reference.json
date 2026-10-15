@@ -1,0 +1,15 @@
+{
+  "double": "number = int(input())\nprint(number * 2)",
+  "add-parts": "parts = input().split()\nprint(int(parts[0]) + int(parts[1]))",
+  "dimensions": "parts = input().split()\nn = int(parts[0])\nm = int(parts[1])\nprint(n)\nprint(m)\nprint(n * m)",
+  "characters": "text = input()\nfor symbol in text:\n    print(symbol)",
+  "only-dots": "text = input()\nfor symbol in text:\n    if symbol == '.':\n        print(symbol)",
+  "count-dots": "text = input()\ntotal = 0\nfor symbol in text:\n    if symbol == '.':\n        total = total + 1\nprint(total)",
+  "store-costs": "number = int(input())\ncosts = []\nfor turn in range(number):\n    costs.append(int(input()))\nprint(costs)",
+  "cheapest": "number = int(input())\ncosts = []\nfor turn in range(number):\n    costs.append(int(input()))\nsmallest = costs[0]\nfor cost in costs:\n    if cost < smallest:\n        smallest = cost\nprint(smallest)",
+  "store-field": "parts = input().split()\nn = int(parts[0])\nm = int(parts[1])\ngrid = []\nfor row in range(n):\n    grid.append(input())\nprint(grid[0])",
+  "visit-column": "parts = input().split()\nn = int(parts[0])\nm = int(parts[1])\ngrid = []\nfor row in range(n):\n    grid.append(input())\nfor row in range(n):\n    print(grid[row][2])",
+  "count-column": "parts = input().split()\nn = int(parts[0])\nm = int(parts[1])\ngrid = []\nfor row in range(n):\n    grid.append(input())\nmissing = 0\nfor row in range(n):\n    if grid[row][2] == '.':\n        missing = missing + 1\nprint(missing)",
+  "all-columns": "parts = input().split()\nn = int(parts[0])\nm = int(parts[1])\ngrid = []\nfor row in range(n):\n    grid.append(input())\nfor column in range(m):\n    missing = 0\n    for row in range(n):\n        if grid[row][column] == '.':\n            missing = missing + 1\n    print(missing)",
+  "building-fences": "parts = input().split()\nn = int(parts[0])\nm = int(parts[1])\ngrid = []\nfor row in range(n):\n    grid.append(input())\nsmallest = n\nfor column in range(m):\n    missing = 0\n    for row in range(n):\n        if grid[row][column] == '.':\n            missing = missing + 1\n    if missing < smallest:\n        smallest = missing\nprint(smallest)"
+}

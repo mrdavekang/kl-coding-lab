@@ -1,3 +1,4 @@
+import {fileURLToPath} from 'node:url';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
@@ -32,7 +33,7 @@ test('every task teaches before asking: reading, vocabulary, complete example an
 });
 
 test('reference programs, worked examples and misconceptions are checked with real Python',()=>{
-  const run=spawnSync('python3',[new URL('./week4_checks.py',import.meta.url).pathname],{input:JSON.stringify(tasks.map(task=>({...task,spec:checkSpec(task)}))),encoding:'utf8',maxBuffer:2e6});
+  const run=spawnSync('python3',[fileURLToPath(new URL('./week4_checks.py',import.meta.url))],{input:JSON.stringify(tasks.map(task=>({...task,spec:checkSpec(task)}))),encoding:'utf8',maxBuffer:2e6});
   assert.equal(run.status,0,run.stdout+'\n'+run.stderr);
   assert.match(run.stdout,/Week 4 references and examples passed/);
 });

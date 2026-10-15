@@ -1,3 +1,4 @@
+import {fileURLToPath} from 'node:url';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
@@ -17,7 +18,7 @@ test('Week 3 has ten scenarios split across both weeks, in increasing levels wit
  for(const topic of topics)assert.ok(tasks.some(t=>t.id===topic.start[1]));
 });
 test('all programs pass fresh data and samples using only Weeks 1 and 2 core skills',()=>{
- const run=spawnSync('python3',[new URL('./week3_checks.py',import.meta.url).pathname],{input:JSON.stringify(tasks.map(t=>({...t,spec:checkSpec(t)}))),encoding:'utf8',maxBuffer:2e6});assert.equal(run.status,0,run.stdout+'\n'+run.stderr);assert.match(run.stdout,/reference solutions passed/);
+ const run=spawnSync('python3',[fileURLToPath(new URL('./week3_checks.py',import.meta.url))],{input:JSON.stringify(tasks.map(t=>({...t,spec:checkSpec(t)}))),encoding:'utf8',maxBuffer:2e6});assert.equal(run.status,0,run.stdout+'\n'+run.stderr);assert.match(run.stdout,/reference solutions passed/);
 });
 test('edits invalidate a pass and old fence passes never count',()=>{
  const id=main1[0].id;const work={drafts:{[id]:refs[id]},passed:{[id]:refs[id],a1:'2',g1:'old'}};
