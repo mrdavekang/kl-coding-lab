@@ -4,9 +4,27 @@ A static Python learning app for a mixed KS2–KS4 coding club. Weeks 1–5 each
 
 Supabase Classroom Mode provides **Screens down** only. Students use the ordinary app URL and choose their week normally. The teacher opens the same URL with `?teacher=1`, signs in, starts the classroom, and can cover or release every connected student screen. There are no page-pushing, live-code or answer controls, and no student leave button. Profiles, names and code remain local. Run `supabase/30-screen-down-classrooms.sql` once and check that it returns `screen_down_classrooms_ready = true`.
 
-## MCC Preparation: Building Fences and Corner Cover
+## MCC Preparation: Building Fences, Corner Cover and Collatz
 
-The preparation overview now offers **two separate problem pages**. Existing Building Fences work remains under `mccWork`. **Corner Cover** saves independently under `cornerCoverWork`, with its own code, inputs, plans, evidence, readiness reflections, backup/restore and PDF report. The lesson chooser shows combined practice progress, while each problem page shows only its own checks.
+The preparation overview offers **three separate problem pages**. Building Fences saves under `mccWork`, Corner Cover under `cornerCoverWork`, and Collatz under `collatzWork`. Each keeps its own code, inputs, plans, evidence, readiness reflections, backup/restore and PDF report. The lesson chooser shows combined practice progress, while each problem page shows only its own checks.
+
+### Collatz pathway
+
+Use `?week=mcc&problem=collatz&activity=1` to open the new Collatz page. Its five activities contain 13 short exercises that follow the teacher’s solution:
+
+1. **Read the list and the rounds:** identify n and k, read the text list, visit and convert items, then practise collecting values across lines.
+2. **Choose the even or odd rule:** find a remainder, test parity and apply one rule once. Integer division uses `//`.
+3. **Store the changed values:** distinguish the temporary variable from the list item, then update one whole list round.
+4. **Repeat rounds and keep a total:** repeat one number, repeat a whole list and trace a fresh total for each round.
+5. **Collatz:** combine the earlier code and print only the final sum after exactly k rounds.
+
+The teaching keeps `numbers`, `n`, `k`, `list_of_numbers`, `number`, `index`, `i` and `total` from the teacher’s method. The input reader can append values from extra lines when needed. Functions and list comprehensions are not prerequisites. Each activity includes a reviewed PNG with a text alternative, enlargement and download, syntax guidance, a runnable analogous example (activities 1–4), IPO and lookup prompts, predictions, hints and reflections. Both supplied samples appear in the final task. No contest year or official URL is inferred from the supplied question.
+
+The visuals distinguish n items from k rounds, one branch per visit, storing back into the list and resetting the total inside the outer loop. The final planning board leaves its answer areas blank. The rule diagram was revised so finishing one item does not imply finishing the whole list round.
+
+Reference programs live outside the client bundle in `tests/collatz-reference.json`. Validation covers all 13 exercises and examples, both original samples, ten common misconceptions, 504 exhaustive small cases, 100 deterministic random cases with varying line breaks and the n = k = 1000 boundary. A separate per-number oracle checks the round-by-list implementation. Existing weekly and MCC problem work remains isolated.
+
+### Corner Cover pathway
 
 Corner Cover uses the teacher’s explicit solution style: split the input, convert each item in a loop, append it to `numbers`, assign `n`, `m`, `A` and `B`, calculate `landscape` and `portrait`, append one answer per case and print the saved answers. Functions and list comprehensions are not prerequisites. Its five activities contain 11 short exercises:
 
