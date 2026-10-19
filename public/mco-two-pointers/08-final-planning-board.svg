@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="780" viewBox="0 0 1600 780" role="img" aria-labelledby="title desc">
+<title id="title">Plan the complete Two Pointers program</title><desc id="desc">Blank Input, Process and Output boxes ask learners to identify the counts, starts and cities, describe the sort, cut loop, route comparisons and first minimum, and decide one output per case.</desc>
+<rect width="1600" height="780" fill="#fff"/>
+<g font-family="Arial,sans-serif" fill="#17212b"><text x="55" y="85" font-size="43" font-weight="700">Plan before combining your programs</text><text x="55" y="145" font-size="30">Use words, sketches and a small test. Explain what each step must do.</text></g>
+<g fill="#edf3f6" stroke="#cad8e0" stroke-width="2"><rect x="55" y="200" width="450" height="480" rx="12"/><rect x="575" y="200" width="450" height="480" rx="12"/><rect x="1095" y="200" width="450" height="480" rx="12"/></g>
+<g font-family="Arial,sans-serif" fill="#17212b" font-size="31"><text x="85" y="255" font-size="36" font-weight="700">INPUT</text><text x="605" y="255" font-size="36" font-weight="700">PROCESS</text><text x="1125" y="255" font-size="36" font-weight="700">OUTPUT</text>
+<text x="85" y="325">What does T count?</text><text x="85" y="380">What are n, A and B?</text><text x="85" y="435">Which values are cities?</text>
+<text x="605" y="325">What happens once?</text><text x="605" y="380">What repeats per cut?</text><text x="605" y="435">How do I choose a route?</text><text x="605" y="490">Where does the first</text><text x="605" y="535">minimum come from?</text>
+<text x="1125" y="325">What value is required?</text><text x="1125" y="380">How many answers?</text><text x="1125" y="435">Where does print belong?</text>
+<text x="55" y="740" font-size="29">My test should reveal a possible mistake. I will predict its answer before running.</text></g>
+<g stroke="#91a7b4" stroke-width="2"><path d="M 85 550 H 470 M 85 610 H 470 M 605 610 H 990 M 1125 550 H 1510 M 1125 610 H 1510"/></g>
+</svg>

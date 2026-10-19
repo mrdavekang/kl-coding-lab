@@ -12,8 +12,9 @@ export function createPreparationState(problem) {
     const clean = validateWork({...source,drafts:object(source.drafts)},tasks);
     clean.current = taskById(source.current) ? source.current : tasks[0].id;
     clean.screen = source.screen === 'problem' ? 'problem' : 'overview';
-    clean.inputs = {}; clean.plans = {}; clean.readiness = {};
+    clean.inputs = {}; clean.plans = {}; clean.readiness = {}; clean.answers = {};
     for (const item of tasks) {
+      if (item.kind === 'output' && typeof source.answers?.[item.id] === 'string') clean.answers[item.id] = source.answers[item.id].slice(0,12000);
       if (typeof source.inputs?.[item.id] === 'string') clean.inputs[item.id] = source.inputs[item.id].slice(0,700000);
       clean.plans[item.id] = {};
       for (const [field] of planFields) clean.plans[item.id][field] = text(source.plans?.[item.id]?.[field]);
@@ -31,7 +32,7 @@ export function createPreparationState(problem) {
   }
   function preparationUrl(href,screen,current) {
     const url = new URL(href);
-    url.searchParams.set('week','mcc');
+    url.searchParams.set('week',problem.sectionId || 'mcc');
     if (screen === 'problem') {
       url.searchParams.set('problem',problemId);
       const item = taskById(current) || tasks[0];
@@ -51,10 +52,10 @@ export function createPreparationState(problem) {
     for (const activity of activities) rows.push([`Activity ${activities.indexOf(activity)+1} readiness (self-report)`,`${activity.ready} ${work.readiness?.[activity.id]?'Reported ready.':'Not yet recorded.'}`]);
     return rows;
   }
-  const reportConfig={number:'MCC',title:problemTitle,date:'MCC preparation / five activities',allTasks:tasks,lesson:tasks,reviewReport};
+  const reportConfig={number:problem.sectionNumber || 'MCC',title:problemTitle,date:`${problem.sectionTitle || 'MCC preparation'} / ${activities.length} activities`,allTasks:tasks,lesson:tasks,reviewReport};
   return {validatePreparation,progress,locationFor,preparationUrl,reviewReport,reportConfig};
 }
-export function taskPassed(work,item) {return work.passed?.[item.id] !== undefined && work.passed[item.id] === (work.drafts?.[item.id] ?? item.starter);}
+export function taskPassed(work,item) {return work.passed?.[item.id] !== undefined && work.passed[item.id] === (item.kind==='output' ? work.answers?.[item.id] || '' : work.drafts?.[item.id] ?? item.starter);}
 export function activityPassed(work,activity) {return activity.exercises.every(item=>taskPassed(work,item));}
 export function outputFileReady(result,item,code,input) {return !!result && result.taskId===item.id && result.code===code && result.input===input && !result.output.includes('[Output shortened.');}
 export const {validatePreparation,progress,locationFor,preparationUrl,reviewReport,reportConfig}=createPreparationState(buildingFences);

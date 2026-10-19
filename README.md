@@ -4,6 +4,31 @@ A static Python learning app for a mixed KS2–KS4 coding club. Weeks 1–5 each
 
 Supabase Classroom Mode provides **Screens down** only. Students use the ordinary app URL and choose their week normally. The teacher opens the same URL with `?teacher=1`, signs in, starts the classroom, and can cover or release every connected student screen. There are no page-pushing, live-code or answer controls, and no student leave button. Profiles, names and code remain local. Run `supabase/30-screen-down-classrooms.sql` once and check that it returns `screen_down_classrooms_ready = true`.
 
+## MCO Tryout two pointers
+
+**MCO Tryout** is a separate landing page after MCC Preparation in the lesson chooser, with a link from the MCC overview. Open `?week=mco`; a direct task link is `?week=mco&problem=two-pointers&activity=1&exercise=tp-try-1`. Existing class and teacher query parameters survive navigation.
+
+The MCO 2023 Two Pointers easy-version path has eight stages and **16 Try tasks followed by the full question**:
+
+1. **Understand the road** — Tries 1–3: identify input/output, distinguish coordinates from distance, and test a nearest-person guess.
+2. **Compare cuts and route orders** — Tries 4–6: count all cuts, compare both endpoint orders and trace the best total so far.
+3. **Start Python with input and output** — Tries 7–8: names, assignment, print, input, split, indexing and int.
+4. **Prepare lists and endpoints** — Tries 9–11: explicit conversion loops, integer sorting, swapping starts and guarding empty groups.
+5. **Calculate both journeys** — Tries 12–13: absolute distance, both route costs, min and combined totals.
+6. **Keep the smallest total** — Try 14: initialise from the first real cost, then compare later costs.
+7. **Repeat cases and test boundaries** — Tries 15–16: case loops, output placement and repairing a missing final cut.
+8. **Solve Two Pointers** — combine the smaller programs for the supplied four-case sample and fresh checks.
+
+Tries 1–6 use paper reasoning and labelled answer fields, not a Python editor or Python runtime. Each has its own SVG diagram, focused reading and prompts, IPO planning, clues, explanations and answer feedback. Try 5 explicitly keeps the cities at 1 and 9 while changing the start from 5 to −3. From Try 7, short analogous programs, syntax cards and the existing live Python workspace introduce the language one piece at a time. The original “easy” label is not a claim about a beginner’s expected pace; allow several sessions and use the KS2/KS3 support guidance.
+
+The expandable route explorer appears at Try 6 and Tries 12–13. It moves through all eight sample cuts and shows both endpoint route orders for Alice and Bob, every leg’s direction and distance, selected minima, ties, empty groups, combined totals and best-so-far totals. Mathematical explanations connect the two routes to group width plus the nearer-end approach. The memory explanation distinguishes calculating endpoint costs from storing all routes.
+
+The path keeps the teacher’s explicit variables, loops and first-calculated-total method. Starts are not appended as cities; no functions, comprehensions or invented large initial minimum are required. The final statement preserves the supplied constraints, scoring groups and sample. It links the official archive and distinguishes this classroom Python pathway from the 2023 contest’s C++ submission requirement.
+
+Work saves independently under `twoPointersWork`, including manual answers, code, inputs, IPO plans, explanations, readiness and bounded check evidence. JSON backup validates the `mco-two-pointers` lesson identifier, downloads the existing work before a restore and rejects other lesson backups. The PDF includes labelled reasoning answers as well as code and evidence. Editing an answer or program invalidates its current passed status.
+
+Teacher reference programs remain outside the student bundle in `tests/mco-reference.json`. Checks cover all 11 Python exercises, six reasoning tasks, examples and samples, seven incorrect algorithm variants, the supplied repair task, 1,075 independent shortest-walk cases using a Dijkstra oracle, both 200,000-city boundary cases, all eight route comparisons, saved-work isolation and rendered navigation. Existing MCC and weekly checks remain in the test suite.
+
 ## MCC Preparation: Building Fences, Corner Cover and Collatz
 
 The preparation overview offers **three separate problem pages**. Building Fences saves under `mccWork`, Corner Cover under `cornerCoverWork`, and Collatz under `collatzWork`. Each keeps its own code, inputs, plans, evidence, readiness reflections, backup/restore and PDF report. The lesson chooser shows combined practice progress, while each problem page shows only its own checks.
