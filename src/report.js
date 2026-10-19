@@ -143,10 +143,10 @@ export function createReport(profile, work, { now = new Date().toISOString(), ra
     paragraph(`Status: ${taskStatus(task, work)} | Hints opened: ${work.hints?.[task.id] || 0}`, { size: 10, bold: true });
     heading('My explanation', 12);
     paragraph(work.explanations?.[task.id]?.trim() || 'Not added yet. Ask me how my program works.');
-    heading(task.kind === 'output' ? 'My answer file (manual or code-assisted)' : 'My current code', 12);
-    paragraph('Indentation is preserved. Long lines wrap on the page.', { size: 9 });
+    heading(task.reasoning ? 'My reasoning answers' : task.kind === 'output' ? 'My answer file (manual or code-assisted)' : 'My current code', 12);
+    paragraph(task.reasoning ? 'Question labels and reasoning answers are recorded below.' : 'Indentation is preserved. Long lines wrap on the page.', { size: 9 });
     const currentCode = task.kind === 'output' ? (work.answers?.[task.id] || '') : (work.drafts?.[task.id] ?? task.starter);
-    codeBlock(currentCode);
+    codeBlock(task.reasoning ? task.reasoning.map((field,index)=>`${field.label}: ${currentCode.split('\n')[index] || '(not entered)'}`).join('\n') : currentCode);
     if (task.kind === 'output' && work.drafts?.[task.id]) { heading('Optional Python used for this answer',12); codeBlock(work.drafts[task.id]); }
     const activity = work.activity?.[task.id];
     const entries = activity?.entries || [];
