@@ -11,6 +11,7 @@ const selected=()=>typeof location!=='undefined'&&new URLSearchParams(location.s
 export function McoTryout({profile,onLeave,onOpenMcc}) {
   const [opened,setOpened]=useState(selected);
   const state=createPreparationState(twoPointers),work=state.validatePreparation(profile.twoPointersWork),count=state.progress(work);
+  useEffect(()=>{window.scrollTo({top:0});},[]);
   useEffect(()=>{const back=()=>setOpened(selected());window.addEventListener('popstate',back);return()=>window.removeEventListener('popstate',back);},[]);
   useEffect(()=>{document.title=`KL Coding Lab · MCO Tryout${opened?' · Two Pointers':''}`;},[opened]);
   function open(current=work.current){history.pushState(null,'',state.preparationUrl(location.href,'problem',current));setOpened(true);window.scrollTo({top:0});}
