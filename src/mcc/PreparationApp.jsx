@@ -6,13 +6,18 @@ import {downloadFile} from '../storage.js';
 import {recordAttempt} from '../evidence.js';
 import {buildingFences, checkSpec} from './content.js';
 import {createPreparationState, activityPassed, taskPassed, planFields, outputFileReady} from './state.js';
+import {ReasoningPractice} from '../mco/ReasoningPractice.jsx';
+import {checkReasoning} from '../mco/reasoning.js';
 import './preparation.css';
 
+const reasoningPrompts={input:'What information is given? What do its numbers mean?',process:'What smaller jobs does my plan need?',output:'What answer must I find?',lookup:'What do I need to find out or ask about?',prediction:'What result do I predict? How can I check it?'};
 const Code = ({children}) => <pre className="prep-code"><code>{children}</code></pre>;
 
-export function PreparationApp({profile, initialWork, onSave, onLeave, problem=buildingFences, onOverview}) {
+export function PreparationApp({profile, initialWork, onSave, onLeave, problem=buildingFences, onOverview, Explorer}) {
   const {activities,tasks,taskById,activityFor,problemTitle,shortTitle,filePrefix,problemId,statement}=problem;
   const {validatePreparation,progress,locationFor,preparationUrl,reportConfig}=createPreparationState(problem);
+  const sectionTitle=problem.sectionTitle || 'MCC Preparation', sectionId=problem.sectionId || 'mcc';
+  const backupLesson=`${sectionId}-${problemId}`;
   const visualPath = activity => `${import.meta.env.BASE_URL}${problem.imageDirectory}/${activity.image}`;
   const [work,setWork] = useState(()=>{
     const clean=validatePreparation(initialWork);
@@ -23,6 +28,8 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
   const [saved,setSaved]=useState(true), [notice,setNotice]=useState(''), [zoom,setZoom]=useState(false), [exporting,setExporting]=useState(false);
   const runtime=useRef(), editor=useRef(), active=useRef(), latest=useRef(work), restoreInput=useRef(), importInput=useRef(), dialog=useRef(), path=useRef();
   const item=taskById(work.current)||tasks[0], activity=activityFor(item.id), index=tasks.indexOf(item);
+  const isReasoning=!!item.reasoning, visual=item.visual || activity;
+  const reading=item.reading || activity.reading, syntax=item.syntax || activity.syntax, questions=item.questions || activity.questions;
   const activityIndex=activities.indexOf(activity), exerciseIndex=activity.exercises.findIndex(t=>t.id===item.id);
   const draft=work.drafts[item.id]??item.starter, stdin=work.inputs[item.id]??item.sampleInput;
   const busy=['running','checking'].includes(status);
@@ -36,6 +43,8 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
     return()=>{persist();window.removeEventListener('pagehide',persist);};
   },[]);
   useEffect(()=>{
+    if(isReasoning)return;
+    setStatus('loading');
     runtime.current=new PythonRuntime({
       status:(next,message)=>{setStatus(next);if(message)setError(message);},
       output:text=>{setOutput(old=>old+text);if(active.current)active.current.output+=text;},
@@ -55,11 +64,11 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
       },
     });
     runtime.current.start();
-    return()=>runtime.current.destroy();
-  },[]);
+    return()=>{runtime.current.destroy();runtime.current=null;};
+  },[isReasoning]);
   useEffect(()=>{
     const back=()=>{
-      if(new URLSearchParams(location.search).get('week')!=='mcc')return;
+      if(new URLSearchParams(location.search).get('week')!==sectionId)return;
       if(runtime.current?.active)runtime.current.stop();
       setWork(old=>({...old,...locationFor(location.search,{...old,screen:'overview'})}));
       clear();
@@ -93,15 +102,21 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
     if(!example)setWork(old=>({...old,attempted:{...old.attempted,[item.id]:true}}));
     runtime.current.execute(code,kind==='check'?item.check:null,{stdin:input,spec:checkSpec(item)});
   }
+  function checkAnswers(){
+    const answer=work.answers[item.id] || '', checked=checkReasoning(item,answer);
+    const attempt={taskId:item.id,code:answer,kind:'check',inputs:[],output:answer,startedAt:new Date().toISOString()};
+    setFeedback(checked);
+    setWork(old=>{const next=recordAttempt({...old,attempted:{...old.attempted,[item.id]:true}},attempt,{type:'checked',result:checked});return checked.passed?{...next,passed:{...next.passed,[item.id]:answer}}:next;});
+  }
   function showExample(){if(!guard())return;clear();setExample(true);requestAnimationFrame(()=>document.getElementById('prep-python')?.scrollIntoView({behavior:'smooth',block:'start'}));}
-  function backup(){downloadFile(`${filePrefix}-backup.json`,JSON.stringify({format:'kl-coding-lab-backup',version:1,lesson:`mcc-${problemId}`,student:{name:profile.name,className:profile.className},work:latest.current},null,2),'application/json');}
+  function backup(){downloadFile(`${filePrefix}-backup.json`,JSON.stringify({format:'kl-coding-lab-backup',version:1,lesson:backupLesson,student:{name:profile.name,className:profile.className},work:latest.current},null,2),'application/json');}
   async function restore(event){
     const file=event.target.files?.[0];if(!file)return;
     try{
       if(!guard())return;
       if(file.size>5000000)throw Error('Choose a preparation backup smaller than 5 MB.');
       const payload=JSON.parse(await file.text());
-      if(payload.format!=='kl-coding-lab-backup'||payload.lesson!==`mcc-${problemId}`)throw Error(`Choose an MCC ${shortTitle} backup. Other lessons keep their own work.`);
+      if(payload.format!=='kl-coding-lab-backup'||payload.lesson!==backupLesson)throw Error(`Choose the ${sectionTitle} ${shortTitle} backup. Other lessons keep their own work.`);
       const clean=validatePreparation(payload.work);
       if(onOverview)clean.screen='problem';
       backup();setWork(clean);clear();history.replaceState(null,'',preparationUrl(location.href,clean.screen,clean.current));
@@ -127,9 +142,9 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
   const canExport=outputFileReady(result,item,draft,stdin);
   const next=tasks[index+1], nextActivity=next&&next.activityId!==item.activityId;
 
-  return <div className="prep-app">
+  return <div className={`prep-app ${sectionId==='mco'?'mco-theme':''}`}>
     <a className="prep-skip" href="#prep-main">Skip to activity</a>
-    <header className="prep-topbar"><button className="prep-brand" disabled={busy} onClick={()=>navigate('overview')}><CodeXml size={25}/><span>KL <b>Coding Lab</b></span></button><nav aria-label="Preparation navigation"><button disabled={busy} onClick={()=>navigate('overview')}>MCC Preparation</button><button disabled={busy} onClick={()=>navigate('files')}>My files & report</button><button disabled={busy} onClick={()=>{if(onSave(latest.current))onLeave();else setNotice('Download a backup before switching: saving is unavailable.');}}>Change week / student</button></nav></header>
+    <header className="prep-topbar"><button className="prep-brand" disabled={busy} onClick={()=>navigate('overview')}><CodeXml size={25}/><span>KL <b>Coding Lab</b></span></button><nav aria-label="Preparation navigation"><button disabled={busy} onClick={()=>navigate('overview')}>{sectionTitle}</button><button disabled={busy} onClick={()=>navigate('files')}>My files & report</button><button disabled={busy} onClick={()=>{if(onSave(latest.current))onLeave();else setNotice('Download a backup before switching: saving is unavailable.');}}>Change week / student</button></nav></header>
     <div className="prep-student"><span><b>{profile.name}</b> · {profile.className}</span><span role="status">{saved?'Saved in this browser':'Saving unavailable — download a backup'}</span></div>
     {notice&&<div className="prep-notice" role="status">{notice}<button onClick={()=>setNotice('')} aria-label="Dismiss notice"><X size={18}/></button></div>}
     <main id="prep-main" className="prep-main" tabIndex={-1}>
@@ -140,20 +155,21 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
       </>}
 
       {work.screen==='problem'&&<>
-        <nav className="prep-breadcrumb" aria-label="Breadcrumb"><button disabled={busy} onClick={()=>navigate('overview')}>MCC Preparation</button><span>/</span><span>{problemTitle}</span></nav>
-        <nav ref={path} className="prep-path" aria-label="Five preparation activities">{activities.map((entry,i)=><button key={entry.id} disabled={busy} aria-current={entry.id===activity.id?'step':undefined} onClick={()=>navigate('problem',entry.exercises[0].id)}><span>{activityPassed(work,entry)?<CheckCircle2 size={19}/>:i+1}</span><b>{entry.title}</b></button>)}</nav>
-        <div className="prep-activity-heading"><div><p className="prep-eyebrow">ACTIVITY {activityIndex+1} OF 5 · EXERCISE {exerciseIndex+1} OF {activity.exercises.length}</p><h1>{activity.title}</h1><p>{activity.summary}</p></div><span className="prep-progress">{progress(work)} / {tasks.length} checks passed</span></div>
-        <figure className="prep-visual"><button className="prep-image-button" onClick={()=>setZoom(true)} aria-label={`Enlarge visual: ${activity.title}`}><img src={visualPath(activity)} alt={activity.imageAlt} width="1536" height="1024"/></button><figcaption><span>Follow the picture. Explain what each piece of Python does.</span><button onClick={()=>setZoom(true)}><Expand size={17}/> Enlarge visual</button></figcaption></figure>
+        <nav className="prep-breadcrumb" aria-label="Breadcrumb"><button disabled={busy} onClick={()=>navigate('overview')}>{sectionTitle}</button><span>/</span><span>{problemTitle}</span></nav>
+        <nav ref={path} className={`prep-path ${activities.length>5?'prep-long-path':''}`} aria-label={`${activities.length} preparation activities`}>{activities.map((entry,i)=><button key={entry.id} disabled={busy} aria-current={entry.id===activity.id?'step':undefined} onClick={()=>navigate('problem',entry.exercises[0].id)}><span>{activityPassed(work,entry)?<CheckCircle2 size={19}/>:i+1}</span><b>{entry.title}</b></button>)}</nav>
+        <div className="prep-activity-heading"><div><p className="prep-eyebrow">ACTIVITY {activityIndex+1} OF {activities.length} · EXERCISE {exerciseIndex+1} OF {activity.exercises.length}</p><h1>{activity.title}</h1><p>{activity.summary}</p></div><span className="prep-progress">{progress(work)} / {tasks.length} checks passed</span></div>
+        <figure className="prep-visual"><button className="prep-image-button" onClick={()=>setZoom(true)} aria-label={`Enlarge visual: ${activity.title}`}><img src={visualPath(visual)} alt={visual.imageAlt} width={visual.imageWidth || 1536} height={visual.imageHeight || 1024}/></button><figcaption><span>Follow the picture. Explain the movements or the Python in your own words.</span><button onClick={()=>setZoom(true)}><Expand size={17}/> Enlarge visual</button></figcaption></figure>
+        {item.explorer&&Explorer&&<details className="mco-explorer-toggle"><summary>Explore both routes at every cut</summary><Explorer/></details>}
         {activity.id==='challenge'&&<section className="prep-statement"><p className="prep-eyebrow">ORIGINAL PAST QUESTION</p><h2>{problemTitle}</h2><p>{statement.description}</p><h3>Input and output</h3><p>{statement.input}</p><p><b>Constraints:</b> {statement.constraints}</p><div className="prep-table-wrap"><table><caption>{statement.tableCaption}</caption><thead><tr>{statement.tableHead.map(label=><th key={label}>{label}</th>)}</tr></thead><tbody>{statement.tableRows.map((row,i)=><tr key={i}>{row.map((value,j)=><td key={j}>{value}</td>)}</tr>)}</tbody></table></div><p>{statement.note}</p>{statement.sourceUrl&&<a href={statement.sourceUrl} target="_blank" rel="noreferrer">{statement.sourceLabel}</a>}</section>}
         {activity.id==='challenge'&&problem.resources?.length>0&&<section className="prep-statement" aria-labelledby="prep-resources-title"><h2 id="prep-resources-title">Additional resource</h2>{problem.resources.map(resource=><div key={resource.url}><h3>{resource.title}</h3><p>{resource.description}</p><a href={resource.url} target="_blank" rel="noreferrer">Watch the teacher’s walkthrough on YouTube ↗</a></div>)}</section>}
         <div className="prep-workspace"><div className="prep-learning">
-          <section className="prep-section"><p className="prep-eyebrow">1 · READ A LITTLE</p><h2>Ideas and syntax</h2>{activity.reading.map(text=><p key={text}>{text}</p>)}{activity.syntax.length>0&&<dl className="prep-syntax">{activity.syntax.map(([word,meaning])=><div key={word}><dt><code>{word}</code></dt><dd>{meaning}</dd></div>)}</dl>}<a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noreferrer">Python reference ↗</a></section>
+          <section className="prep-section"><p className="prep-eyebrow">1 · READ A LITTLE</p><h2>{isReasoning?'Ideas to try':'Ideas and syntax'}</h2>{reading.map(text=><p key={text}>{text}</p>)}{syntax.length>0&&<dl className="prep-syntax">{syntax.map(([word,meaning])=><div key={word}><dt><code>{word}</code></dt><dd>{meaning}</dd></div>)}</dl>}{!isReasoning&&<a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noreferrer">Python reference ↗</a>}</section>
           {activity.example&&<section className="prep-section"><p className="prep-eyebrow">2 · STUDY AN EXAMPLE</p><h2>Predict before running</h2><Code>{activity.example}</Code>{activity.exampleNotes.map(text=><p key={text}>{text}</p>)}<p><b>Expected example output</b></p><Code>{activity.exampleOutput}</Code><button className="prep-outline" disabled={busy} onClick={showExample}>Explore example in editor <ArrowRight size={17}/></button></section>}
-          <section className="prep-section prep-your-task"><p className="prep-eyebrow">{activity.example?'3':'2'} · YOUR TASK</p><h2>{item.title}</h2><p>{item.goal}</p><p>{item.inputHelp}</p><div className="prep-samples"><div><h3>Sample input</h3><Code>{item.sampleInput.trimEnd()}</Code></div><div><h3>Expected output</h3><Code>{item.sampleOutput||'(nothing printed)'}</Code></div></div>{activity.id==='challenge'&&problem.extraSamples?.map(sample=><div key={sample.title}><div className="prep-samples"><div><h3>{sample.title}</h3><Code>{sample.input.trimEnd()}</Code></div><div><h3>Expected output</h3><Code>{sample.output}</Code></div></div><p>{sample.explanation}</p></div>)}</section>
-          <section className="prep-section"><p className="prep-eyebrow">THINK BEFORE CODING</p><h2>My input → process → output plan</h2>{planFields.map(([field,label,prompt])=><label className="prep-field" key={field} htmlFor={`prep-plan-${field}`}><b>{label}</b><span>{prompt}</span><textarea id={`prep-plan-${field}`} rows={2} maxLength={3000} value={work.plans[item.id]?.[field]||''} onChange={event=>changePlan(field,event.target.value)}/></label>)}</section>
-          <section className="prep-section"><h2>Small clues</h2><button className="prep-outline" disabled={work.hints[item.id]>=item.hints.length} onClick={()=>update('hints',(work.hints[item.id]||0)+1)}>Show {work.hints[item.id]?'another':'a'} clue</button>{item.hints.slice(0,work.hints[item.id]||0).map(text=><p key={text}>{text}</p>)}<h3>Explain your thinking</h3><ul>{activity.questions.map(text=><li key={text}>{text}</li>)}</ul></section>
+          <section className="prep-section prep-your-task"><p className="prep-eyebrow">{activity.example?'3':'2'} · YOUR TASK</p><h2>{item.title}</h2><p>{item.goal}</p>{item.beforeCoding&&<p><b>Act it out first:</b> {item.beforeCoding}</p>}{isReasoning?<p className="mco-scenario">{item.scenario}</p>:<><p>{item.inputHelp}</p><div className="prep-samples"><div><h3>Sample input</h3><Code>{item.sampleInput.trimEnd()}</Code></div><div><h3>Expected output</h3><Code>{item.sampleOutput||'(nothing printed)'}</Code></div></div></>}{activity.id==='challenge'&&problem.extraSamples?.map(sample=><div key={sample.title}><div className="prep-samples"><div><h3>{sample.title}</h3><Code>{sample.input.trimEnd()}</Code></div><div><h3>Expected output</h3><Code>{sample.output}</Code></div></div><p>{sample.explanation}</p></div>)}</section>
+          <section className="prep-section"><p className="prep-eyebrow">{isReasoning?'THINK BEFORE ANSWERING':'THINK BEFORE CODING'}</p><h2>My input → process → output plan</h2>{planFields.map(([field,label,prompt])=><label className="prep-field" key={field} htmlFor={`prep-plan-${field}`}><b>{label}</b><span>{isReasoning?reasoningPrompts[field]:prompt}</span><textarea id={`prep-plan-${field}`} rows={2} maxLength={3000} value={work.plans[item.id]?.[field]||''} onChange={event=>changePlan(field,event.target.value)}/></label>)}</section>
+          <section className="prep-section"><h2>Small clues</h2><button className="prep-outline" disabled={work.hints[item.id]>=item.hints.length} onClick={()=>update('hints',(work.hints[item.id]||0)+1)}>Show {work.hints[item.id]?'another':'a'} clue</button>{item.hints.slice(0,work.hints[item.id]||0).map(text=><p key={text}>{text}</p>)}<h3>Explain your thinking</h3><ul>{questions.map(text=><li key={text}>{text}</li>)}</ul></section>
         </div><div className="prep-coding">
-          <section id="prep-python" className="prep-python" aria-label="Python workspace">
+          {isReasoning?<ReasoningPractice item={item} answer={work.answers[item.id]||''} onChange={value=>{update('answers',value);setFeedback(null);}} onCheck={checkAnswers} feedback={feedback}/>:<section id="prep-python" className="prep-python" aria-label="Python workspace">
             {example&&<div className="prep-example-banner"><b>You are exploring the example.</b><p>Your own draft is kept separately.</p><button disabled={busy} onClick={clear}>Return to my own code</button></div>}
             <div className="prep-editor-heading"><b>{example?'example.py':`${item.id}.py`}</b><span role="status">{({loading:'Loading Python…',ready:'Python ready',running:'Running…',checking:'Checking new inputs…',unavailable:'Python needs attention'})[status]}</span></div>
             <Editor key={item.id+(example?'-example':'')} ref={editor} value={code} onChange={changeCode} onRun={()=>run()} readOnly={busy||example} fontSize={17}/>
@@ -167,16 +183,16 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
             {!example&&<p className="prep-check-state">{taskPassed(work,item)?'✓ Current code passed the practice checks. Explain one test.':'Predict, run, compare and improve. Checks use different inputs from the sample.'}</p>}
             <div className="prep-file-tools"><button disabled={busy} onClick={()=>downloadFile(`${item.id}${example?'-example':''}.py`,code)}><Download size={16}/>Download code</button>{!example&&<><button disabled={busy} onClick={()=>importInput.current.click()}>Open Python file</button><button disabled={!canExport} onClick={()=>downloadFile(`${item.id}.out`,result.output)}>Download output</button></>}</div>
             {!example&&<p className="prep-muted">Output download becomes available after a successful run of your current code and input.</p>}
-          </section>
+          </section>}
           <section className="prep-section"><h2>Explain and check</h2><label className="prep-field" htmlFor="prep-explanation"><span>One thing I looked up, one test I tried, and what I learned.</span><textarea id="prep-explanation" rows={4} maxLength={3000} value={work.explanations[item.id]||''} onChange={event=>update('explanations',event.target.value)}/></label><label className="prep-readiness"><input type="checkbox" checked={work.readiness[activity.id]||false} onChange={event=>setWork(old=>({...old,readiness:{...old.readiness,[activity.id]:event.target.checked}}))}/><span>{activity.ready}<small>My own readiness reflection; separate from code checks.</small></span></label></section>
         </div></div>
         <div className="prep-bottom"><button className="prep-outline" disabled={busy} onClick={()=>index?navigate('problem',tasks[index-1].id):navigate('overview')}><ArrowLeft size={17}/>{index?'Previous exercise':'Preparation overview'}</button><span>Exercise {index+1} of {tasks.length}</span><button className="prep-primary" disabled={busy} onClick={()=>next?navigate('problem',next.id):navigate('files')}>{next?`${nextActivity?'Next activity':'Next exercise'}: ${nextActivity?activityFor(next.id).title:next.title}`:'Finish & keep my work'}<ArrowRight size={17}/></button></div>
       </>}
 
-      {work.screen==='files'&&<section className="prep-files"><p className="prep-eyebrow">MCC PREPARATION · YOUR LEARNING</p><h1>Keep your {shortTitle} work</h1><p>{progress(work)} of {tasks.length} practice checks passed. Your backup keeps drafts, input, plans, explanations, readiness reflections and recent run/check evidence.</p><p>Progress saves in this browser under your profile. Download a backup before moving devices.</p><div className="prep-file-buttons"><button className="prep-primary" onClick={backup}><Download size={18}/>Download preparation backup</button><button className="prep-outline" disabled={busy} onClick={()=>restoreInput.current.click()}>Restore preparation backup</button><button className="prep-outline" disabled={busy||exporting} onClick={report}><FileCode2 size={18}/>{exporting?'Creating PDF…':'Download learning report (PDF)'}</button></div><label className="prep-field" htmlFor="prep-reflection"><b>My next step</b><textarea id="prep-reflection" rows={4} maxLength={6000} value={work.reflection} onChange={event=>setWork(old=>({...old,reflection:event.target.value}))}/></label>{activities.map((entry,i)=><div className="prep-file-row" key={entry.id}><span><b>{i+1}. {entry.title}</b><small>{entry.exercises.filter(t=>taskPassed(work,t)).length} / {entry.exercises.length} checks passed</small></span><button onClick={()=>navigate('problem',entry.exercises[0].id)}>Revisit activity <ArrowRight size={16}/></button></div>)}<button className="prep-outline" onClick={()=>navigate('problem',work.current)}>Return to my exercise</button></section>}
+      {work.screen==='files'&&<section className="prep-files"><p className="prep-eyebrow">{sectionTitle.toUpperCase()} · YOUR LEARNING</p><h1>Keep your {shortTitle} work</h1><p>{progress(work)} of {tasks.length} practice checks passed. Your backup keeps drafts, input, plans, explanations, readiness reflections and recent run/check evidence.</p><p>Progress saves in this browser under your profile. Download a backup before moving devices.</p><div className="prep-file-buttons"><button className="prep-primary" onClick={backup}><Download size={18}/>Download preparation backup</button><button className="prep-outline" disabled={busy} onClick={()=>restoreInput.current.click()}>Restore preparation backup</button><button className="prep-outline" disabled={busy||exporting} onClick={report}><FileCode2 size={18}/>{exporting?'Creating PDF…':'Download learning report (PDF)'}</button></div><label className="prep-field" htmlFor="prep-reflection"><b>My next step</b><textarea id="prep-reflection" rows={4} maxLength={6000} value={work.reflection} onChange={event=>setWork(old=>({...old,reflection:event.target.value}))}/></label>{activities.map((entry,i)=><div className="prep-file-row" key={entry.id}><span><b>{i+1}. {entry.title}</b><small>{entry.exercises.filter(t=>taskPassed(work,t)).length} / {entry.exercises.length} checks passed</small></span><button onClick={()=>navigate('problem',entry.exercises[0].id)}>Revisit activity <ArrowRight size={16}/></button></div>)}<button className="prep-outline" onClick={()=>navigate('problem',work.current)}>Return to my exercise</button></section>}
     </main>
-    <footer className="prep-footer"><span>KL Coding Lab · MCC Preparation</span><span>Understand → Break down → Find out → Try → Check</span></footer>
+    <footer className="prep-footer"><span>KL Coding Lab · {sectionTitle}</span><span>Understand → Break down → Find out → Try → Check</span></footer>
     <input ref={restoreInput} hidden type="file" accept=".json" onChange={restore}/><input ref={importInput} hidden type="file" accept=".py" onChange={importCode}/>
-    {zoom&&<dialog ref={dialog} className="prep-dialog" aria-label={`${activity.title} visual`} onCancel={()=>setZoom(false)} onClick={event=>{if(event.target===event.currentTarget)setZoom(false);}}><div><h2>{activity.title}</h2><button onClick={()=>setZoom(false)} aria-label="Close enlarged visual"><X size={22}/></button></div><img src={visualPath(activity)} alt={activity.imageAlt}/><div><a href={visualPath(activity)} target="_blank" rel="noreferrer">Open full-size image ↗</a><a href={visualPath(activity)} download={activity.image}>Download this visual</a></div></dialog>}
+    {zoom&&<dialog ref={dialog} className="prep-dialog" aria-label={`${activity.title} visual`} onCancel={()=>setZoom(false)} onClick={event=>{if(event.target===event.currentTarget)setZoom(false);}}><div><h2>{activity.title}</h2><button onClick={()=>setZoom(false)} aria-label="Close enlarged visual"><X size={22}/></button></div><img src={visualPath(visual)} alt={visual.imageAlt}/><div><a href={visualPath(visual)} target="_blank" rel="noreferrer">Open full-size image ↗</a><a href={visualPath(visual)} download={visual.image}>Download this visual</a></div></dialog>}
   </div>;
 }
