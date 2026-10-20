@@ -1,0 +1,63 @@
+/* One reading path, with an editor above a real interactive shell. */
+.prep-app .prep-main{max-width:1120px;margin:0 auto}
+.prep-app .prep-workspace{display:flex;flex-direction:column;gap:24px;align-items:stretch}
+.prep-workspace>*{min-width:0;width:100%;scroll-margin-top:24px}
+.prep-app .prep-hero,.prep-app .prep-problem-card{grid-template-columns:1fr;gap:26px}
+.prep-app .mco-stage-grid,.prep-app .mco-support-grid{grid-template-columns:1fr}
+.prep-workspace>.prep-section>p{max-width:78ch}
+.prep-flow{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:26px 0;color:var(--prep-muted);font-size:14px}
+.prep-flow a{padding:7px 0;font-weight:650}
+.idle-workspace{background:#edf0f3;border-color:#c8cfd6}
+.idle-intro{padding:24px 26px 18px}
+.idle-intro h2{margin:0 0 10px}.idle-intro p{font-size:15px;margin:0}
+.idle-intro .prep-eyebrow{font-size:11px}
+.idle-workspace kbd{font:12px/1.5 ui-monospace,Consolas,monospace;border:1px solid #b9c1ca;border-bottom-width:2px;border-radius:3px;background:#fff;color:#303b49;padding:2px 6px;white-space:nowrap}
+.idle-editor-window,.idle-shell{border:1px solid #b8c1cb;background:#fff;margin:0 24px;overflow:hidden;border-radius:4px;min-width:0}
+.idle-window-title{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 18px;background:#e1e7ed;color:#263647;border-bottom:1px solid #bdc7d1;padding:11px 15px;font-size:13px}
+.idle-window-title>b{font-size:14px}.idle-window-title>span{font:12px/1.5 ui-monospace,Consolas,monospace;overflow-wrap:anywhere}
+.idle-toolbar{display:flex;flex-wrap:wrap;gap:3px;align-items:center;padding:5px 8px;background:#f8f9fa;border-bottom:1px solid #d9dfe4}
+.prep-app .idle-toolbar button{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:6px 9px;min-height:34px;border-radius:3px;color:#253449}
+.idle-toolbar button:hover:not(:disabled){background:#e0e9f5}
+.idle-toolbar-divider{height:20px;border-left:1px solid #ccd3db;margin:0 5px}
+.idle-workspace .code-editor{height:clamp(240px,32vh,360px);min-height:220px;resize:vertical;overflow:hidden}
+.idle-editor-status{display:flex;justify-content:space-between;gap:8px 18px;flex-wrap:wrap;padding:8px 12px;background:#f5f6f8;border-top:1px solid #d9dfe4;font-size:11px;color:#4d5a68;line-height:1.5}
+.idle-run-controls{padding:18px 24px}
+.idle-run-controls .prep-runbar{padding:0;margin:0 0 15px;align-items:center}
+.idle-run-controls .prep-runbar>span{font-size:12px;color:#465769;margin-left:auto}
+.idle-run-controls .prep-runbar .prep-primary{background:#264e85}
+.idle-input-mode{border:0;display:flex;gap:8px 22px;flex-wrap:wrap;padding:0;margin:0;font-size:13px;color:#34465b}
+.idle-input-mode legend{font-size:12px;margin-bottom:9px;font-weight:650}
+.idle-input-mode label{display:flex;align-items:center;gap:7px;min-height:32px;cursor:pointer}
+.idle-input-mode input{width:16px;height:16px;margin:0;accent-color:#264e85}
+.idle-run-controls .prep-input{padding:0;margin-bottom:0}
+.idle-run-controls .prep-input textarea{font-size:15px}
+.idle-shell{margin-bottom:20px}
+.idle-transcript{margin:0;padding:16px 18px;min-height:110px;max-height:360px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:16px/1.75 "SFMono-Regular",Consolas,"Liberation Mono",monospace;color:#171717;background:#fff;tab-size:4}
+.idle-meta{color:#5d6570}.idle-stdout{color:#0000bb}.idle-stderr{color:#c00000}.idle-command,.idle-input{color:#151515}
+.idle-prompt{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-top:1px solid #e2e7ec;background:#fff}
+.idle-prompt>span{font:16px/1.75 "SFMono-Regular",Consolas,monospace;color:#820082;min-width:30px}
+.idle-prompt textarea{font:16px/1.75 "SFMono-Regular",Consolas,"Liberation Mono",monospace;border:0;background:transparent;min-width:0;flex:1;color:#171717;padding:0;resize:vertical;min-height:30px;max-height:180px;border-radius:0;box-shadow:none;tab-size:4}
+.idle-prompt textarea:focus{outline:0}
+.idle-prompt:focus-within{box-shadow:inset 0 0 0 2px #7297c6}
+.prep-app .idle-prompt>button{border:1px solid #bcc9d7;background:#f3f6fa;border-radius:3px;padding:5px 10px;min-height:32px;font-size:12px;color:#253e5d}
+.idle-waiting{background:#fffbea}.idle-waiting>span{min-width:0}
+.idle-shell-help{margin:0;padding:8px 15px;background:#f7f8fa;border-top:1px solid #e2e7ec;font-size:12px!important;line-height:1.6!important;color:#516070}
+.idle-check{border-top:1px solid #cbd3dc;margin-top:20px;padding:22px 26px 5px;background:#f9fafb}
+.idle-check h3{margin:0}.idle-check p{font-size:14px;margin:10px 0 15px}
+.idle-check .prep-check-state{padding:0;font-size:13px;margin-bottom:8px}
+.idle-workspace .prep-file-tools{padding:12px 18px 0;background:#f9fafb}
+.idle-workspace>.prep-muted{margin:0;background:#f9fafb}
+.idle-workspace .prep-feedback{margin:20px 24px}
+.idle-workspace .prep-feedback .prep-code{background:#fff;color:#9c1919;border:1px solid #dfcdb2}
+.idle-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:650px){
+  .prep-flow{font-size:12px;gap:7px}.idle-intro{padding:21px 17px 18px}
+  .idle-editor-window,.idle-shell{margin-left:12px;margin-right:12px}
+  .idle-run-controls{padding:16px 12px}.idle-window-title{padding:10px 12px}
+  .idle-run-controls .prep-runbar>span{width:100%;margin:4px 0 0}
+  .idle-editor-status>span:last-child{width:100%}
+  .idle-transcript{padding:13px 12px;font-size:15px}.idle-prompt{padding:10px;gap:6px}
+  .idle-prompt textarea,.idle-prompt>span{font-size:15px}
+  .idle-input-mode{display:grid;gap:2px}.idle-check{padding:20px 18px 5px}
+  .idle-workspace .prep-feedback{margin:16px 12px}.idle-toolbar-divider{display:none}
+}

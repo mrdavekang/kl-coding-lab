@@ -57,6 +57,16 @@ test('console answers preserve empty lines, Unicode and spaces; stale answers ar
     assert.equal(runner.active.id, id);
     runner.worker.emit({ type: 'done', id });
     assert.equal(runner.active, null);
+    assert.equal(runner.command('number + 1', {reset:true}),true);
+    assert.equal(runner.worker.last.type,'console');
+    assert.equal(runner.worker.last.reset,true);
+    assert.equal(runner.worker.last.stdin,undefined,'shell commands use live input');
+    assert.equal(runner.active.kind,'console');
+    assert.equal(runner.command('overlap'),false);
+    runner.worker.emit({type:'done',id:runner.active.id,more:true});
+    assert.equal(runner.active,null);
+    assert.equal(runner.command('print(number)'),true);
+    assert.equal(runner.worker.last.reset,false,'following commands retain their namespace');
   } finally {
     runner.destroy();
     globalThis.Worker = original.Worker; globalThis.document = original.document;

@@ -6,14 +6,15 @@ function helperUrl(file) {
 const PYODIDE_URL = 'https://cdn.jsdelivr.net/pyodide/v314.0.6/full/';
 let python, controls, inputBytes, interrupts;
 let job = null, requestNumber = 0, pendingInput = new Uint8Array(), pendingOffset = 0;
-let output = '', outputLength = 0, truncated = false;
+let output = '', outputLength = 0, truncated = false, outputStream = 'stdout';
 let traceOutput = '', traceMode = 1;
 const decoder = new TextDecoder();
 const MAX_OUTPUT = 24000;
 
 function send(type, fields = {}) { self.postMessage({ type, id: job?.id, ...fields }); }
-function flush() { if (output) { send('output', { text: output }); output = ''; } }
-function write(bytes) {
+function flush() { if (output) { send('output', { text: output, stream: outputStream }); output = ''; } }
+function write(bytes, stream = 'stdout') {
+  if (stream !== outputStream) { flush(); outputStream = stream; }
   const text = decoder.decode(bytes, { stream: true });
   if (outputLength < MAX_OUTPUT) {
     const fragment = text.slice(0, MAX_OUTPUT - outputLength);
@@ -74,11 +75,11 @@ self.onmessage = async ({ data }) => {
       python.setInterruptBuffer(interrupts);
       python.setStdin({ read, isatty: true });
       python.setStdout({ write });
-      python.setStderr({ write });
+      python.setStderr({ write: bytes => write(bytes, 'stderr') });
       const response = await fetch(helperUrl('./checks.py'));
       if (!response.ok) throw new Error('The task checks could not load. Please reload.');
       await python.runPythonAsync(await response.text());
-      for (const file of ['checks2.py', 'checks3.py', 'checks4.py', 'trace.py']) {
+      for (const file of ['checks2.py', 'checks3.py', 'checks4.py', 'trace.py', 'idle.py']) {
         const extra = await fetch(helperUrl('./' + file));
         if (!extra.ok) throw new Error('The learning tools could not load. Please reload.');
         await python.runPythonAsync(await extra.text());
@@ -87,9 +88,9 @@ self.onmessage = async ({ data }) => {
     } catch (error) { send('fatal', { message: String(error.message || error) }); }
     return;
   }
-  if (!python || job || !['run', 'check', 'trace'].includes(data.type)) return;
+  if (!python || job || !['run', 'check', 'trace', 'console'].includes(data.type)) return;
   job = data;
-  output = ''; outputLength = 0; truncated = false;
+  output = ''; outputLength = 0; truncated = false; outputStream = 'stdout';
   traceOutput = ''; traceMode = 1;
   pendingInput = typeof data.stdin === 'string' ? new TextEncoder().encode(data.stdin) : new Uint8Array(); pendingOffset = 0;
   Atomics.store(interrupts, 0, 0); Atomics.store(controls, 0, 0);
@@ -106,6 +107,15 @@ self.onmessage = async ({ data }) => {
       python.globals.set('__kl_emit', traceStep);
       await python.runPythonAsync('__kl_trace(__kl_source, __kl_emit)');
       flush(); completion = { type: 'done' };
+    } else if (data.type === 'console') {
+      if (data.reset) await python.runPythonAsync('__kl_idle_reset()');
+      python.globals.set('__kl_source', data.code);
+      const more = await python.runPythonAsync('__kl_idle_push(__kl_source)');
+      flush(); completion = { type: 'done', more: !!more };
+    } else if (data.idle) {
+      python.globals.set('__kl_source', data.code);
+      const result = JSON.parse(await python.runPythonAsync('__kl_idle_execute(__kl_source)'));
+      flush(); completion = result.error ? { type: 'error', message: result.error, stopped: result.stopped } : { type: 'done' };
     } else {
       // A fresh namespace avoids carrying variables from a previous task or run.
       const globals = python.toPy({ __name__: '__main__' });

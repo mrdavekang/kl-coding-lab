@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {ArrowLeft, ArrowRight, BookOpen, CheckCircle2, CodeXml, Download, Expand, FileCode2, Play, Square, X} from 'lucide-react';
 import {Editor} from '../Editor.jsx';
+import {PythonShell} from './PythonShell.jsx';
 import {PythonRuntime, friendlyError} from '../runtime.js';
 import {downloadFile} from '../storage.js';
 import {recordAttempt} from '../evidence.js';
@@ -9,6 +10,7 @@ import {createPreparationState, activityPassed, taskPassed, planFields, outputFi
 import {ReasoningPractice} from '../mco/ReasoningPractice.jsx';
 import {checkReasoning} from '../mco/reasoning.js';
 import './preparation.css';
+import './idle.css';
 
 const reasoningPrompts={input:'What information is given? What do its numbers mean?',process:'What smaller jobs does my plan need?',output:'What answer must I find?',lookup:'What do I need to find out or ask about?',prediction:'What result do I predict? How can I check it?'};
 const Code = ({children}) => <pre className="prep-code"><code>{children}</code></pre>;
@@ -23,9 +25,12 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
     const clean=validatePreparation(initialWork);
     return {...clean,...locationFor(typeof location==='undefined'?'':location.search,clean)};
   });
-  const [status,setStatus]=useState('loading'), [output,setOutput]=useState(''), [error,setError]=useState('');
+  const [status,setStatus]=useState('loading'), [error,setError]=useState('');
   const [feedback,setFeedback]=useState(null), [example,setExample]=useState(false), [result,setResult]=useState(null);
   const [saved,setSaved]=useState(true), [notice,setNotice]=useState(''), [zoom,setZoom]=useState(false), [exporting,setExporting]=useState(false);
+  const [inputMode,setInputMode]=useState('shell'), [waiting,setWaiting]=useState(false), [shell,setShell]=useState([]), [more,setMore]=useState(false), [cursor,setCursor]=useState({line:1,column:0});
+  const freshShell=useRef(true);
+  const lastSearch=useRef(typeof location==='undefined'?'':location.search);
   const runtime=useRef(), editor=useRef(), active=useRef(), latest=useRef(work), restoreInput=useRef(), importInput=useRef(), dialog=useRef(), path=useRef();
   const item=taskById(work.current)||tasks[0], activity=activityFor(item.id), index=tasks.indexOf(item);
   const isReasoning=!!item.reasoning, visual=item.visual || activity;
@@ -46,15 +51,25 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
     if(isReasoning)return;
     setStatus('loading');
     runtime.current=new PythonRuntime({
-      status:(next,message)=>{setStatus(next);if(message)setError(message);},
-      output:text=>{setOutput(old=>old+text);if(active.current)active.current.output+=text;},
-      input:()=>setError('Put every input line in Program input before running.'),
+      status:(next,message)=>{setStatus(next);if(next==='loading'){freshShell.current=true;setWaiting(false);setMore(false);}if(message)setError(message);},
+      output:(text,stream)=>{
+        appendShell(text,stream==='stderr'?'stderr':'stdout');
+        if(active.current&&active.current.kind!=='console')active.current.output+=text;
+      },
+      input:()=>setWaiting(true),
       stopping:message=>setNotice(message),
       finish:data=>{
-        if(data.type==='checked'&&data.result.passed)data={...data,result:{...data.result,message:'Your code worked on these new inputs. Explain one test.'}};
+        setWaiting(false);
+        if(data.type==='error')appendShell(data.stopped?'KeyboardInterrupt: program stopped.\n':data.message+'\n','stderr');
         const attempt=active.current;
-        if(attempt&&!attempt.example) setWork(old=>recordAttempt(old,attempt,data));
+        if(attempt?.kind==='console'){
+          setMore(data.type==='done'&&data.more);active.current=null;return;
+        }
+        setMore(false);
+        if(data.type==='checked'&&data.result.passed)data={...data,result:{...data.result,message:'Your code worked on these new inputs. Explain one test.'}};
+        if(attempt&&!attempt.example) setWork(old=>recordAttempt(attempt.interactive?{...old,inputs:{...old.inputs,[attempt.taskId]:attempt.stdin}}:old,attempt,data));
         if(data.type==='checked'){
+          appendShell(data.result.passed?'Practice checks passed.\n':'Practice checks finished. Read the feedback below.\n','meta');
           setFeedback(data.result);
           if(data.result.passed&&attempt&&!attempt.example) setWork(old=>({...old,passed:{...old.passed,[attempt.taskId]:attempt.code}}));
         }
@@ -68,6 +83,9 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
   },[isReasoning]);
   useEffect(()=>{
     const back=()=>{
+      // In-page lesson links only change the hash. Keep the editor and shell session.
+      if(location.search===lastSearch.current)return;
+      lastSearch.current=location.search;
       if(new URLSearchParams(location.search).get('week')!==sectionId)return;
       if(runtime.current?.active)runtime.current.stop();
       setWork(old=>({...old,...locationFor(location.search,{...old,screen:'overview'})}));
@@ -80,7 +98,8 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
     if(work.screen==='problem'&&window.matchMedia('(max-width:650px)').matches)path.current?.querySelector('[aria-current="step"]')?.scrollIntoView({block:'nearest',inline:'center'});
   },[activity.id,work.screen]);
 
-  function clear(){setExample(false);setFeedback(null);setOutput('');setError('');setResult(null);setZoom(false);}
+  function appendShell(text,kind='meta'){setShell(old=>[...old.slice(-159),{text,kind}]);}
+  function clear(){setExample(false);setFeedback(null);setError('');setResult(null);setZoom(false);setShell([]);setWaiting(false);setMore(false);setCursor({line:1,column:0});freshShell.current=true;}
   function guard(){if(runtime.current?.active){setNotice('Stop the program before changing activities.');return false;}return true;}
   function navigate(screen,current=item.id){
     if(!guard())return;
@@ -90,6 +109,7 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
     }
     setWork(old=>({...old,screen,current,visited:{...old.visited,[current]:true}}));
     if(screen!=='files')history.pushState(null,'',preparationUrl(location.href,screen,current));
+    lastSearch.current=location.search;
     clear();setNotice('');window.scrollTo({top:0});
   }
   function update(field,value){setWork(old=>({...old,[field]:{...old[field],[item.id]:value}}));}
@@ -97,10 +117,29 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
   function changePlan(field,value){setWork(old=>({...old,plans:{...old.plans,[item.id]:{...old.plans[item.id],[field]:value}}}));}
   function run(kind='run'){
     if(!runtime.current?.ready||runtime.current.active||example&&kind==='check')return;
-    setOutput('');setError('');setFeedback(null);setResult(null);
-    active.current={taskId:item.id,code,stdin:input,inputs:input?[input]:[],output:'',kind,example,startedAt:new Date().toISOString()};
+    setError('');setFeedback(null);setResult(null);setNotice('');
+    const interactive=kind==='run'&&inputMode==='shell', filename=example?'example.py':`${item.id}.py`;
+    setWaiting(false);setMore(false);
+    setShell([{text:kind==='check'?'Checking your code with new inputs…\n':`================ RESTART: ${filename} ================\n`,kind:'meta'}]);
+    active.current={taskId:item.id,code,stdin:interactive?'':input,inputs:interactive?[]:input?[input]:[],output:'',kind,example,interactive,startedAt:new Date().toISOString()};
     if(!example)setWork(old=>({...old,attempted:{...old.attempted,[item.id]:true}}));
-    runtime.current.execute(code,kind==='check'?item.check:null,{stdin:input,spec:checkSpec(item)});
+    runtime.current.execute(code,kind==='check'?item.check:null,{...(interactive?{}:{stdin:input}),idle:kind==='run',spec:checkSpec(item)});
+    if(kind==='run')freshShell.current=false;
+  }
+  function submitShell(value){
+    if(waiting){
+      try{
+        if(!runtime.current.answer(value))return false;
+        appendShell(value+'\n','input');
+        if(active.current?.interactive){active.current.inputs.push(value);active.current.stdin=active.current.inputs.join('\n')+'\n';}
+        setWaiting(false);return true;
+      }catch(err){setNotice(err.message);return false;}
+    }
+    if(!runtime.current?.ready||runtime.current.active)return false;
+    setError('');appendShell((more?'... ':'>>> ')+value+'\n','command');
+    active.current={kind:'console'};
+    runtime.current.command(value,{reset:freshShell.current});freshShell.current=false;
+    return true;
   }
   function checkAnswers(){
     const answer=work.answers[item.id] || '', checked=checkReasoning(item,answer);
@@ -120,6 +159,7 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
       const clean=validatePreparation(payload.work);
       if(onOverview)clean.screen='problem';
       backup();setWork(clean);clear();history.replaceState(null,'',preparationUrl(location.href,clean.screen,clean.current));
+      lastSearch.current=location.search;
       setNotice('Preparation restored. Your previous preparation work was downloaded first.');
     }catch(err){setNotice(err.message);}finally{event.target.value='';}
   }
@@ -162,30 +202,43 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
         {item.explorer&&Explorer&&<details className="mco-explorer-toggle"><summary>Explore both routes at every cut</summary><Explorer/></details>}
         {activity.id==='challenge'&&<section className="prep-statement"><p className="prep-eyebrow">ORIGINAL PAST QUESTION</p><h2>{problemTitle}</h2><p>{statement.description}</p><h3>Input and output</h3><p>{statement.input}</p><p><b>Constraints:</b> {statement.constraints}</p><div className="prep-table-wrap"><table><caption>{statement.tableCaption}</caption><thead><tr>{statement.tableHead.map(label=><th key={label}>{label}</th>)}</tr></thead><tbody>{statement.tableRows.map((row,i)=><tr key={i}>{row.map((value,j)=><td key={j}>{value}</td>)}</tr>)}</tbody></table></div><p>{statement.note}</p>{statement.sourceUrl&&<a href={statement.sourceUrl} target="_blank" rel="noreferrer">{statement.sourceLabel}</a>}</section>}
         {activity.id==='challenge'&&problem.resources?.length>0&&<section className="prep-statement" aria-labelledby="prep-resources-title"><h2 id="prep-resources-title">Additional resource</h2>{problem.resources.map(resource=><div key={resource.url}><h3>{resource.title}</h3><p>{resource.description}</p><a href={resource.url} target="_blank" rel="noreferrer">Watch the teacher’s walkthrough on YouTube ↗</a></div>)}</section>}
-        <div className="prep-workspace"><div className="prep-learning">
-          <section className="prep-section"><p className="prep-eyebrow">1 · READ A LITTLE</p><h2>{isReasoning?'Ideas to try':'Ideas and syntax'}</h2>{reading.map(text=><p key={text}>{text}</p>)}{syntax.length>0&&<dl className="prep-syntax">{syntax.map(([word,meaning])=><div key={word}><dt><code>{word}</code></dt><dd>{meaning}</dd></div>)}</dl>}{!isReasoning&&<a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noreferrer">Python reference ↗</a>}</section>
-          {activity.example&&<section className="prep-section"><p className="prep-eyebrow">2 · STUDY AN EXAMPLE</p><h2>Predict before running</h2><Code>{activity.example}</Code>{activity.exampleNotes.map(text=><p key={text}>{text}</p>)}<p><b>Expected example output</b></p><Code>{activity.exampleOutput}</Code><button className="prep-outline" disabled={busy} onClick={showExample}>Explore example in editor <ArrowRight size={17}/></button></section>}
-          <section className="prep-section prep-your-task"><p className="prep-eyebrow">{activity.example?'3':'2'} · YOUR TASK</p><h2>{item.title}</h2><p>{item.goal}</p>{item.beforeCoding&&<p><b>Act it out first:</b> {item.beforeCoding}</p>}{isReasoning?<p className="mco-scenario">{item.scenario}</p>:<><p>{item.inputHelp}</p><div className="prep-samples"><div><h3>Sample input</h3><Code>{item.sampleInput.trimEnd()}</Code></div><div><h3>Expected output</h3><Code>{item.sampleOutput||'(nothing printed)'}</Code></div></div></>}{activity.id==='challenge'&&problem.extraSamples?.map(sample=><div key={sample.title}><div className="prep-samples"><div><h3>{sample.title}</h3><Code>{sample.input.trimEnd()}</Code></div><div><h3>Expected output</h3><Code>{sample.output}</Code></div></div><p>{sample.explanation}</p></div>)}</section>
-          <section className="prep-section"><p className="prep-eyebrow">{isReasoning?'THINK BEFORE ANSWERING':'THINK BEFORE CODING'}</p><h2>My input → process → output plan</h2>{planFields.map(([field,label,prompt])=><label className="prep-field" key={field} htmlFor={`prep-plan-${field}`}><b>{label}</b><span>{isReasoning?reasoningPrompts[field]:prompt}</span><textarea id={`prep-plan-${field}`} rows={2} maxLength={3000} value={work.plans[item.id]?.[field]||''} onChange={event=>changePlan(field,event.target.value)}/></label>)}</section>
+        <nav className="prep-flow" aria-label="Steps in this exercise"><a href="#prep-read">1. Understand</a><span>→</span><a href="#prep-plan">2. Plan</a><span>→</span><a href={isReasoning?'#prep-answer':'#prep-python'}>3. {isReasoning?'Try':'Code and run'}</a><span>→</span><a href="#prep-reflect">4. Explain</a></nav>
+        <div className="prep-workspace">
+          <section id="prep-read" className="prep-section"><p className="prep-eyebrow">1 · UNDERSTAND</p><h2>{isReasoning?'Ideas to try':'Ideas and syntax'}</h2>{reading.map(text=><p key={text}>{text}</p>)}{syntax.length>0&&<dl className="prep-syntax">{syntax.map(([word,meaning])=><div key={word}><dt><code>{word}</code></dt><dd>{meaning}</dd></div>)}</dl>}{!isReasoning&&<a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noreferrer">Python reference ↗</a>}</section>
+          {activity.example&&<section className="prep-section"><p className="prep-eyebrow">STUDY AN EXAMPLE</p><h2>Predict before running</h2><Code>{activity.example}</Code>{activity.exampleNotes.map(text=><p key={text}>{text}</p>)}<p><b>Expected example output</b></p><Code>{activity.exampleOutput}</Code><button className="prep-outline" disabled={busy} onClick={showExample}>Explore example in editor <ArrowRight size={17}/></button></section>}
+          <section className="prep-section prep-your-task"><p className="prep-eyebrow">YOUR TASK</p><h2>{item.title}</h2><p>{item.goal}</p>{item.beforeCoding&&<p><b>Act it out first:</b> {item.beforeCoding}</p>}{isReasoning?<p className="mco-scenario">{item.scenario}</p>:<><p>{item.inputHelp}</p><div className="prep-samples"><div><h3>Sample input</h3><Code>{item.sampleInput.trimEnd()}</Code></div><div><h3>Expected output</h3><Code>{item.sampleOutput||'(nothing printed)'}</Code></div></div></>}{activity.id==='challenge'&&problem.extraSamples?.map(sample=><div key={sample.title}><div className="prep-samples"><div><h3>{sample.title}</h3><Code>{sample.input.trimEnd()}</Code></div><div><h3>Expected output</h3><Code>{sample.output}</Code></div></div><p>{sample.explanation}</p></div>)}</section>
+          <section id="prep-plan" className="prep-section"><p className="prep-eyebrow">2 · PLAN</p><h2>My input → process → output plan</h2>{planFields.map(([field,label,prompt])=><label className="prep-field" key={field} htmlFor={`prep-plan-${field}`}><b>{label}</b><span>{isReasoning?reasoningPrompts[field]:prompt}</span><textarea id={`prep-plan-${field}`} rows={2} maxLength={3000} value={work.plans[item.id]?.[field]||''} onChange={event=>changePlan(field,event.target.value)}/></label>)}</section>
           <section className="prep-section"><h2>Small clues</h2><button className="prep-outline" disabled={work.hints[item.id]>=item.hints.length} onClick={()=>update('hints',(work.hints[item.id]||0)+1)}>Show {work.hints[item.id]?'another':'a'} clue</button>{item.hints.slice(0,work.hints[item.id]||0).map(text=><p key={text}>{text}</p>)}<h3>Explain your thinking</h3><ul>{questions.map(text=><li key={text}>{text}</li>)}</ul></section>
-        </div><div className="prep-coding">
-          {isReasoning?<ReasoningPractice item={item} answer={work.answers[item.id]||''} onChange={value=>{update('answers',value);setFeedback(null);}} onCheck={checkAnswers} feedback={feedback}/>:<section id="prep-python" className="prep-python" aria-label="Python workspace">
+          {isReasoning?<div id="prep-answer"><ReasoningPractice item={item} answer={work.answers[item.id]||''} onChange={value=>{update('answers',value);setFeedback(null);}} onCheck={checkAnswers} feedback={feedback}/></div>:<section id="prep-python" className="prep-python idle-workspace" aria-label="Python workspace" onKeyDownCapture={event=>{if(event.key==='F5'){event.preventDefault();event.stopPropagation();run();}}}>
+            <div className="idle-intro"><p className="prep-eyebrow">3 · CODE AND RUN</p><h2>Your Python desk</h2><p>Write in the editor. Choose <b>Run Module</b> or press <kbd>F5</kbd>. Read and answer in the Shell below.</p></div>
             {example&&<div className="prep-example-banner"><b>You are exploring the example.</b><p>Your own draft is kept separately.</p><button disabled={busy} onClick={clear}>Return to my own code</button></div>}
-            <div className="prep-editor-heading"><b>{example?'example.py':`${item.id}.py`}</b><span role="status">{({loading:'Loading Python…',ready:'Python ready',running:'Running…',checking:'Checking new inputs…',unavailable:'Python needs attention'})[status]}</span></div>
-            <Editor key={item.id+(example?'-example':'')} ref={editor} value={code} onChange={changeCode} onRun={()=>run()} readOnly={busy||example} fontSize={17}/>
-            <div className="prep-editor-tools"><button disabled={busy||example} onClick={()=>editor.current?.indent()}>Indent</button><button disabled={busy||example} onClick={()=>editor.current?.outdent()}>Outdent</button><button disabled={busy||example} onClick={()=>editor.current?.undo()}>Undo</button><span>4 spaces per block</span></div>
-            <label className="prep-field prep-input" htmlFor="prep-input"><b>Program input</b><span>Put every input line here. Each input() call reads the next line.</span><textarea id="prep-input" rows={6} spellCheck={false} maxLength={700000} disabled={busy||example} value={input} onChange={event=>{update('inputs',event.target.value);setResult(null);}}/></label>
-            <div className="prep-runbar"><button className="prep-primary" disabled={status!=='ready'} onClick={()=>run()}><Play size={16}/>Run {example?'example':'my code'}</button>{!example&&<button className="prep-outline" disabled={status!=='ready'} onClick={()=>run('check')}><CheckCircle2 size={17}/>Check my code</button>}<button className="prep-outline" disabled={!busy} onClick={()=>runtime.current.stop()}><Square size={14}/>Stop</button></div>
-            <div className="prep-output"><b>Program output</b><pre aria-label="Program output">{output||'Your output will appear here.'}</pre></div>
+            <div className="idle-editor-window">
+              <div className="idle-window-title"><b>Python Editor</b><span>{example?'example.py':`${item.id}.py`}</span></div>
+              <div className="idle-toolbar" role="toolbar" aria-label="File and editing tools">
+                {!example&&<button disabled={busy} onClick={()=>importInput.current.click()}>Open .py</button>}
+                <button disabled={busy} onClick={()=>downloadFile(`${item.id}${example?'-example':''}.py`,code)}><Download size={14}/>Save .py</button>
+                <span className="idle-toolbar-divider"/>
+                <button disabled={busy||example} onClick={()=>editor.current?.undo()}>Undo</button><button disabled={busy||example} onClick={()=>editor.current?.redo()}>Redo</button>
+                <button disabled={busy||example} onClick={()=>editor.current?.indent()}>Indent</button><button disabled={busy||example} onClick={()=>editor.current?.outdent()}>Dedent</button>
+              </div>
+              <Editor key={item.id+(example?'-example':'')} ref={editor} appearance="idle" value={code} onChange={changeCode} onCursor={setCursor} onRun={()=>run()} readOnly={busy||example} fontSize={17}/>
+              <div className="idle-editor-status"><span>Ln {cursor.line}, Col {cursor.column}</span><span>Tab = 4 spaces · Enter indents a block</span><span>{example?'Example · read only':saved?'Draft saved in this browser':'Saving unavailable'}</span></div>
+            </div>
+            <div className="idle-run-controls">
+              <div className="prep-runbar"><button className="prep-primary" disabled={status!=='ready'} onClick={()=>run()}><Play size={16}/>Run {example?'Example':'Module'} <kbd>F5</kbd></button><button className="prep-outline" disabled={!busy} onClick={()=>runtime.current.stop()}><Square size={14}/>Stop</button><span role="status">{({loading:'Loading Python…',ready:'Python ready',running:waiting?'Waiting for input…':'Running…',checking:'Checking new inputs…',unavailable:'Python needs attention'})[status]}</span></div>
+              <fieldset className="idle-input-mode" disabled={busy}><legend>How will you enter input?</legend><label><input type="radio" name="idle-input-mode" checked={inputMode==='shell'} onChange={()=>setInputMode('shell')}/>In the Shell, like IDLE</label><label><input type="radio" name="idle-input-mode" checked={inputMode==='test'} onChange={()=>setInputMode('test')}/>Use prepared test input</label></fieldset>
+              {inputMode==='test'&&<label className="prep-field prep-input" htmlFor="prep-input"><b>Program input</b><span>Optional shortcut: each input() reads the next line here. Switch back to the Shell to type answers as you run.</span><textarea id="prep-input" rows={5} spellCheck={false} maxLength={700000} disabled={busy||example} value={input} onChange={event=>{update('inputs',event.target.value);setResult(null);}}/></label>}
+            </div>
+            <PythonShell key={item.id+(example?'-example':'')} entries={shell} waiting={waiting} busy={busy} ready={status==='ready'} more={more} onSubmit={submitShell} onStop={()=>runtime.current.stop()}/>
             {error&&<section className="prep-feedback prep-retry" role="alert"><b>{friendlyError(error).tip}</b><Code>{error}</Code></section>}
             {status==='unavailable'&&<button className="prep-outline" onClick={()=>globalThis.crossOriginIsolated?runtime.current.start():location.reload()}>Try loading Python again</button>}
             {!example&&feedback&&<section className={`prep-feedback ${feedback.passed?'prep-success':'prep-retry'}`} aria-live="polite"><h3>{feedback.passed?'Your current code passed these checks':'Check one small thing'}</h3><p>{feedback.message}</p>{feedback.error&&<Code>{feedback.error}</Code>}<div className="prep-test-list">{feedback.cases?.map((test,i)=><div key={i}><b>Test {i+1} · {test.passed?'Passed':'Try again'}</b><div className="prep-samples"><div><span>Input</span><Code>{test.input||'(none)'}</Code></div><div><span>Expected</span><Code>{test.expected||'(nothing printed)'}</Code></div><div><span>Your output</span><Code>{test.actual||'(nothing printed)'}</Code></div></div>{test.error&&<Code>{test.error}</Code>}</div>)}</div></section>}
-            {!example&&<p className="prep-check-state">{taskPassed(work,item)?'✓ Current code passed the practice checks. Explain one test.':'Predict, run, compare and improve. Checks use different inputs from the sample.'}</p>}
-            <div className="prep-file-tools"><button disabled={busy} onClick={()=>downloadFile(`${item.id}${example?'-example':''}.py`,code)}><Download size={16}/>Download code</button>{!example&&<><button disabled={busy} onClick={()=>importInput.current.click()}>Open Python file</button><button disabled={!canExport} onClick={()=>downloadFile(`${item.id}.out`,result.output)}>Download output</button></>}</div>
+            {!example&&<div className="idle-check"><h3>Compare, then check</h3><p>Does the Shell show the output you predicted? Practice checks try different inputs.</p><button className="prep-outline" disabled={status!=='ready'} onClick={()=>run('check')}><CheckCircle2 size={17}/>Check my code</button><p className="prep-check-state">{taskPassed(work,item)?'✓ Current code passed the practice checks. Explain one test.':'Make one small change and run again whenever you need to.'}</p></div>}
+            {!example&&<div className="prep-file-tools"><button disabled={!canExport} onClick={()=>downloadFile(`${item.id}.out`,result.output)}>Download output</button></div>}
             {!example&&<p className="prep-muted">Output download becomes available after a successful run of your current code and input.</p>}
           </section>}
-          <section className="prep-section"><h2>Explain and check</h2><label className="prep-field" htmlFor="prep-explanation"><span>One thing I looked up, one test I tried, and what I learned.</span><textarea id="prep-explanation" rows={4} maxLength={3000} value={work.explanations[item.id]||''} onChange={event=>update('explanations',event.target.value)}/></label><label className="prep-readiness"><input type="checkbox" checked={work.readiness[activity.id]||false} onChange={event=>setWork(old=>({...old,readiness:{...old.readiness,[activity.id]:event.target.checked}}))}/><span>{activity.ready}<small>My own readiness reflection; separate from code checks.</small></span></label></section>
-        </div></div>
+          <section id="prep-reflect" className="prep-section"><p className="prep-eyebrow">4 · EXPLAIN</p><h2>Explain and check</h2><label className="prep-field" htmlFor="prep-explanation"><span>One thing I looked up, one test I tried, and what I learned.</span><textarea id="prep-explanation" rows={4} maxLength={3000} value={work.explanations[item.id]||''} onChange={event=>update('explanations',event.target.value)}/></label><label className="prep-readiness"><input type="checkbox" checked={work.readiness[activity.id]||false} onChange={event=>setWork(old=>({...old,readiness:{...old.readiness,[activity.id]:event.target.checked}}))}/><span>{activity.ready}<small>My own readiness reflection; separate from code checks.</small></span></label></section>
+        </div>
         <div className="prep-bottom"><button className="prep-outline" disabled={busy} onClick={()=>index?navigate('problem',tasks[index-1].id):navigate('overview')}><ArrowLeft size={17}/>{index?'Previous exercise':'Preparation overview'}</button><span>Exercise {index+1} of {tasks.length}</span><button className="prep-primary" disabled={busy} onClick={()=>next?navigate('problem',next.id):navigate('files')}>{next?`${nextActivity?'Next activity':'Next exercise'}: ${nextActivity?activityFor(next.id).title:next.title}`:'Finish & keep my work'}<ArrowRight size={17}/></button></div>
       </>}
 

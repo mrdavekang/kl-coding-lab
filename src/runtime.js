@@ -11,7 +11,7 @@ export class PythonRuntime {
     this.input = new Uint8Array(new SharedArrayBuffer(65536));
     this.interrupt = new Uint8Array(new SharedArrayBuffer(1));
     // A new URL also refreshes the runner for students returning from Week 1.
-    this.worker = new Worker(new URL('python-worker.js?v=mcc-preparation-20261015', document.baseURI), { type: 'module' });
+    this.worker = new Worker(new URL('python-worker.js?v=idle-preparation-20261020', document.baseURI), { type: 'module' });
     const currentWorker = this.worker;
     this.bootTimer = setTimeout(() => {
       if (this.worker !== currentWorker || this.ready) return;
@@ -26,7 +26,7 @@ export class PythonRuntime {
         this.destroy(); this.events.status('unavailable', data.message); return;
       }
       if (!this.active || data.id !== this.active.id) return;
-      if (data.type === 'output') this.events.output(data.text);
+      if (data.type === 'output') this.events.output(data.text, data.stream || 'stdout');
       if (data.type === 'trace-step') this.events.trace?.(data.step, data.paused);
       if (data.type === 'input') { this.request = data.request; this.events.input(); }
       if (['done', 'error', 'checked'].includes(data.type)) {
@@ -50,6 +50,14 @@ export class PythonRuntime {
     this.events.status(check ? 'checking' : 'running');
     this.worker.postMessage({ ...options, type: check ? 'check' : 'run', id, code, check });
     if (check) this.checkTimer = setTimeout(() => this.stop('The checks took too long. Look for a loop that does not finish.'), 6000);
+    return true;
+  }
+  command(code, { reset = false } = {}) {
+    if (!this.ready || this.active) return false;
+    const id = ++this.serial;
+    this.active = { id, kind: 'console' }; this.request = null;
+    this.events.status('running');
+    this.worker.postMessage({ type: 'console', id, code, reset });
     return true;
   }
   walk(code, options = {}) {
