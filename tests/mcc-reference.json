@@ -11,5 +11,8 @@
   "visit-column": "parts = input().split()\nn = int(parts[0])\nm = int(parts[1])\ngrid = []\nfor row in range(n):\n    grid.append(input())\nfor row in range(n):\n    print(grid[row][2])",
   "count-column": "parts = input().split()\nn = int(parts[0])\nm = int(parts[1])\ngrid = []\nfor row in range(n):\n    grid.append(input())\nmissing = 0\nfor row in range(n):\n    if grid[row][2] == '.':\n        missing = missing + 1\nprint(missing)",
   "all-columns": "parts = input().split()\nn = int(parts[0])\nm = int(parts[1])\ngrid = []\nfor row in range(n):\n    grid.append(input())\nfor column in range(m):\n    missing = 0\n    for row in range(n):\n        if grid[row][column] == '.':\n            missing = missing + 1\n    print(missing)",
-  "building-fences": "parts = input().split()\nn = int(parts[0])\nm = int(parts[1])\ngrid = []\nfor row in range(n):\n    grid.append(input())\nsmallest = n\nfor column in range(m):\n    missing = 0\n    for row in range(n):\n        if grid[row][column] == '.':\n            missing = missing + 1\n    if missing < smallest:\n        smallest = missing\nprint(smallest)"
+  "building-fences": "parts = input().split()\nn = int(parts[0])\nm = int(parts[1])\ngrid = []\nfor row in range(n):\n    grid.append(input())\nsmallest = n\nfor column in range(m):\n    missing = 0\n    for row in range(n):\n        if grid[row][column] == '.':\n            missing = missing + 1\n    if missing < smallest:\n        smallest = missing\nprint(smallest)",
+  "fence-print": "print(\".\")",
+  "fence-input": "row = input()\nprint(row)",
+  "fence-repeat": "number = int(input())\nfor turn in range(number):\n    print(\"#\")"
 }

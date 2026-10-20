@@ -1,0 +1,18 @@
+.fence-supported .prep-visual{max-width:1000px}
+.fence-supported .prep-syntax{margin:12px 0}
+.fence-supported .prep-syntax>div{padding:10px 0}
+.fence-supported .prep-section{padding:22px 26px}
+.fence-mini-plan h2{font-size:21px}
+.fence-mini-plan dl{display:grid;gap:12px;margin:0 0 18px}
+.fence-mini-plan dl>div{display:flex;align-items:baseline;gap:14px;font-size:15px;line-height:1.6}
+.fence-mini-plan dt{font-weight:700;min-width:65px;color:var(--prep-green)}
+.fence-mini-plan dd{margin:0}
+.fence-mini-plan details{border-top:1px solid var(--prep-line);padding-top:12px}
+.fence-mini-plan summary{font-size:13px;cursor:pointer;line-height:1.7;padding:7px 0}
+.fence-tiny-change{margin:0 24px 18px;padding:16px 19px;background:#fff6d6;border:1px solid #d9be6e;border-left:4px solid #b68312;border-radius:4px}
+.fence-tiny-change>b{font-size:15px}.fence-tiny-change p{font-size:16px;margin:8px 0 12px}
+.fence-tiny-change .prep-outline{font-size:12px;min-height:35px;padding:6px 10px}
+.fence-tiny-change small{display:block;font-size:11px;line-height:1.65;color:#6b5a2e;margin-top:7px}
+.fence-supported .cm-line.scaffold-edit-line{background:#fff2b9!important;box-shadow:inset 3px 0 #b68312}
+.fence-supported .idle-workspace .code-editor{height:clamp(160px,28vh,330px);min-height:130px}
+@media(max-width:650px){.fence-supported .prep-section{padding:20px}.fence-mini-plan dl>div{gap:10px;font-size:14px}.fence-tiny-change{margin-left:12px;margin-right:12px;padding:14px}.fence-tiny-change p{font-size:15px}}

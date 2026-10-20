@@ -29,9 +29,19 @@ for item in payload:
     result = json.loads(check(code, json.dumps(item['spec'])))
     assert result['passed'], (item['id'], result)
     assert execute(code, item['sampleInput']) == item['sampleOutput'].strip(), item['id']
+    # A beginner can reach a working program with the one stated edit.
+    supported = item['starter']
+    if item.get('edit'):
+        before, after = item['edit']
+        assert before in supported, item['id']
+        supported = supported.replace(before, after, 1)
+        changed = sum(a != b for a, b in zip(item['starter'].splitlines(), supported.splitlines()))
+        assert changed == 1, (item['id'], changed)
+    assert json.loads(check(supported, json.dumps(item['spec'])))['passed'], item['id']
     # A program that memorises the displayed sample must fail fresh checks.
     hardcoded = 'print(' + repr(item['sampleOutput']) + ')'
-    assert not json.loads(check(hardcoded, json.dumps(item['spec'])))['passed'], item['id']
+    if not item.get('fixedOutput'):
+        assert not json.loads(check(hardcoded, json.dumps(item['spec'])))['passed'], item['id']
     if item.get('example'):
         assert execute(item['example'], item.get('exampleInput', '')) == item['exampleOutput'].strip(), item['id']
 
@@ -59,4 +69,4 @@ for n in range(1, 4):
 
 rows = ['.' * 799 + ('#' if r < 400 else '.') for r in range(800)]
 assert execute(program, '800 800\n' + '\n'.join(rows) + '\n') == '400'
-print(f'All 13 exercises and examples passed; misconceptions rejected; {count} small fields and the 800 x 800 boundary verified.')
+print(f'All {len(payload)} supported exercises and examples passed; misconceptions rejected; {count} small fields and the 800 x 800 boundary verified.')

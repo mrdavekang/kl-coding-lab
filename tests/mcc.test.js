@@ -19,11 +19,11 @@ test('all preparation exercises, examples and full-size fence cases work; common
 
 test('preparation restore bounds input and keeps known plans, code, evidence and readiness separately',()=>{
   const work=validatePreparation({drafts:{double:'print(2)',unknown:'discard'},passed:{double:'print(2)'},current:'double',screen:'problem',inputs:{double:'1\n'},plans:{double:{input:'One number',lookup:'int',unknown:'discard'}},readiness:{input:true,unknown:true},reflection:'Next test',activity:{double:{entries:[{kind:'run',code:'print(2)',output:'2',status:'finished'}],runs:1}}});
-  assert.equal(progress(work),1);assert.equal(taskPassed(work,tasks[0]),true);assert.equal(activityPassed(work,activities[0]),false);
+  assert.equal(progress(work),1);assert.equal(taskPassed(work,tasks.find(t=>t.id==='double')),true);assert.equal(activityPassed(work,activities[0]),false);
   assert.equal(work.plans.double.input,'One number');assert.equal(work.plans.double.unknown,undefined);assert.equal(work.drafts.unknown,undefined);assert.equal(work.readiness.unknown,undefined);
   assert.equal(work.activity.double.entries[0].output,'2');assert.match(reviewReport(work).flat().join(' '),/One number/);
   work.drafts.double='print(3)';assert.equal(progress(work),0);
-  assert.equal(validatePreparation({current:'bad',plans:[],inputs:[],readiness:'bad'}).current,'double');
+  assert.equal(validatePreparation({current:'bad',plans:[],inputs:[],readiness:'bad'}).current,'fence-print');
   assert.equal(validatePreparation({plans:{double:{input:'x'.repeat(4000)}}}).plans.double.input.length,3000);
 });
 
@@ -54,7 +54,7 @@ test('only a successful current run can become an output file',()=>{
   assert.equal(outputFileReady({...result,output:'[Output shortened.'},item,result.code,result.input),false);
 });
 
-test('all 13 exercises render with correct navigation, visuals and planning; chooser places preparation after Week 5',async()=>{
+test('all 16 supported exercises render with focused visuals, one edit and optional planning',async()=>{
   const server=await createServer({server:{middlewareMode:true,ws:false,watch:null},appType:'custom'});
   try{
     const {PreparationApp}=await server.ssrLoadModule('/src/mcc/PreparationApp.jsx');
@@ -64,9 +64,15 @@ test('all 13 exercises render with correct navigation, visuals and planning; cho
       assert.ok(html.includes('My input → process → output plan'),item.id);
       assert.ok(html.includes('Python workspace'),item.id);
       assert.ok(html.includes('aria-current="step"'),item.id);
+      assert.ok(html.includes('Use supported starter'),item.id);
+      assert.ok(html.includes('optional notes'),item.id);
+      assert.ok(!html.includes('id="prep-plan-lookup"'),item.id);
+      assert.ok(!html.includes('STUDY AN EXAMPLE'),item.id);
+      assert.ok(item.reading.length<=2&&item.syntax.length<=2,item.id);
       const activity=activities.find(a=>a.id===item.activityId);
-      assert.ok(html.includes(activity.image),item.id);
-      assert.ok(existsSync(new URL('../public/mcc-building-fences/'+activity.image,import.meta.url)),item.id);
+      const visual=item.visual||activity;
+      assert.ok(html.includes(visual.image),item.id);
+      assert.ok(existsSync(new URL('../public/mcc-building-fences/'+visual.image,import.meta.url)),item.id);
       if(item.id==='building-fences')assert.ok(!html.includes('STUDY AN EXAMPLE'));
     }
     const chooser=readFileSync(new URL('../src/StudentStart.jsx',import.meta.url),'utf8');
