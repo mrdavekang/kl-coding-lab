@@ -50,6 +50,23 @@ for task_id, programs in mistakes.items():
     for code in programs:
         assert not json.loads(check(code,json.dumps(by_id[task_id]['spec'])))['passed'],(task_id,code)
 
+# Check why the zero count is needed: preserve input zeros, retain the running
+# count, wait for the full count, then inspect that many places (not half of n).
+read='n = int(input())\nbits = input()\n'
+count='zeroCount = 0\nfor bit in bits:\n    if bit == "0":\n        zeroCount = zeroCount + 1\n'
+zero_mistakes={
+    'bs-zero-input': ['n = int(input())\nbits = int(input())\nprint(n)\nprint(bits)'],
+    'bs-zero-start': [read+'for bit in bits:\n    zeroCount = 0\n    print(zeroCount)\n    print(bit)'],
+    'bs-zero-update': [read+'for bit in bits:\n    zeroCount = 0\n    if bit == "0":\n        zeroCount = zeroCount + 1\n    print(zeroCount)'],
+    'bs-zero-total': [read+count.replace('zeroCount = zeroCount + 1','zeroCount = zeroCount + 1\n    print(zeroCount)'),read+'zeroCount = 0\nfor bit in bits:\n    if bit == "1":\n        zeroCount = zeroCount + 1\nprint(zeroCount)'],
+    'bs-zero-section': [read+count+'for index in range(n // 2):\n    print(index + 1, bits[index])',read+count+'for index in range(n):\n    print(index + 1, bits[index])'],
+    'bs-zero-select': [read+count+'for index in range(n):\n    if bits[index] == "1":\n        print(index + 1)'],
+    'bs-left': [read+count+'for index in range(n // 2):\n    if bits[index] == "1":\n        print(index + 1)',read+count+'for index in range(zeroCount):\n    if bits[index] == "1":\n        print(zeroCount)'],
+}
+for task_id,programs in zero_mistakes.items():
+    for code in programs:
+        assert not json.loads(check(code,json.dumps(by_id[task_id]['spec'])))['passed'],(task_id,code)
+
 # Different optimal pairings and reversed pair direction are all legal.
 data='6\n010100\n'
 for output in ['2\n2 6\n4 5\n','2\n2 5\n4 6\n','2\n5 4\n6 2\n']:
@@ -86,4 +103,4 @@ for n in range(1,10):
 for bits in ['1'*100000+'0'*100000,'0'*200000,'1'*200000,'01'*100000]:
     input_data=f'{len(bits)}\n{bits}\n'
     assert validate(input_data,execute(solver,input_data))[0]
-print(f'All 20 exercises passed; {total} shortest paths and 200000-character boundaries verified.')
+print(f'All {len(payload)} exercises passed; {total} shortest paths and 200000-character boundaries verified.')

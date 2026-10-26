@@ -153,6 +153,24 @@ for mobile in (False, True):
     body+=text(24 if mobile else 65,210,'Count after each visit',17,colour=MUTED)
     for i,n in enumerate([1,1,2,2,3]):body+=text(x+i*cell+cell/2,247,n,24,True,'middle',BLUE)
     save('06-counter','Add one for a zero',body,'A one leaves the count unchanged.',mobile,300)
+    if mobile:
+        body=panel(24,75,312,92,'BEFORE ANY VISIT','zeroCount = 0',True)
+        body+=text(24,207,'Then visit the characters:',18)+row('01010',50,232,52)
+    else:
+        body=panel(45,95,390,125,'BEFORE ANY VISIT','zeroCount = 0')
+        body+=text(510,100,'Then visit each character',20)+row('01010',510,140,64)
+    save('06-counter-start','Start before the loop',body,'No characters visited: no zeros counted.',mobile,330 if mobile else 285)
+    body=''
+    if mobile:
+        body=text(24,88,'Start once, before the loop',18,colour=BLUE)
+        lines=['zeroCount = 0','for bit in bits:','    if bit == "0":','        zeroCount = zeroCount + 1','print(zeroCount)']
+        for i,line in enumerate(lines):body+=text(18,127+i*35,line,16,True,colour=BLUE if i in (0,4) else INK)
+        body+=text(24,323,'For 01010, final count: 3.',18,colour=BLUE)
+    else:
+        lines=['zeroCount = 0','for bit in bits:','    if bit == "0":','        zeroCount = zeroCount + 1','print(zeroCount)']
+        for i,line in enumerate(lines):body+=text(45,99+i*37,line,21,True,colour=BLUE if i in (0,4) else INK)
+        body+=panel(530,95,320,105,'INPUT STRING','01010')+text(545,247,'Finished count: 3',23,True,colour=BLUE)
+    save('06-counter-build','Build the counting block',body,'Start before. Print after.',mobile,370 if mobile else 315)
     # Family 7: append and list length.
     if mobile:
         body=panel(24,72,312,75,'START EMPTY','[]',True)+panel(24,167,312,75,'APPEND POSITION 2','[2]',True)+panel(24,262,312,75,'APPEND POSITION 4','[2, 4]',True)+text(180,376,'len(positions) = 2',20,True,'middle',BLUE)
@@ -160,6 +178,39 @@ for mobile in (False, True):
         body=panel(35,90,230,125,'START EMPTY','[]')+arrow(280,150,310,150)+panel(330,90,230,125,'APPEND POSITION 2','[2]')+arrow(575,150,605,150)+panel(625,90,240,125,'APPEND POSITION 4','[2, 4]')+text(450,254,'len(positions) = 2',22,True,'middle',BLUE)
     save('07-list','Keep positions in a list',body,'These are question positions.',mobile,420 if mobile else 300)
     # Family 8: the boundary follows the zero count, not the midpoint.
+    rx=50 if mobile else 230;cs=52 if mobile else 65
+    body=text(24 if mobile else 45,83,'Count zeros in the whole input.',18 if mobile else 22)
+    body+=text(24 if mobile else 45,112,'Current',17,colour=MUTED)+row('01010',rx,143,cs,wrong=(0,2,4),labels=list(range(1,6)))
+    body+=text(24 if mobile else 45,225,'Sorted target',17,colour=MUTED)+row('00011',rx,250,cs,active=(0,1,2))
+    bx=rx+3*cs
+    body+=f'<path d="M{bx} 235V306" stroke="{BLUE}" stroke-width="3"/>'
+    if mobile:body+=text(24,354,'3 zeros → first 3 places',21,True,colour=BLUE)
+    else:body+=panel(620,120,230,88,'ZERO COUNT','3')+text(595,272,'First 3 places are zeros',19,colour=BLUE)
+    save('08-zero-purpose','Why count the zeros?',body,'Swaps keep the same zero count.',mobile,415 if mobile else 345)
+    body=text(24 if mobile else 45,83,'zeroCount = 3',20,True,colour=BLUE)
+    body+=row('01010',50 if mobile else 255,130,52 if mobile else 65,active=(0,2),wrong=(1,),labels=list(range(5)))
+    bx=(50+3*52) if mobile else (255+3*65)
+    body+=f'<path d="M{bx} 112V183" stroke="{BLUE}" stroke-width="3"/>'
+    if mobile:
+        body+=text(34,222,'Index',17)+text(137,222,'Character',17)+text(271,222,'Print',17)
+        for i,(bit,output) in enumerate([('0','skip'),('1','2'),('0','skip')]):
+            yy=265+i*36
+            body+=text(57,yy,i,22,True,'middle')+text(183,yy,f'"{bit}"',22,True,'middle')+text(291,yy,output,21,True,'middle',BLUE)
+    else:
+        body+=text(125,222,'Index',18)+text(370,222,'bits[index]',18,True)+text(675,222,'Print',18)
+        for i,(bit,output) in enumerate([('0','skip'),('1','2'),('0','skip')]):
+            yy=262+i*35
+            body+=text(150,yy,i,23,True,'middle')+text(430,yy,f'"{bit}"',23,True,'middle')+text(700,yy,output,22,True,'middle',BLUE)
+    save('08-zero-visit','Choose wrong ones',body,'A 1 is wrong in the zero section.',mobile,395 if mobile else 385)
+    if mobile:
+        body=panel(24,75,312,100,'INPUT','',True)+text(40,128,'n = 5',21,True)+text(40,158,'bits = "01010"',21,True)
+        body+=arrow(180,180,180,199)+panel(24,210,312,90,'COUNT THE WHOLE STRING','zeroCount = 3',True)
+        body+=arrow(180,305,180,324)+panel(24,335,312,110,'INSPECT FIRST 3 PLACES','',True)+text(40,389,'Positions: 1, 2, 3',20,True)+text(40,425,'Output: 2',21,True,colour=BLUE)
+    else:
+        body=panel(35,95,240,165,'INPUT','',True)+text(51,159,'n = 5',23,True)+text(51,203,'bits = "01010"',21,True)
+        body+=arrow(286,177,313,177)+panel(325,95,250,165,'COUNT WHOLE STRING','',True)+text(341,165,'zeroCount = 3',21,True,colour=BLUE)+text(341,210,'First loop',18,colour=MUTED)
+        body+=arrow(586,177,613,177)+panel(625,95,240,165,'INSPECT ZERO PLACES','',True)+text(641,165,'1, 2, 3',23,True,colour=BLUE)+text(641,210,'Output: 2',23,True,colour=BLUE)
+    save('08-zero-build','Input → Count → Inspect',body,'Count first. Inspect afterwards.',mobile,490 if mobile else 315)
     for side in ('left','right'):
         rx=50 if mobile else 255;cs=52 if mobile else 65
         wrong_indices=(1,) if side=='left' else (4,)
@@ -198,4 +249,4 @@ for mobile in (False, True):
     else:body+=text(540,110,'leftWrong = []',23,True)+text(540,153,'rightWrong = []',23,True)+text(540,213,'Output: 0',29,True,colour=BLUE)
     save('10-zero','Already sorted',body,'No pair lines are needed.',mobile,350 if mobile else 300)
 
-print('Built 21 reference strips in desktop and mobile layouts.')
+print('Built 26 reference strips in desktop and mobile layouts.')
