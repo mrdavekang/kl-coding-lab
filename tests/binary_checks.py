@@ -37,6 +37,19 @@ for item in payload:
         constant='print('+repr(item['sampleOutput'])+')'
         assert not json.loads(check(constant,json.dumps(item['spec'])))['passed'],item['id']
 
+# Index practice must distinguish a label from its selected character, including
+# the first and last valid indices. The combined task must not shift its lookup.
+by_id={item['id']:item for item in payload}
+mistakes={
+    'bs-index-variable': ['bits = input()\nindex = 2\nprint(index)', 'bits = input()\nindex = 2\nprint(bits[index + 1])'],
+    'bs-index-choice': ['bits = input()\nindex = int(input())\nprint(index)', 'bits = input()\nindex = int(input())\nprint(bits[0])', 'bits = input()\nindex = int(input())\nprint(bits[index + 1])'],
+    'bs-index-loop': ['n = int(input())\nbits = input()\nfor index in range(n):\n    print(index)', 'n = int(input())\nbits = input()\nfor index in range(n):\n    print(bits[index + 1])'],
+    'bs-labels': ['n = int(input())\nbits = input()\nfor index in range(n):\n    print(index + 1, bits[index + 1])'],
+}
+for task_id, programs in mistakes.items():
+    for code in programs:
+        assert not json.loads(check(code,json.dumps(by_id[task_id]['spec'])))['passed'],(task_id,code)
+
 # Different optimal pairings and reversed pair direction are all legal.
 data='6\n010100\n'
 for output in ['2\n2 6\n4 5\n','2\n2 5\n4 6\n','2\n5 4\n6 2\n']:

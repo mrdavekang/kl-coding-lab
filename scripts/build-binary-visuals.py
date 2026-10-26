@@ -90,6 +90,52 @@ for mobile in (False, True):
     for i in range(5):body+=text(x+i*cell+cell/2,210,i,18,True,'middle',MUTED)
     body+=text(24 if mobile else 70,243,'Python indices',17,colour=MUTED)+text(w/2,284,'index 1 + 1 = position 2',19,True,'middle',BLUE)
     save('03-positions','Two number systems',body,'Store question positions once.',mobile,340)
+    # Index practice separates a place label from the character stored there.
+    body=text(24 if mobile else 65,82,'bits = "10010"',21,True)
+    body+=text(24 if mobile else 65,112,'Python indices',17,colour=MUTED)
+    body+=row('10010',x,151,cell,active=(2,),labels=list(range(5)))
+    if mobile:
+        body+=text(24,240,'index = 2',22,True,colour=BLUE)
+        body+=text(24,281,'bits[index] → bits[2]',20,True)
+        body+=text(24,324,'Output: 0',25,True,colour=BLUE)
+    else:
+        body+=panel(530,106,310,100,'CHOSEN PLACE','index = 2')
+        body+=text(65,264,'bits[index]  →  bits[2]  →  "0"',26,True,colour=BLUE)
+    save('03-index-variable','Index chooses a character',body,'2 is the index; 0 is the character.',mobile,375 if mobile else 325)
+    body=text(24 if mobile else 65,82,'bits = "10010"',21,True)+row('10010',x,126,cell,labels=list(range(5)))
+    if mobile:
+        body+=text(50,218,'index',18,True,colour=MUTED)+text(170,218,'bits[index]',18,True,colour=MUTED)
+        for turn,(index,bit) in enumerate([(0,'1'),(1,'0'),(4,'0')]):
+            yy=259+turn*40
+            body+=text(75,yy,index,24,True,'middle',BLUE)+arrow(111,yy-8,145,yy-8)+text(236,yy,f'"{bit}"',24,True,'middle',BLUE)
+    else:
+        for i,(index,bit) in enumerate([(0,'1'),(1,'0'),(4,'0')]):
+            body+=panel(42+i*288,214,264,90,f'index = {index}',f'bits[{index}] → "{bit}"',True)
+    save('03-index-choice','Change the place you read',body,'Five characters use indices 0 to 4.',mobile,390 if mobile else 350)
+    body=text(24 if mobile else 55,82,'bits = "10010"',21,True)+row('10010',x if mobile else 55,126,cell,active=(2,),labels=list(range(5)))
+    if mobile:
+        body+=text(24,216,'Loop index',17,colour=MUTED)+text(177,216,'bits[index]',17,True,colour=MUTED)
+        for index,bit in enumerate('10010'):
+            yy=254+index*34
+            body+=text(83,yy,index,23,True,'middle',BLUE)+arrow(123,yy-7,155,yy-7)+text(241,yy,f'"{bit}"',23,True,'middle',BLUE)
+        body+=text(24,428,'print(bits[index])',21,True,colour=BLUE)
+    else:
+        body+=text(55,226,'for index in range(n):',22,True)+text(55,263,'    print(bits[index])',22,True)
+        body+=text(560,85,'Loop index',18,colour=MUTED)+text(710,85,'bits[index]',18,True,colour=MUTED)
+        for index,bit in enumerate('10010'):
+            yy=123+index*35
+            body+=text(610,yy,index,23,True,'middle',BLUE)+arrow(651,yy-7,683,yy-7)+text(770,yy,f'"{bit}"',23,True,'middle',BLUE)
+    save('03-index-loop','Read a character each turn',body,'Print the character on each turn.',mobile,480 if mobile else 330)
+    body=text(24 if mobile else 65,82,'bits = "10010"',21,True)+row('10010',x if mobile else 65,131,cell,active=(3,),labels=list(range(5)))
+    if mobile:
+        body+=text(24,224,'index = 3',22,True,colour=BLUE)
+        body+=panel(24,245,148,85,'index + 1','4',True)+panel(188,245,148,85,'bits[index]','"1"',True)
+        body+=text(180,371,'print(4, "1") → 4 1',20,True,'middle',BLUE)
+    else:
+        body+=text(520,83,'index = 3',22,True,colour=BLUE)
+        body+=panel(495,110,165,100,'index + 1','4')+panel(685,110,170,100,'bits[index]','"1"')
+        body+=text(65,272,'print(index + 1, bits[index])',25,True)+arrow(595,264,635,264)+text(685,272,'4 1',29,True,colour=BLUE)
+    save('03-index-labels','Print both values',body,'Look up with index. Label with index + 1.',mobile,420 if mobile else 330)
     # Families 4–6: loop, condition and counter.
     body=text(24 if mobile else 65,82,'bits = "01010"',20,True)+row('01010',x if mobile else 65,119,cell,active=(1,))
     if mobile:
@@ -152,4 +198,4 @@ for mobile in (False, True):
     else:body+=text(540,110,'leftWrong = []',23,True)+text(540,153,'rightWrong = []',23,True)+text(540,213,'Output: 0',29,True,colour=BLUE)
     save('10-zero','Already sorted',body,'No pair lines are needed.',mobile,350 if mobile else 300)
 
-print('Built 17 reference strips in desktop and mobile layouts.')
+print('Built 21 reference strips in desktop and mobile layouts.')
