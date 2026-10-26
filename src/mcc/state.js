@@ -44,6 +44,7 @@ export function createPreparationState(problem) {
     return url;
   }
   function reviewReport(work) {
+    if(problem.practiceOnly)return [];
     const rows=[];
     for (const item of tasks) for (const [field,label] of planFields) {
       const answer=work.plans?.[item.id]?.[field];
@@ -52,7 +53,7 @@ export function createPreparationState(problem) {
     for (const activity of activities) rows.push([`Activity ${activities.indexOf(activity)+1} readiness (self-report)`,`${activity.ready} ${work.readiness?.[activity.id]?'Reported ready.':'Not yet recorded.'}`]);
     return rows;
   }
-  const reportConfig={number:problem.sectionNumber || 'MCC',title:problemTitle,date:`${problem.sectionTitle || 'MCC preparation'} / ${activities.length} activities`,allTasks:tasks,lesson:tasks,reviewReport};
+  const reportConfig={number:problem.sectionNumber || 'MCC',title:problemTitle,date:`${problem.sectionTitle || 'MCC preparation'} / ${activities.length} activities`,allTasks:tasks,lesson:tasks,reviewReport,practiceOnly:!!problem.practiceOnly};
   return {validatePreparation,progress,locationFor,preparationUrl,reviewReport,reportConfig};
 }
 export function taskPassed(work,item) {return work.passed?.[item.id] !== undefined && work.passed[item.id] === (item.kind==='output' ? work.answers?.[item.id] || '' : work.drafts?.[item.id] ?? item.starter);}

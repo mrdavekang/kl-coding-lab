@@ -6,7 +6,7 @@ function helperUrl(file) {
 const PYODIDE_URL = 'https://cdn.jsdelivr.net/pyodide/v314.0.6/full/';
 let python, controls, inputBytes, interrupts;
 let job = null, requestNumber = 0, pendingInput = new Uint8Array(), pendingOffset = 0;
-let output = '', outputLength = 0, truncated = false, outputStream = 'stdout';
+let output = '', outputLength = 0, truncated = false, outputStream = 'stdout', outputLimit = 24000;
 let traceOutput = '', traceMode = 1;
 const decoder = new TextDecoder();
 const MAX_OUTPUT = 24000;
@@ -16,11 +16,11 @@ function flush() { if (output) { send('output', { text: output, stream: outputSt
 function write(bytes, stream = 'stdout') {
   if (stream !== outputStream) { flush(); outputStream = stream; }
   const text = decoder.decode(bytes, { stream: true });
-  if (outputLength < MAX_OUTPUT) {
-    const fragment = text.slice(0, MAX_OUTPUT - outputLength);
+  if (outputLength < outputLimit) {
+    const fragment = text.slice(0, outputLimit - outputLength);
     output += fragment; outputLength += fragment.length;
     if (job?.type === 'trace') traceOutput += fragment;
-    if (output.length >= 512) flush();
+    if (output.length >= (outputLimit > MAX_OUTPUT ? 8192 : 512)) flush();
   } else if (!truncated) {
     truncated = true; flush(); send('output', { text: '\n[Output shortened. Use Stop if your program keeps printing.]\n' });
   }
@@ -79,7 +79,7 @@ self.onmessage = async ({ data }) => {
       const response = await fetch(helperUrl('./checks.py'));
       if (!response.ok) throw new Error('The task checks could not load. Please reload.');
       await python.runPythonAsync(await response.text());
-      for (const file of ['checks2.py', 'checks3.py', 'checks4.py', 'trace.py', 'idle.py']) {
+      for (const file of ['checks2.py', 'checks3.py', 'checks4.py', 'checks_binary.py', 'trace.py', 'idle.py']) {
         const extra = await fetch(helperUrl('./' + file));
         if (!extra.ok) throw new Error('The learning tools could not load. Please reload.');
         await python.runPythonAsync(await extra.text());
@@ -90,6 +90,7 @@ self.onmessage = async ({ data }) => {
   }
   if (!python || job || !['run', 'check', 'trace', 'console'].includes(data.type)) return;
   job = data;
+  outputLimit = Math.max(MAX_OUTPUT, Math.min(2_000_000, Number(data.maxOutput) || MAX_OUTPUT));
   output = ''; outputLength = 0; truncated = false; outputStream = 'stdout';
   traceOutput = ''; traceMode = 1;
   pendingInput = typeof data.stdin === 'string' ? new TextEncoder().encode(data.stdin) : new Uint8Array(); pendingOffset = 0;
@@ -100,7 +101,7 @@ self.onmessage = async ({ data }) => {
       python.globals.set('__kl_source', data.code);
       python.globals.set('__kl_task', data.check);
       python.globals.set('__kl_spec', JSON.stringify(data.spec || {}));
-      const result = await python.runPythonAsync(data.check.startsWith('mcc-') || data.check.startsWith('w4-') || data.check.startsWith('w5-') ? '__kl_check4(__kl_source, __kl_spec)' : data.check.startsWith('w3-') ? '__kl_check3(__kl_source, __kl_spec)' : data.check.startsWith('w2-') ? '__kl_check2(__kl_source, __kl_task)' : '__kl_check(__kl_source, __kl_task)');
+      const result = await python.runPythonAsync(data.check.startsWith('binary-') ? '__kl_check_binary(__kl_source, __kl_spec)' : data.check.startsWith('mcc-') || data.check.startsWith('w4-') || data.check.startsWith('w5-') ? '__kl_check4(__kl_source, __kl_spec)' : data.check.startsWith('w3-') ? '__kl_check3(__kl_source, __kl_spec)' : data.check.startsWith('w2-') ? '__kl_check2(__kl_source, __kl_task)' : '__kl_check(__kl_source, __kl_task)');
       completion = { type: 'checked', result: JSON.parse(result) };
     } else if (data.type === 'trace') {
       python.globals.set('__kl_source', data.code);

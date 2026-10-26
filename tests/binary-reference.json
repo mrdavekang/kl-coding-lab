@@ -1,0 +1,22 @@
+{
+  "bs-print": "print(\"0\")\n",
+  "bs-lines": "print(\"0\")\nprint(\"1\")\n",
+  "bs-echo": "bits = input()\nprint(bits)\n",
+  "bs-read": "n = int(input())\nbits = input()\nprint(n)\nprint(bits)\n",
+  "bs-character": "bits = input()\nprint(bits[1])\n",
+  "bs-each": "bits = input()\nfor bit in bits:\n    print(bit)\n",
+  "bs-filter": "bits = input()\nfor bit in bits:\n    if bit == \"0\":\n        print(bit)\n",
+  "bs-count": "bits = input()\nzeroCount = 0\nfor bit in bits:\n    if bit == \"0\":\n        zeroCount = zeroCount + 1\nprint(zeroCount)\n",
+  "bs-positions": "n = int(input())\nfor index in range(n):\n    print(index + 1)\n",
+  "bs-labels": "n = int(input())\nbits = input()\nfor index in range(n):\n    print(index + 1, bits[index])\n",
+  "bs-list": "n = int(input())\nbits = input()\npositions = []\nfor index in range(n):\n    if bits[index] == \"1\":\n        positions.append(index + 1)\nprint(positions)\n",
+  "bs-list-output": "n = int(input())\nbits = input()\npositions = []\nfor index in range(n):\n    if bits[index] == \"1\":\n        positions.append(index + 1)\nprint(len(positions))\nfor position in positions:\n    print(position)\n",
+  "bs-left": "n = int(input())\nbits = input()\nzeroCount = 0\nfor bit in bits:\n    if bit == \"0\":\n        zeroCount = zeroCount + 1\nfor index in range(zeroCount):\n    if bits[index] == \"1\":\n        print(index + 1)\n",
+  "bs-right": "n = int(input())\nbits = input()\nzeroCount = 0\nfor bit in bits:\n    if bit == \"0\":\n        zeroCount = zeroCount + 1\nfor index in range(zeroCount, n):\n    if bits[index] == \"0\":\n        print(index + 1)\n",
+  "bs-both": "n = int(input())\nbits = input()\nzeroCount = 0\nfor bit in bits:\n    if bit == \"0\":\n        zeroCount = zeroCount + 1\nleftWrong = []\nrightWrong = []\nfor index in range(zeroCount):\n    if bits[index] == \"1\":\n        leftWrong.append(index + 1)\nfor index in range(zeroCount, n):\n    if bits[index] == \"0\":\n        rightWrong.append(index + 1)\nprint(leftWrong)\nprint(rightWrong)",
+  "bs-pairs": "n = int(input())\nbits = input()\nzeroCount = 0\nfor bit in bits:\n    if bit == \"0\":\n        zeroCount = zeroCount + 1\nleftWrong = []\nrightWrong = []\nfor index in range(zeroCount):\n    if bits[index] == \"1\":\n        leftWrong.append(index + 1)\nfor index in range(zeroCount, n):\n    if bits[index] == \"0\":\n        rightWrong.append(index + 1)\nfor pair in range(len(leftWrong)):\n    print(leftWrong[pair], rightWrong[pair])",
+  "bs-answer": "n = int(input())\nbits = input()\nzeroCount = 0\nfor bit in bits:\n    if bit == \"0\":\n        zeroCount = zeroCount + 1\nleftWrong = []\nrightWrong = []\nfor index in range(zeroCount):\n    if bits[index] == \"1\":\n        leftWrong.append(index + 1)\nfor index in range(zeroCount, n):\n    if bits[index] == \"0\":\n        rightWrong.append(index + 1)\nprint(len(leftWrong))\nfor pair in range(len(leftWrong)):\n    print(leftWrong[pair], rightWrong[pair])",
+  "bs-repair": "n = int(input())\nbits = input()\nzeroCount = 0\nfor bit in bits:\n    if bit == \"0\":\n        zeroCount = zeroCount + 1\nleftWrong = []\nrightWrong = []\nfor index in range(zeroCount):\n    if bits[index] == \"1\":\n        leftWrong.append(index + 1)\nfor index in range(zeroCount, n):\n    if bits[index] == \"0\":\n        rightWrong.append(index + 1)\nprint(len(leftWrong))\nfor pair in range(len(leftWrong)):\n    print(leftWrong[pair], rightWrong[pair])",
+  "bs-mixed": "n = int(input())\nbits = input()\nzeroCount = 0\nfor bit in bits:\n    if bit == \"0\":\n        zeroCount = zeroCount + 1\nleftWrong = []\nrightWrong = []\nfor index in range(zeroCount):\n    if bits[index] == \"1\":\n        leftWrong.append(index + 1)\nfor index in range(zeroCount, n):\n    if bits[index] == \"0\":\n        rightWrong.append(index + 1)\nprint(len(leftWrong))\nfor pair in range(len(leftWrong)):\n    print(leftWrong[pair], rightWrong[pair])",
+  "bs-challenge": "n = int(input())\nbits = input()\nzeroCount = 0\nfor bit in bits:\n    if bit == \"0\":\n        zeroCount = zeroCount + 1\nleftWrong = []\nrightWrong = []\nfor index in range(zeroCount):\n    if bits[index] == \"1\":\n        leftWrong.append(index + 1)\nfor index in range(zeroCount, n):\n    if bits[index] == \"0\":\n        rightWrong.append(index + 1)\nprint(len(leftWrong))\nfor pair in range(len(leftWrong)):\n    print(leftWrong[pair], rightWrong[pair])"
+}

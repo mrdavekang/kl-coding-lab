@@ -30,6 +30,7 @@ function browserRaster(text, size, mono, bold) {
 
 export function createReport(profile, work, { now = new Date().toISOString(), rasterize = browserRaster, lessonConfig = null } = {}) {
   const number = lessonConfig?.number || 1;
+  const practiceOnly=!!lessonConfig?.practiceOnly;
   const title = lessonConfig?.title || "Input, output and variables";
   const tasks = lessonConfig?.allTasks || allTasks;
   const core = lessonConfig?.lesson || tasks.filter(t => t.check && !t.level);
@@ -105,10 +106,11 @@ export function createReport(profile, work, { now = new Date().toISOString(), ra
   y += 3;
   paragraph(`${stats.tasks} tasks with work     ${stats.passed}/${checkCount} core practice checks passed\n${stats.runs} recorded runs     ${stats.checks} recorded checks`, { bold: true, box: true });
   paragraph('This report contains learner work and practice-check evidence from this browser or an imported backup. Passing the supplied checks is evidence for those cases, not a grade or proof of independent understanding.', { size: 9.5 });
+  const review = lessonConfig?.reviewReport ? lessonConfig.reviewReport(work) : learningReviewReport(work.learningReview);
+  if(!practiceOnly){
   heading('My reflection');
   paragraph(work.reflection?.trim() || 'Not completed yet.');
   const choices = { support: 'I need a hand', practice: 'I want more practice', stretch: 'I am ready to stretch' };
-  const review = lessonConfig?.reviewReport ? lessonConfig.reviewReport(work) : learningReviewReport(work.learningReview);
   if (!review.length) paragraph(`Learning pit stop: ${choices[work.pitstop] || 'No choice recorded'}`, { size: 10 });
   else paragraph('My starting points and learning pit stops are recorded on the following pages.', { size: 10 });
   room(135);
@@ -116,6 +118,7 @@ export function createReport(profile, work, { now = new Date().toISOString(), ra
   paragraph(number === 3 ? 'Distinguish a manually calculated answer from a general program. Ask the learner to explain a condition and a fresh test. Record whether hints, starter code or teacher help were used.' : number === 2 ? 'Ask the learner to explain one loop iteration using its old and new values, demonstrate a changed list, and distinguish counting from totalling. Use code, tests and their explanation together.' : 'Ask the learner to explain a variable, demonstrate a new input and explain a test or a change. Use the work and their explanation together to decide the next step.', { size: 10 });
   paragraph('Feedback / next step: ___________________________________________________\n______________________________________________________________________', { size: 10 });
 
+  }
   if (review.length) {
     continuation = `Lesson ${number} / My learning reflections`; newPage();
     heading('My learning: before and now', 19);
@@ -141,8 +144,8 @@ export function createReport(profile, work, { now = new Date().toISOString(), ra
     heading(`${task.level ? task.level + ' / ' : ''}${task.title}`, 18);
     paragraph(task.task || task.goal || task.intro, { size: 10 });
     paragraph(`Status: ${taskStatus(task, work)} | Hints opened: ${work.hints?.[task.id] || 0}`, { size: 10, bold: true });
-    heading('My explanation', 12);
-    paragraph(work.explanations?.[task.id]?.trim() || 'Not added yet. Ask me how my program works.');
+    if(!practiceOnly){heading('My explanation', 12);
+    paragraph(work.explanations?.[task.id]?.trim() || 'Not added yet. Ask me how my program works.');}
     heading(task.reasoning ? 'My reasoning answers' : task.kind === 'output' ? 'My answer file (manual or code-assisted)' : 'My current code', 12);
     paragraph(task.reasoning ? 'Question labels and reasoning answers are recorded below.' : 'Indentation is preserved. Long lines wrap on the page.', { size: 9 });
     const currentCode = task.kind === 'output' ? (work.answers?.[task.id] || '') : (work.drafts?.[task.id] ?? task.starter);
