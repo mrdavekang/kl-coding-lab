@@ -27,5 +27,6 @@
   "bs-zero-update": "n = int(input())\nbits = input()\nzeroCount = 0\nfor bit in bits:\n    if bit == \"0\":\n        zeroCount = zeroCount + 1\n    print(zeroCount)\n",
   "bs-zero-total": "n = int(input())\nbits = input()\nzeroCount = 0\nfor bit in bits:\n    if bit == \"0\":\n        zeroCount = zeroCount + 1\nprint(zeroCount)\n",
   "bs-zero-section": "n = int(input())\nbits = input()\nzeroCount = 0\nfor bit in bits:\n    if bit == \"0\":\n        zeroCount = zeroCount + 1\nfor index in range(zeroCount):\n    print(index + 1, bits[index])\n",
-  "bs-zero-select": "n = int(input())\nbits = input()\nzeroCount = 0\nfor bit in bits:\n    if bit == \"0\":\n        zeroCount = zeroCount + 1\nfor index in range(zeroCount):\n    if bits[index] == \"1\":\n        print(index + 1)\n"
+  "bs-zero-select": "n = int(input())\nbits = input()\nzeroCount = 0\nfor bit in bits:\n    if bit == \"0\":\n        zeroCount = zeroCount + 1\nfor index in range(zeroCount):\n    if bits[index] == \"1\":\n        print(index + 1)\n",
+  "bs-name-input": "name = input()\nprint(name)\n"
 }

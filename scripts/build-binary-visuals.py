@@ -71,6 +71,13 @@ for mobile in (False, True):
                 body=panel(45,90,360,130,'EDITOR','')+text(61,155,'print("0")',27,True,colour=BLUE)+text(61,199,'print("1")',27,True,colour=BLUE)+arrow(430,155,480,155)+panel(510,90,340,130,'SHELL','')+text(526,155,'0',27,True,colour=BLUE)+text(526,199,'1',27,True,colour=BLUE)
         save('01-lines' if two else '01-print','Two print lines' if two else 'Code to Shell',body,'Each print starts a new line.' if two else 'Quotes stay in the code.',mobile,height)
     if mobile:
+        body=panel(24,75,312,85,'TYPE AND PRESS ENTER','Alex')+arrow(180,170,180,193)+panel(24,205,312,85,'name = input()','"Alex"')
+        body+=arrow(180,300,180,323)+panel(24,335,312,85,'print(name)','Alex')
+    else:
+        body=panel(30,100,240,120,'TYPE AND PRESS ENTER','Alex')+arrow(282,160,315,160)+panel(330,100,240,120,'name = input()','"Alex"')
+        body+=arrow(582,160,615,160)+panel(630,100,240,120,'print(name)','Alex')
+    save('02-name-input','Read → Remember → Print',body,'Try Maya next. Keep the same code.',mobile,470 if mobile else 285)
+    if mobile:
         body=panel(24,75,312,85,'TYPE IN THE SHELL','01010')+arrow(180,172,180,204)+panel(24,217,312,85,'REMEMBER AS bits','"01010"')
     else:
         body=panel(45,95,350,125,'TYPE IN THE SHELL','01010')+arrow(420,155,480,155)+panel(510,95,345,125,'bits = input()','"01010"')
@@ -249,4 +256,4 @@ for mobile in (False, True):
     else:body+=text(540,110,'leftWrong = []',23,True)+text(540,153,'rightWrong = []',23,True)+text(540,213,'Output: 0',29,True,colour=BLUE)
     save('10-zero','Already sorted',body,'No pair lines are needed.',mobile,350 if mobile else 300)
 
-print('Built 26 reference strips in desktop and mobile layouts.')
+print('Built 27 reference strips in desktop and mobile layouts.')

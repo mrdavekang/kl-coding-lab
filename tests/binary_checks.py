@@ -41,6 +41,7 @@ for item in payload:
 # the first and last valid indices. The combined task must not shift its lookup.
 by_id={item['id']:item for item in payload}
 mistakes={
+    'bs-name-input': ['name = input()\nprint("name")', 'name = input()\nprint("Alex")', 'name = int(input())\nprint(name)'],
     'bs-index-variable': ['bits = input()\nindex = 2\nprint(index)', 'bits = input()\nindex = 2\nprint(bits[index + 1])'],
     'bs-index-choice': ['bits = input()\nindex = int(input())\nprint(index)', 'bits = input()\nindex = int(input())\nprint(bits[0])', 'bits = input()\nindex = int(input())\nprint(bits[index + 1])'],
     'bs-index-loop': ['n = int(input())\nbits = input()\nfor index in range(n):\n    print(index)', 'n = int(input())\nbits = input()\nfor index in range(n):\n    print(bits[index + 1])'],
