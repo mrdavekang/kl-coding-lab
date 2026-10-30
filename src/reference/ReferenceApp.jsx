@@ -5,6 +5,7 @@ import {readTopic,referenceUrl,practiceUrl,loadReferenceDrafts,saveReferenceDraf
 import {practiceCourse} from '../practise/catalog.js';
 import {ReferenceVisual} from './ReferenceVisual.jsx';
 import {ReferencePlayground} from './ReferencePlayground.jsx';
+import {PlaygroundLink} from '../playground/PlaygroundLink.jsx';
 import '../mcc/idle.css';
 import './reference.css';
 const currentHref=()=>typeof location==='undefined'?'https://example.test/?week=mcc-reference':location.href;
@@ -26,7 +27,7 @@ export function ReferenceApp({initialTopic=null}){
  function changeDraft(change){setDrafts(old=>({...old,[topic.id]:{...old[topic.id],...change}}));}
  return <div className="reference-app">
   <a className="ref-skip" href="#reference-main">Skip to reference topic</a>
-  <header className="ref-header"><a className="ref-brand" href={referenceUrl(currentHref(),'start').toString()} onClick={e=>navigate(e,'start')}><CodeXml size={25}/><span>KL <b>Coding Lab</b></span></a><span className="ref-header-label"><BookOpen size={18}/> Python reference</span><a className="ref-outline" href={practiceUrl(currentHref()).toString()}>MCC Practise <ArrowRight size={16}/></a></header>
+  <header className="ref-header"><a className="ref-brand" href={referenceUrl(currentHref(),'start').toString()} onClick={e=>navigate(e,'start')}><CodeXml size={25}/><span>KL <b>Coding Lab</b></span></a><span className="ref-header-label"><BookOpen size={18}/> Python reference</span><PlaygroundLink/><a className="ref-outline" href={practiceUrl(currentHref()).toString()}>MCC Practise <ArrowRight size={16}/></a></header>
   <div className="ref-layout">
    <aside className="ref-sidebar" aria-label="Python reference topics"><div className="ref-sidebar-top"><b>Find the Python you need</b><button className="ref-menu-toggle" aria-expanded={menu} aria-controls="reference-topic-list" onClick={()=>setMenu(!menu)}>{menu?'Close topics':'Browse topics'}</button></div>
     <form className="ref-search" role="search" onSubmit={e=>{e.preventDefault();if(found[0])navigate(null,found[0].id);}}><label htmlFor="reference-search"><Search size={16}/>Search topics</label><input id="reference-search" type="search" placeholder="Try input, index, count…" value={query} onChange={e=>{setQuery(e.target.value);setMenu(true);}} autoComplete="off"/>{query&&<button type="button" className="ref-search-clear" onClick={()=>setQuery('')}>Clear search</button>}</form>

@@ -13,6 +13,8 @@ import { MccPreparation } from './mcc/MccPreparation.jsx';
 import { McoTryout } from './mco/McoTryout.jsx';
 import { MccPractise } from './practise/MccPractise.jsx';
 import { ReferenceApp } from './reference/ReferenceApp.jsx';
+import { PlaygroundApp } from './playground/PlaygroundApp.jsx';
+import { readWeek } from './navigation.js';
 import { saveProfileLesson } from './storage.js';
 import { StudentStart } from './StudentStart.jsx';
 import { ReportPanel } from './ReportPanel.jsx';
@@ -222,11 +224,12 @@ function LessonApp({ profile, initialWork, onSave, onLeave }) {
 
 function App() {
   const [profile, setProfile] = useState(null);
-  const [week, setWeek] = useState(() => ['mcc','mco','mcc-practise','mcc-reference'].includes(new URLSearchParams(location.search).get('week')) ? new URLSearchParams(location.search).get('week') : [1,2,3,4,5].includes(Number(new URLSearchParams(location.search).get('week'))) ? Number(new URLSearchParams(location.search).get('week')) : 5);
-  useEffect(() => { if(week==='mcc-reference')return; document.title = week === 'mcc-practise' ? 'KL Coding Lab · MCC Practise' : week === 'mco' ? 'KL Coding Lab · MCO Tryout' : week === 'mcc' ? 'KL Coding Lab · MCC Preparation' : week === 5 ? 'KL Coding Lab · Week 5 · Counters, IDEs and MCC readiness' : week === 4 ? 'KL Coding Lab · Week 4 · Conditions and MCC grids' : week === 3 ? 'KL Coding Lab · Week 3 · Weeks 1 and 2 practice' : week === 2 ? 'KL Coding Lab · Week 2 · Lists and loops' : 'KL Coding Lab · Week 1 · Your first Python program'; }, [week]);
-  useEffect(()=>{const back=()=>{const value=new URLSearchParams(location.search).get('week');setWeek(['mcc','mco','mcc-practise','mcc-reference'].includes(value)?value:[1,2,3,4,5].includes(Number(value))?Number(value):5);};window.addEventListener('popstate',back);return()=>window.removeEventListener('popstate',back);},[]);
+  const [week, setWeek] = useState(() => readWeek(location.search));
+  useEffect(() => { if(['mcc-reference','playground'].includes(week))return; document.title = week === 'mcc-practise' ? 'KL Coding Lab · MCC Practise' : week === 'mco' ? 'KL Coding Lab · MCO Tryout' : week === 'mcc' ? 'KL Coding Lab · MCC Preparation' : week === 5 ? 'KL Coding Lab · Week 5 · Counters, IDEs and MCC readiness' : week === 4 ? 'KL Coding Lab · Week 4 · Conditions and MCC grids' : week === 3 ? 'KL Coding Lab · Week 3 · Weeks 1 and 2 practice' : week === 2 ? 'KL Coding Lab · Week 2 · Lists and loops' : 'KL Coding Lab · Week 1 · Your first Python program'; }, [week]);
+  useEffect(()=>{const back=()=>setWeek(readWeek(location.search));window.addEventListener('popstate',back);return()=>window.removeEventListener('popstate',back);},[]);
   function chooseWeek(value) { setWeek(value); const url = new URL(location.href); url.searchParams.set('week', value); for (const key of ['problem','activity','exercise','topic']) url.searchParams.delete(key); history.replaceState(null, '', url); }
   if(week==='mcc-reference')return <ReferenceApp/>;
+  if(week==='playground')return <PlaygroundApp/>;
   if (!profile) return <StudentStart onStart={setProfile} week={week} onWeekChange={chooseWeek}/>;
   return week === 'mcc-practise' ? <MccPractise key={profile.id+'-mcc-practise'} profile={profile} onLeave={()=>setProfile(null)} onOpenMcc={()=>chooseWeek('mcc')} onOpenMco={()=>chooseWeek('mco')}/> : week === 'mco' ? <McoTryout key={profile.id+'-mco'} profile={profile} onLeave={() => setProfile(null)} onOpenMcc={()=>chooseWeek('mcc')}/> : week === 'mcc' ? <MccPreparation key={profile.id+'-mcc'} profile={profile} onLeave={() => setProfile(null)} onOpenMco={()=>chooseWeek('mco')}/> : week === 5 ? <Week5App key={profile.id+'-5'} profile={profile} initialWork={profile.week5Work || {}} onSave={work => saveProfileLesson(profile, work, 'week5Work')} onLeave={() => setProfile(null)} onOpenMcc={() => chooseWeek('mcc')}/> : week === 4 ? <Week4App key={profile.id+'-4'} profile={profile} initialWork={profile.week4Work || {}} onSave={work => saveProfileLesson(profile, work, 'week4Work')} onLeave={() => setProfile(null)}/> : week === 3 ? <Week3App key={profile.id+'-3'} profile={profile} initialWork={profile.week3Work || {}} onSave={work => saveProfileLesson(profile, work, 'week3Work')} onLeave={() => setProfile(null)}/> : week === 2 ? <Week2App key={profile.id+'-2'} profile={profile} initialWork={profile.week2Work || {}} onSave={work => saveProfileLesson(profile, work)} onLeave={() => setProfile(null)}/> : <LessonApp key={profile.id+'-1'} profile={profile} initialWork={profile.work || {}} onSave={work => saveProfileWork(profile, work)} onLeave={() => setProfile(null)}/>;
 }

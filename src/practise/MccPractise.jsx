@@ -6,6 +6,7 @@ import {createPreparationState,taskPassed} from '../mcc/state.js';
 import {saveProfileLesson} from '../storage.js';
 import {supportStatus,supportTotals} from './learningSupport.js';
 import {ReferenceLink} from '../reference/ReferenceLink.jsx';
+import {PlaygroundLink} from '../playground/PlaygroundLink.jsx';
 import './practise.css';
 const selected=()=>typeof location!=='undefined'?practiceCourse(new URLSearchParams(location.search).get('problem'))?.problemId||null:null;
 export function MccPractise({profile,onLeave,onOpenMcc,onOpenMco}){
@@ -18,7 +19,7 @@ export function MccPractise({profile,onLeave,onOpenMcc,onOpenMco}){
  if(course)return <PreparationApp key={course.problemId} problem={course} profile={profile} initialWork={{...profile[course.storageField],screen:'problem'}} onSave={next=>saveProfileLesson(profile,next,course.storageField)} onLeave={onLeave} onOverview={home}/>;
  return <div className="prep-app practise-theme">
   <a className="prep-skip" href="#practice-main">Skip to courses</a>
-  <header className="prep-topbar"><div className="prep-brand"><CodeXml size={25}/><span>KL <b>Coding Lab</b></span></div><nav aria-label="MCC Practise navigation"><ReferenceLink/><button onClick={onOpenMcc}>MCC Preparation</button><button onClick={onOpenMco}>MCO Tryout</button><button onClick={onLeave}>Change week / student</button></nav></header>
+  <header className="prep-topbar"><div className="prep-brand"><CodeXml size={25}/><span>KL <b>Coding Lab</b></span></div><nav aria-label="MCC Practise navigation"><PlaygroundLink/><ReferenceLink/><button onClick={onOpenMcc}>MCC Preparation</button><button onClick={onOpenMco}>MCO Tryout</button><button onClick={onLeave}>Change week / student</button></nav></header>
   <div className="prep-student"><span><b>{profile.name}</b> · {profile.className}</span><span>Each course keeps its own saved work.</span></div>
   <main id="practice-main" className="prep-main" tabIndex={-1}>
    <div className="practice-hero"><p className="prep-eyebrow">MCC PRACTISE · KS2 AND KS3</p><h1>Small programs.<br/><span>Plenty of practice.</span></h1><p>Type a tiny program. Run it, try a change, then use the idea in your own challenge. Choose a code course to build a program or an answer-file course to make the answers for supplied cases.</p><p className="practice-route-note">Start with either 30-level code course if you are new to Python. The 8-level answer-file paths can also be worked through by hand, with optional Python help. Every level stays open.</p></div>
