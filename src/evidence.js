@@ -29,7 +29,7 @@ export function taskStatus(task, work) {
   if (task.check && work.passed?.[task.id] === code) return task.kind === 'output' ? 'Current answer passed' : 'Current code passed';
   if (work.activity?.[task.id]?.checks) return 'Check again';
   if (work.attempted?.[task.id]) return 'Tried';
-  if (code !== task.starter) return 'Edited';
+  if (code !== (task.kind === 'output' ? '' : task.starter)) return 'Edited';
   if (work.visited?.[task.id]) return 'Opened';
   return 'Not started';
 }

@@ -58,7 +58,7 @@ test('landing page, hub and all 30 lessons render with IDLE and without reflecti
     const {MccPractise}=await server.ssrLoadModule('/src/practise/MccPractise.jsx');
     const {StudentStart}=await server.ssrLoadModule('/src/StudentStart.jsx');
     const props={profile:{name:'QA',className:'Test'},onSave:()=>true,onLeave:()=>{}};
-    const landing=renderToStaticMarkup(React.createElement(StudentStart,{week:'mcc-practise',onStart:()=>{}}));assert.match(landing,/MCC Practise/);assert.match(landing,/Binary Sorting · 30/);
+    const landing=renderToStaticMarkup(React.createElement(StudentStart,{week:'mcc-practise',onStart:()=>{}}));assert.match(landing,/MCC Practise/);assert.match(landing,/Binary Sorting &amp; Winning Streak · 76/);
     const hub=renderToStaticMarkup(React.createElement(MccPractise,props));assert.match(hub,/Start Exercise 1/);assert.match(hub,/Print the swap count first/);
     for(const item of tasks){
       const html=renderToStaticMarkup(React.createElement(PreparationApp,{...props,problem:binarySorting,initialWork:{current:item.id,screen:'problem'}}));

@@ -184,3 +184,15 @@ Before the first class, open the published URL on the school network using the a
 - [Cross-origin isolation service worker](https://github.com/gzuidhof/coi-serviceworker)
 
 The app's learning scenarios and interface text were written for this club. Third-party software retains its respective licences; see the dependency lockfile and vendored service-worker licence.
+
+## MCC Practise: code and answer-file courses
+
+`?week=mcc-practise` now offers four independent paths: Binary Sorting code (30 levels), Binary Sorting answer files (8), Winning Streak code (30), and Winning Streak answer files (8). Each level has a short executable typing example plus syntax/IPO questions. There are 76 typing examples and 156 MCQs across the four paths. A typing match or correct MCQ never grants a program or answer-file pass. Existing Binary Sorting IDs and `binarySortingWork` remain unchanged; new work uses `winningStreakWork`, `binarySortingOutputWork` and `winningStreakOutputWork`.
+
+Winning Streak introduces spaced input, list indices, growth/reset counters, current versus best, inclusive endpoints, `>=`, `and`, and later ties. It culminates in a single-pass solution for up to 500,000 rounds. Its last starter contains only planning comments. Classroom checks include full-size runs and later ties; they are not competition timing measurements or official scores.
+
+Answer-file paths accept manual answers or optional IDLE Python runs. Only a successful run of the current draft against the fixed case can be copied into its answer box. Checking is separate: Binary Sorting accepts any valid minimum swap sequence; Winning Streak validates both maximum length and the greatest start on ties. Changing an answer invalidates its current pass. Checked text downloads use matching filenames. The large Winning Streak input is loaded from a static asset, sent to Python as prepared input and shown only as a short preview; it is not duplicated into every saved draft.
+
+The uploaded code/output PDFs for each problem were byte-identical; one canonical copy and all supplied sample pairs are under `public/mcc-sources`. The Winning Streak output kit supplied `in_01.txt` (500,000 rounds, wins then losses), which is the final answer-file exercise. Binary Sorting's scored `in_01.txt`–`in_04.txt` were absent: its output path uses the supplied samples and labelled practice cases. No uploaded shell/batch scripts are run or required. The page downloads answer text; it does not generate or submit competition ZIP archives.
+
+Rebuild the 14 responsive diagram pairs with `python3 scripts/build-streak-visuals.py`. `npm test` includes executable examples and references, an independent exhaustive streak oracle, alternate swap checks, large inputs, rendering, storage isolation and backup validation.

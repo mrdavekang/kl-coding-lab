@@ -105,11 +105,11 @@ export function createReport(profile, work, { now = new Date().toISOString(), ra
   paragraph(`Lesson ${number} / ${title} / ${lessonConfig?.date || '8 September 2026'}`);
   paragraph(`Report created: ${dateLabel(now)} (Malaysia time)`, { size: 9 });
   y += 3;
-  paragraph(`${stats.tasks} ${practiceOnly?'program tasks':'tasks'} with work     ${stats.passed}/${checkCount} core practice checks passed\n${stats.runs} recorded runs     ${stats.checks} recorded checks`, { bold: true, box: true });
+  paragraph(`${stats.tasks} ${practiceOnly?(lessonConfig?.answerFilesOnly?'answer-file tasks':'program tasks'):'tasks'} with work     ${stats.passed}/${checkCount} core practice checks passed\n${stats.runs} recorded runs     ${stats.checks} recorded checks`, { bold: true, box: true });
   if(practiceOnly&&tasks.some(task=>task.support)){
     const totals=supportTotals(tasks,work);
     paragraph(`Typing examples matched: ${totals.typed}/${tasks.length}\nMultiple-choice answers checked and correct: ${totals.correct}/${totals.questions}`,{size:10});
-    paragraph('Typing matches and multiple-choice answers are recorded separately from program checks. They do not by themselves show that a learner can solve the full question.',{size:9});
+    paragraph('Typing matches and multiple-choice answers are recorded separately from program or answer-file checks. They do not by themselves show that a learner can solve the full question.',{size:9});
   }
   paragraph('This report contains learner work and practice-check evidence from this browser or an imported backup. Passing the supplied checks is evidence for those cases, not a grade or proof of independent understanding.', { size: 9.5 });
   const review = lessonConfig?.reviewReport ? lessonConfig.reviewReport(work) : learningReviewReport(work.learningReview);

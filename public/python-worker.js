@@ -79,7 +79,7 @@ self.onmessage = async ({ data }) => {
       const response = await fetch(helperUrl('./checks.py'));
       if (!response.ok) throw new Error('The task checks could not load. Please reload.');
       await python.runPythonAsync(await response.text());
-      for (const file of ['checks2.py', 'checks3.py', 'checks4.py', 'checks_binary.py', 'trace.py', 'idle.py']) {
+      for (const file of ['checks2.py', 'checks3.py', 'checks4.py', 'checks_binary.py', 'checks_streak.py', 'trace.py', 'idle.py']) {
         const extra = await fetch(helperUrl('./' + file));
         if (!extra.ok) throw new Error('The learning tools could not load. Please reload.');
         await python.runPythonAsync(await extra.text());
@@ -101,7 +101,7 @@ self.onmessage = async ({ data }) => {
       python.globals.set('__kl_source', data.code);
       python.globals.set('__kl_task', data.check);
       python.globals.set('__kl_spec', JSON.stringify(data.spec || {}));
-      const result = await python.runPythonAsync(data.check.startsWith('binary-') ? '__kl_check_binary(__kl_source, __kl_spec)' : data.check.startsWith('mcc-') || data.check.startsWith('w4-') || data.check.startsWith('w5-') ? '__kl_check4(__kl_source, __kl_spec)' : data.check.startsWith('w3-') ? '__kl_check3(__kl_source, __kl_spec)' : data.check.startsWith('w2-') ? '__kl_check2(__kl_source, __kl_task)' : '__kl_check(__kl_source, __kl_task)');
+      const result = await python.runPythonAsync(data.check.startsWith('streak-') ? '__kl_check_streak(__kl_source, __kl_spec)' : data.check.startsWith('binary-') ? '__kl_check_binary(__kl_source, __kl_spec)' : data.check.startsWith('mcc-') || data.check.startsWith('w4-') || data.check.startsWith('w5-') ? '__kl_check4(__kl_source, __kl_spec)' : data.check.startsWith('w3-') ? '__kl_check3(__kl_source, __kl_spec)' : data.check.startsWith('w2-') ? '__kl_check2(__kl_source, __kl_task)' : '__kl_check(__kl_source, __kl_task)');
       completion = { type: 'checked', result: JSON.parse(result) };
     } else if (data.type === 'trace') {
       python.globals.set('__kl_source', data.code);
