@@ -1,13 +1,14 @@
 import React, {useEffect, useRef, useState} from 'react';
 
-export function PythonShell({entries, waiting, busy, ready, more, onSubmit, onStop}) {
+export function PythonShell({entries, waiting, busy, ready, more, onSubmit, onStop, focusOnReady=true}) {
   const [value,setValue]=useState(''), [history,setHistory]=useState([]), [historyIndex,setHistoryIndex]=useState(null);
   const field=useRef(), transcript=useRef(), pendingDraft=useRef('');
   const canType=waiting||ready;
   useEffect(()=>{
+    if(!focusOnReady)return;
     if(waiting||ready&&entries.length>0)field.current?.focus({preventScroll:!waiting});
     if(waiting||ready&&!more)setValue('');
-  },[waiting,ready,more]);
+  },[waiting,ready,more,focusOnReady]);
   useEffect(()=>{if(transcript.current)transcript.current.scrollTop=transcript.current.scrollHeight;},[entries]);
   function submit(event){
     event.preventDefault();if(!canType)return;

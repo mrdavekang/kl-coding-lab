@@ -158,6 +158,7 @@ export function createReport(profile, work, { now = new Date().toISOString(), ra
       heading('Typing and syntax practice',12);
       paragraph(`Typing: ${learning.typed?'example matched':'not yet matched'} | Questions: ${learning.correct}/${learning.total} checked and correct`,{size:9});
       if(record?.text){paragraph('My typing practice:',{size:9});codeBlock(record.text,2500);}
+      if(record?.playText){paragraph('My small experiment (practice, separate from program checks):',{size:9});codeBlock(record.playText,2500);if(record.playInput){paragraph('Experiment input:',{size:9});codeBlock(record.playInput,3000);}}
       for(const question of task.support.questions){const answer=record?.answers?.[question.id];if(!answer)continue;const selected=question.choices.find(choice=>choice.id===answer.choice);paragraph(`${question.prompt}\nSelected: ${selected?.label||'No valid selection'}\n${answer.checked?(answer.choice===question.answer?'Checked: correct':'Checked: try again'):'Not checked yet'}`,{size:9});}
     }
     heading(task.reasoning ? 'My reasoning answers' : task.kind === 'output' ? 'My answer file (manual or code-assisted)' : 'My current code', 12);

@@ -129,7 +129,7 @@ export function cleanSupport(source,tasks) {
     const raw=data[item.id];if(!raw||typeof raw!=='object'||Array.isArray(raw))continue;
     const answers={};
     if(raw.version===item.support.version)for(const q of item.support.questions){const answer=raw.answers?.[q.id];if(answer&&q.choices.some(c=>c.id===answer.choice))answers[q.id]={choice:answer.choice,checked:answer.checked===true};}
-    clean[item.id]={version:item.support.version,text:typeof raw.text==='string'?raw.text.slice(0,2500):'',answers};
+    clean[item.id]={version:item.support.version,text:typeof raw.text==='string'?raw.text.slice(0,2500):'',answers,...(typeof raw.playText==='string'?{playText:raw.playText.slice(0,2500)}:{}),...(typeof raw.playInput==='string'?{playInput:raw.playInput.slice(0,3000)}:{})};
   }
   return clean;
 }

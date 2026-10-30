@@ -36,8 +36,9 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
   const [saved,setSaved]=useState(true), [notice,setNotice]=useState(''), [zoom,setZoom]=useState(false), [exporting,setExporting]=useState(false);
   const [fileInput,setFileInput]=useState({id:'',data:'',status:'loading'});
   const [answerFeedback,setAnswerFeedback]=useState(null);
+  const [exampleRun,setExampleRun]=useState(null);
   const [inputMode,setInputMode]=useState('shell'), [waiting,setWaiting]=useState(false), [shell,setShell]=useState([]), [more,setMore]=useState(false), [cursor,setCursor]=useState({line:1,column:0});
-  const freshShell=useRef(true);
+  const freshShell=useRef(true),focusShell=useRef(true);
   const lastSearch=useRef(typeof location==='undefined'?'':location.search);
   const runtime=useRef(), editor=useRef(), active=useRef(), latest=useRef(work), restoreInput=useRef(), importInput=useRef(), dialog=useRef(), path=useRef();
   const item=taskById(work.current)||tasks[0], activity=activityFor(item.id), index=tasks.indexOf(item);
@@ -75,12 +76,24 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
     runtime.current=new PythonRuntime({
       status:(next,message)=>{setStatus(next);if(next==='loading'){freshShell.current=true;setWaiting(false);setMore(false);}if(message)setError(message);},
       output:(text,stream)=>{
+        if(active.current?.warmup){
+          active.current.output+=text;
+          const output=active.current.output;
+          setExampleRun(old=>old?{...old,output}:old);
+          return;
+        }
         appendShell(text,stream==='stderr'?'stderr':'stdout');
         if(active.current&&active.current.kind!=='console')active.current.output+=text;
       },
       input:()=>setWaiting(true),
       stopping:message=>setNotice(message),
       finish:data=>{
+        if(active.current?.warmup){
+          const attempt=active.current;
+          setExampleRun({taskId:attempt.taskId,code:attempt.code,input:attempt.stdin,output:attempt.output,status:'finished',error:data.type==='error'?(data.stopped?'Program stopped. Your experiment is kept.':data.message):''});
+          active.current=null;
+          return;
+        }
         setWaiting(false);
         if(data.type==='error')appendShell(data.stopped?'KeyboardInterrupt: program stopped.\n':data.message+'\n','stderr');
         const attempt=active.current;
@@ -121,7 +134,7 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
   },[activity.id,work.screen]);
 
   function appendShell(text,kind='meta'){setShell(old=>{const entries=[...old.slice(-159),{text,kind}];if(practice){let length=entries.reduce((n,entry)=>n+entry.text.length,0);while(length>32000&&entries.length>1)length-=entries.shift().text.length;}return entries;});}
-  function clear(){setExample(false);setFeedback(null);setAnswerFeedback(null);setError('');setResult(null);setZoom(false);setShell([]);setWaiting(false);setMore(false);setCursor({line:1,column:0});freshShell.current=true;}
+  function clear(){setExample(false);setExampleRun(null);setFeedback(null);setAnswerFeedback(null);setError('');setResult(null);setZoom(false);setShell([]);setWaiting(false);setMore(false);setCursor({line:1,column:0});freshShell.current=true;focusShell.current=true;}
   function guard(){if(runtime.current?.active){setNotice('Stop the program before changing activities.');return false;}return true;}
   function navigate(screen,current=item.id){
     if(!guard())return;
@@ -138,8 +151,16 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
   function changeSupport(change){setWork(old=>{const previous=old.practiceSupport?.[item.id]||{version:item.support.version,text:'',answers:{}};const next=typeof change==='function'?change(previous):{...previous,...change};return {...old,practiceSupport:{...old.practiceSupport,[item.id]:next}};});}
   function changeCode(value){if(busy||example)return;update('drafts',value);setFeedback(null);setResult(null);}
   function changePlan(field,value){setWork(old=>({...old,plans:{...old.plans,[item.id]:{...old.plans[item.id],[field]:value}}}));}
+  function runSmallExample(source,exampleInput){
+    if(!item.support||!runtime.current?.ready||runtime.current.active||!source.trim())return;
+    focusShell.current=false;
+    active.current={taskId:item.id,code:source,stdin:exampleInput,output:'',kind:'run',warmup:true,example:true};
+    setExampleRun({taskId:item.id,code:source,input:exampleInput,output:'',status:'running',error:''});
+    runtime.current.execute(source,null,{stdin:exampleInput,idle:false,maxOutput:20000});
+  }
   function run(kind='run'){
     if(!runtime.current?.ready||runtime.current.active||example&&kind==='check'||isAnswerFile&&(!fileReady||kind==='check'))return;
+    focusShell.current=true;
     setError('');setFeedback(null);setResult(null);setNotice('');
     const interactive=kind==='run'&&inputMode==='shell', filename=example?'example.py':`${item.id}.py`;
     setWaiting(false);setMore(false);
@@ -150,6 +171,7 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
     if(kind==='run')freshShell.current=false;
   }
   function submitShell(value){
+    focusShell.current=true;
     if(waiting){
       try{
         if(!runtime.current.answer(value))return false;
@@ -209,9 +231,10 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
     catch(err){setNotice(err.message||'The report could not be made. Download a backup to keep your work.');}
     finally{setExporting(false);}
   }
-  const canExport=outputFileReady(result,item,draft,stdin);
-  const next=tasks[index+1], nextActivity=next&&next.activityId!==item.activityId;
   const supported=!!problem.supportedSteps;
+  const canExport=outputFileReady(result,item,draft,stdin);
+  const visualCard=<figure className="prep-visual"><button className="prep-image-button" onClick={()=>setZoom(true)} aria-label={`Enlarge visual: ${activity.title}`}><picture>{visual.imageMobile&&<source media="(max-width:600px)" srcSet={visualPath({image:visual.imageMobile})}/>}<img src={visualPath(visual)} alt={visual.imageAlt} width={visual.imageWidth || 1536} height={visual.imageHeight || 1024}/></picture></button><figcaption>{!practice&&<span>{supported?'Look at one small idea. Say what you think will happen.':'Follow the picture. Explain the movements or the Python in your own words.'}</span>}<button onClick={()=>setZoom(true)}><Expand size={17}/> Enlarge visual</button></figcaption></figure>;
+  const next=tasks[index+1], nextActivity=next&&next.activityId!==item.activityId;
   const planInputs=(supported?planFields.slice(0,3):planFields).map(([field,label,prompt])=><label className="prep-field" key={field} htmlFor={`prep-plan-${field}`}><b>{label}</b><span>{isReasoning?reasoningPrompts[field]:prompt}</span><textarea id={`prep-plan-${field}`} rows={2} maxLength={3000} value={work.plans[item.id]?.[field]||''} onChange={event=>changePlan(field,event.target.value)}/></label>);
   const clueCard=<section className="prep-section"><h2>Small clues</h2><button className="prep-outline" disabled={work.hints[item.id]>=item.hints.length} onClick={()=>update('hints',(work.hints[item.id]||0)+1)}>Show {work.hints[item.id]?'another':'a'} clue</button>{item.hints.slice(0,work.hints[item.id]||0).map(text=><p key={text}>{text}</p>)}{!supported&&<><h3>Explain your thinking</h3><ul>{questions.map(text=><li key={text}>{text}</li>)}</ul></>}</section>;
   function supportedStarter(){
@@ -236,7 +259,7 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
         <nav className="prep-breadcrumb" aria-label="Breadcrumb"><button disabled={busy} onClick={()=>navigate('overview')}>{sectionTitle}</button><span>/</span><span>{problemTitle}</span></nav>
         <nav ref={path} className={`prep-path ${activities.length>5?'prep-long-path':''}`} aria-label={`${activities.length} ${practice?'course sections':'preparation activities'}`}>{activities.map((entry,i)=><button key={entry.id} disabled={busy} aria-current={entry.id===activity.id?'step':undefined} onClick={()=>navigate('problem',entry.exercises[0].id)}><span>{activityPassed(work,entry)?<CheckCircle2 size={19}/>:i+1}</span><b>{entry.title}</b></button>)}</nav>
         <div className="prep-activity-heading"><div><p className="prep-eyebrow">{practice?'SECTION':'ACTIVITY'} {activityIndex+1} OF {activities.length} · EXERCISE {practice?index+1:exerciseIndex+1} OF {practice?tasks.length:activity.exercises.length}</p><h1>{practice?item.title:activity.title}</h1><p>{activity.summary}</p></div><span className="prep-progress">{progress(work)} / {tasks.length} {practice?(isAnswerFile?'answer-file checks':'program checks'):'checks'} passed</span></div>
-        <figure className="prep-visual"><button className="prep-image-button" onClick={()=>setZoom(true)} aria-label={`Enlarge visual: ${activity.title}`}><picture>{visual.imageMobile&&<source media="(max-width:600px)" srcSet={visualPath({image:visual.imageMobile})}/>}<img src={visualPath(visual)} alt={visual.imageAlt} width={visual.imageWidth || 1536} height={visual.imageHeight || 1024}/></picture></button><figcaption>{!practice&&<span>{supported?'Look at one small idea. Say what you think will happen.':'Follow the picture. Explain the movements or the Python in your own words.'}</span>}<button onClick={()=>setZoom(true)}><Expand size={17}/> Enlarge visual</button></figcaption></figure>
+        {practice?<details className="practice-picture"><summary>Picture hint · {activity.title}</summary>{visualCard}</details>:visualCard}
         {item.explorer&&Explorer&&<details className="mco-explorer-toggle"><summary>Explore both routes at every cut</summary><Explorer/></details>}
         {(practice?item.original:activity.id==='challenge')&&<section className="prep-statement"><p className="prep-eyebrow">ORIGINAL PAST QUESTION</p><h2>{problemTitle}</h2><p>{statement.description}</p><h3>Input and output</h3><p>{statement.input}</p><p><b>Constraints:</b> {statement.constraints}</p><div className="prep-table-wrap"><table><caption>{statement.tableCaption}</caption><thead><tr>{statement.tableHead.map(label=><th key={label}>{label}</th>)}</tr></thead><tbody>{statement.tableRows.map((row,i)=><tr key={i}>{row.map((value,j)=><td key={j}>{value}</td>)}</tr>)}</tbody></table></div><p>{statement.note}</p>{statement.sourceUrl&&<a href={statement.sourceUrl} target="_blank" rel="noreferrer">{statement.sourceLabel}</a>}</section>}
         {(practice?item.original:activity.id==='challenge')&&problem.resources?.length>0&&<section className="prep-statement" aria-labelledby="prep-resources-title"><h2 id="prep-resources-title">Additional resource</h2>{problem.resources.map(resource=><div key={resource.url}><h3>{resource.title}</h3><p>{resource.description}</p><a href={resource.url} target="_blank" rel="noreferrer">Watch the teacher’s walkthrough on YouTube ↗</a></div>)}</section>}
@@ -244,7 +267,7 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
         <nav className="prep-flow" aria-label="Steps in this exercise"><a href="#prep-read">1. Understand</a><span>→</span><a href="#prep-plan">2. Plan</a><span>→</span><a href={isReasoning?'#prep-answer':'#prep-python'}>3. {isReasoning?'Try':'Code and run'}</a><span>→</span><a href="#prep-reflect">4. Explain</a></nav>
         </>}
         <div className="prep-workspace">
-          {practice&&item.support&&<PracticeLearning key={item.id} item={item} record={work.practiceSupport?.[item.id]} onChange={changeSupport} disabled={busy}/>}
+          {practice&&item.support&&<PracticeLearning key={item.id} item={item} record={work.practiceSupport?.[item.id]} onChange={changeSupport} disabled={busy} runnerStatus={status} onRun={runSmallExample} onStop={()=>runtime.current.stop()} runResult={exampleRun}/>}
           {practice?<PracticeCard item={item} extraSamples={problem.extraSamples}/>:<>
           <section id="prep-read" className="prep-section"><p className="prep-eyebrow">1 · UNDERSTAND</p><h2>{isReasoning?'Ideas to try':'Ideas and syntax'}</h2>{reading.map(text=><p key={text}>{text}</p>)}{syntax.length>0&&<dl className="prep-syntax">{syntax.map(([word,meaning])=><div key={word}><dt><code>{word}</code></dt><dd>{meaning}</dd></div>)}</dl>}{!isReasoning&&<a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noreferrer">Python reference ↗</a>}</section>
           {activity.example&&!supported&&<section className="prep-section"><p className="prep-eyebrow">STUDY AN EXAMPLE</p><h2>Predict before running</h2><Code>{activity.example}</Code>{activity.exampleNotes.map(text=><p key={text}>{text}</p>)}<p><b>Expected example output</b></p><Code>{activity.exampleOutput}</Code><button className="prep-outline" disabled={busy} onClick={showExample}>Explore example in editor <ArrowRight size={17}/></button></section>}
@@ -275,10 +298,10 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
               <fieldset className="idle-input-mode" disabled={busy}><legend>How will you enter input?</legend><label><input type="radio" name="idle-input-mode" checked={inputMode==='shell'} onChange={()=>setInputMode('shell')}/>In the Shell, like IDLE</label><label><input type="radio" name="idle-input-mode" checked={inputMode==='test'} onChange={()=>setInputMode('test')}/>Use prepared test input</label></fieldset>
               {inputMode==='test'&&isAnswerFile?<div className="prep-field prep-input"><b>Prepared input: {item.answerFile.inputName}</b><span>{fileReady?`${stdin.length.toLocaleString('en-GB')} characters loaded. Each input() reads the next line.`:'Waiting for the supplied input file.'}</span><Code>{stdin.length>1500?stdin.slice(0,250)+'\n[Preview shortened. The complete file is used.]':stdin}</Code></div>:inputMode==='test'&&<label className="prep-field prep-input" htmlFor="prep-input"><b>Program input</b><span>Optional shortcut: each input() reads the next line here. Switch back to the Shell to type answers as you run.</span><textarea id="prep-input" rows={5} spellCheck={false} maxLength={700000} disabled={busy||example} value={input} onChange={event=>{update('inputs',event.target.value);setResult(null);}}/></label>}
             </div>
-            <PythonShell key={item.id+(example?'-example':'')} entries={shell} waiting={waiting} busy={busy} ready={status==='ready'} more={more} onSubmit={submitShell} onStop={()=>runtime.current.stop()}/>
+            <PythonShell key={item.id+(example?'-example':'')} entries={shell} focusOnReady={focusShell.current} waiting={waiting} busy={busy} ready={status==='ready'} more={more} onSubmit={submitShell} onStop={()=>runtime.current.stop()}/>
             {error&&<section className="prep-feedback prep-retry" role="alert"><b>{friendlyError(error).tip}</b><Code>{error}</Code></section>}
             {status==='unavailable'&&<button className="prep-outline" onClick={()=>globalThis.crossOriginIsolated?runtime.current.start():location.reload()}>Try loading Python again</button>}
-            {!example&&feedback&&<section className={`prep-feedback ${feedback.passed?'prep-success':'prep-retry'}`} aria-live="polite"><h3>{feedback.passed?'Your current code passed these checks':'Check one small thing'}</h3><p>{feedback.message}</p>{feedback.error&&<Code>{feedback.error}</Code>}<div className="prep-test-list">{feedback.cases?.map((test,i)=><div key={i}><b>Test {i+1} · {test.passed?'Passed':'Try again'}</b><div className="prep-samples"><div><span>Input</span><Code>{test.input||'(none)'}</Code></div><div><span>{practice&&item.validator?'One valid answer':'Expected'}</span><Code>{test.expected||'(nothing printed)'}</Code></div><div><span>Your output</span><Code>{test.actual||'(nothing printed)'}</Code></div></div>{test.error&&<Code>{test.error}</Code>}</div>)}</div></section>}
+            {!example&&feedback&&<section className={`prep-feedback ${feedback.passed?'prep-success':'prep-retry'}`} aria-live="polite"><h3>{feedback.passed?'Your current code passed these checks':'Check one small thing'}</h3><p>{feedback.message}</p>{feedback.error&&<Code>{feedback.error}</Code>}<details className="practice-test-details" open={!practice||!feedback.passed}><summary>See the practice tests</summary><div className="prep-test-list">{feedback.cases?.map((test,i)=><div key={i}><b>Test {i+1} · {test.passed?'Passed':'Try again'}</b><div className="prep-samples"><div><span>Input</span><Code>{test.input||'(none)'}</Code></div><div><span>{practice&&item.validator?'One valid answer':'Expected'}</span><Code>{test.expected||'(nothing printed)'}</Code></div><div><span>Your output</span><Code>{test.actual||'(nothing printed)'}</Code></div></div>{test.error&&<Code>{test.error}</Code>}</div>)}</div></details>{practice&&feedback.passed&&next&&<button className="prep-primary practice-next-task" onClick={()=>navigate('problem',next.id)}>Next small challenge: {next.title.slice(next.title.indexOf(' ')+1)}<ArrowRight size={17}/></button>}</section>}
             {!example&&!isAnswerFile&&<div id="prep-check" className="idle-check"><h3>{practice?'Check your exercise':'Compare, then check'}</h3><p>{practice?'Run your code, then try the practice checks.':'Does the Shell show the output you predicted? Practice checks try different inputs.'}</p><button className="prep-outline" disabled={status!=='ready'} onClick={()=>run('check')}><CheckCircle2 size={17}/>Check my code</button><p className="prep-check-state">{taskPassed(work,item)?(practice?'✓ Current code passed. Continue to the next exercise.':'✓ Current code passed the practice checks. Explain one test.'):'Make one small change and run again whenever you need to.'}</p></div>}
             {!example&&!isAnswerFile&&<div className="prep-file-tools"><button disabled={!canExport} onClick={()=>downloadFile(`${item.id}.out`,result.output)}>Download output</button></div>}
             {!example&&!isAnswerFile&&<p className="prep-muted">Output download becomes available after a successful run of your current code and input.</p>}
