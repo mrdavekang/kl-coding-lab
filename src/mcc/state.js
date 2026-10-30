@@ -1,5 +1,6 @@
 import {validateWork} from '../evidence.js';
 import {buildingFences} from './content.js';
+import {cleanSupport} from '../practise/learningSupport.js';
 
 const object = value => value && typeof value === 'object' && !Array.isArray(value) ? value : {};
 const text = value => typeof value === 'string' ? value.slice(0,3000) : '';
@@ -20,6 +21,7 @@ export function createPreparationState(problem) {
       for (const [field] of planFields) clean.plans[item.id][field] = text(source.plans?.[item.id]?.[field]);
     }
     for (const activity of activities) clean.readiness[activity.id] = source.readiness?.[activity.id] === true;
+    if(problem.practiceOnly)clean.practiceSupport=cleanSupport(source.practiceSupport,tasks);
     return clean;
   }
   function progress(work) {return tasks.filter(item=>taskPassed(work,item)).length;}

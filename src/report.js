@@ -2,6 +2,7 @@ import { jsPDF } from 'jspdf';
 import { allTasks } from './content.js';
 import { evidenceTasks, progressSummary, taskStatus, HISTORY_LIMIT } from './evidence.js';
 import { learningReviewReport } from './learningReview.js';
+import {supportStatus,supportTotals} from './practise/learningSupport.js';
 
 export function reportFilename(profile, extension = 'pdf', lessonNumber = 1) {
   const safe = value => value.normalize('NFKC').replace(/[^\p{L}\p{N}_-]+/gu, '-').replace(/^-|-$/g, '').slice(0, 55) || 'student';
@@ -104,7 +105,12 @@ export function createReport(profile, work, { now = new Date().toISOString(), ra
   paragraph(`Lesson ${number} / ${title} / ${lessonConfig?.date || '8 September 2026'}`);
   paragraph(`Report created: ${dateLabel(now)} (Malaysia time)`, { size: 9 });
   y += 3;
-  paragraph(`${stats.tasks} tasks with work     ${stats.passed}/${checkCount} core practice checks passed\n${stats.runs} recorded runs     ${stats.checks} recorded checks`, { bold: true, box: true });
+  paragraph(`${stats.tasks} ${practiceOnly?'program tasks':'tasks'} with work     ${stats.passed}/${checkCount} core practice checks passed\n${stats.runs} recorded runs     ${stats.checks} recorded checks`, { bold: true, box: true });
+  if(practiceOnly&&tasks.some(task=>task.support)){
+    const totals=supportTotals(tasks,work);
+    paragraph(`Typing examples matched: ${totals.typed}/${tasks.length}\nMultiple-choice answers checked and correct: ${totals.correct}/${totals.questions}`,{size:10});
+    paragraph('Typing matches and multiple-choice answers are recorded separately from program checks. They do not by themselves show that a learner can solve the full question.',{size:9});
+  }
   paragraph('This report contains learner work and practice-check evidence from this browser or an imported backup. Passing the supplied checks is evidence for those cases, not a grade or proof of independent understanding.', { size: 9.5 });
   const review = lessonConfig?.reviewReport ? lessonConfig.reviewReport(work) : learningReviewReport(work.learningReview);
   if(!practiceOnly){
@@ -136,8 +142,9 @@ export function createReport(profile, work, { now = new Date().toISOString(), ra
     room(49);
     paragraph(`${task.level ? task.level + ': ' : ''}${task.title}`, { bold: true, size: 10.5 });
     paragraph(`${taskStatus(task, work)} | Hints opened: ${work.hints?.[task.id] || 0} | Runs: ${work.activity?.[task.id]?.runs || 0} | Checks: ${work.activity?.[task.id]?.checks || 0}`, { size: 9 });
+    if(task.support){const learning=supportStatus(task,work.practiceSupport?.[task.id]);paragraph(`Typing: ${learning.typed?'example matched':'not yet matched'} | Questions: ${learning.correct}/${learning.total} checked and correct`,{size:9});}
   }
-  const included = evidenceTasks(work, tasks);
+  const included = tasks.filter(task=>evidenceTasks(work,[task]).length||work.practiceSupport?.[task.id]?.text||Object.keys(work.practiceSupport?.[task.id]?.answers||{}).length);
   if (!included.length) { heading('Your work will appear here'); paragraph('No edited programs or recorded attempts yet. Write and run a program, then download a new report.'); }
   for (const task of included) {
     continuation = task.title.replace(/[^\x20-\x7e]/g, ''); newPage();
@@ -146,6 +153,13 @@ export function createReport(profile, work, { now = new Date().toISOString(), ra
     paragraph(`Status: ${taskStatus(task, work)} | Hints opened: ${work.hints?.[task.id] || 0}`, { size: 10, bold: true });
     if(!practiceOnly){heading('My explanation', 12);
     paragraph(work.explanations?.[task.id]?.trim() || 'Not added yet. Ask me how my program works.');}
+    if(task.support){
+      const record=work.practiceSupport?.[task.id],learning=supportStatus(task,record);
+      heading('Typing and syntax practice',12);
+      paragraph(`Typing: ${learning.typed?'example matched':'not yet matched'} | Questions: ${learning.correct}/${learning.total} checked and correct`,{size:9});
+      if(record?.text){paragraph('My typing practice:',{size:9});codeBlock(record.text,2500);}
+      for(const question of task.support.questions){const answer=record?.answers?.[question.id];if(!answer)continue;const selected=question.choices.find(choice=>choice.id===answer.choice);paragraph(`${question.prompt}\nSelected: ${selected?.label||'No valid selection'}\n${answer.checked?(answer.choice===question.answer?'Checked: correct':'Checked: try again'):'Not checked yet'}`,{size:9});}
+    }
     heading(task.reasoning ? 'My reasoning answers' : task.kind === 'output' ? 'My answer file (manual or code-assisted)' : 'My current code', 12);
     paragraph(task.reasoning ? 'Question labels and reasoning answers are recorded below.' : 'Indentation is preserved. Long lines wrap on the page.', { size: 9 });
     const currentCode = task.kind === 'output' ? (work.answers?.[task.id] || '') : (work.drafts?.[task.id] ?? task.starter);

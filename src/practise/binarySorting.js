@@ -1,3 +1,4 @@
+import {learningSupport} from './learningSupport.js';
 const picture=(name,alt)=>({image:`${name}.svg`,imageMobile:`${name}-mobile.svg`,imageWidth:900,imageHeight:300,imageAlt:alt});
 export const visuals={
   print:picture('01-print','The instruction print("0") sends a zero to the Shell. Quotes belong to the code, not the output.'),
@@ -44,7 +45,7 @@ const cases=(strings,expected,withN=false)=>strings.map(bits=>({input:withN?full
 const samples=['01010','1','0','00111','111000','10000','010100','10101'];
 const courseTask=(number,id,title,goal,inputHelp,sampleInput,sampleOutput,starter,reading,syntax,example,visual,tests,options={})=>({
   id:`bs-${id}`,number,title:`${number}. ${title}`,goal,inputHelp,sampleInput,sampleOutput,starter,reading,syntax,example,visual,tests,
-  check:`binary-${id}`,hints:[],questions:[],...options,
+  check:`binary-${id}`,hints:[],questions:[],support:learningSupport[`bs-${id}`],...options,
 });
 
 const exercises=[
@@ -125,7 +126,7 @@ export const activityFor=id=>activities.find(activity=>activity.exercises.some(t
 export const binarySorting={
   problemId:'binary-sorting',problemTitle:'Binary Sorting',shortTitle:'Binary Sorting',filePrefix:'MCC-Practise-Binary-Sorting',storageField:'binarySortingWork',
   sectionId:'mcc-practise',sectionTitle:'MCC Practise',sectionNumber:'MCC Practise',practiceOnly:true,imageDirectory:'mcc-binary-sorting',
-  description:`${tasks.length} short coding exercises. Build input, counting and index skills, then use the zero count to plan minimum swaps.`,activities,tasks,taskById,activityFor,
+  description:`${tasks.length} coding levels with guided typing and short syntax questions. Build input, counting and index skills, then plan minimum swaps.`,activities,tasks,taskById,activityFor,
   statement:{description:'You are given a binary string containing only 0 and 1. Choose any two different positions and swap their characters. Sort the string so every 0 appears before every 1, using as few swaps as possible. Output both the minimum number of swaps and a sequence that sorts the string.',input:'The first line is n, the length. The second line is the binary string. Print K first. Then print K lines, each containing the two question positions to swap. Positions are numbered from 1. If K is zero, print only 0.',constraints:'1 ≤ n ≤ 200,000. Time limit: 1 second. Memory limit: 256 MB.',tableCaption:'What your answer contains',tableHead:['Line','Contents'],tableRows:[['First','Minimum swap count K'],['Next K lines','Two different positions between 1 and n']],note:'Any valid minimum swap sequence is accepted. Classroom checks give practice feedback and do not submit to the competition judge.'},
   extraSamples:[{title:'Sample 2',input:full('00111'),output:'0',explanation:'The string is already sorted, so there are no swap lines.'}],
 };
