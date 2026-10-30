@@ -4,6 +4,7 @@ import {Editor} from '../Editor.jsx';
 import {PythonShell} from './PythonShell.jsx';
 import {PracticeCard} from '../practise/PracticeCard.jsx';
 import {PracticeLearning} from '../practise/PracticeLearning.jsx';
+import {ReferenceLink} from '../reference/ReferenceLink.jsx';
 import {AnswerFilePractice} from '../practise/AnswerFilePractice.jsx';
 import {checkAnswerFile,parseAnswerInput} from '../practise/answerCheck.js';
 import {PythonRuntime, friendlyError} from '../runtime.js';
@@ -245,7 +246,7 @@ export function PreparationApp({profile, initialWork, onSave, onLeave, problem=b
 
   return <div className={`prep-app ${sectionId==='mco'?'mco-theme':''} ${supported?'fence-supported':''} ${practice?'practice-only practise-theme':''}`}>
     <a className="prep-skip" href="#prep-main">Skip to activity</a>
-    <header className="prep-topbar"><button className="prep-brand" disabled={busy} onClick={()=>navigate('overview')}><CodeXml size={25}/><span>KL <b>Coding Lab</b></span></button><nav aria-label="Preparation navigation"><button disabled={busy} onClick={()=>navigate('overview')}>{sectionTitle}</button><button disabled={busy} onClick={()=>navigate('files')}>My files & report</button><button disabled={busy} onClick={()=>{if(onSave(latest.current))onLeave();else setNotice('Download a backup before switching: saving is unavailable.');}}>Change week / student</button></nav></header>
+    <header className="prep-topbar"><button className="prep-brand" disabled={busy} onClick={()=>navigate('overview')}><CodeXml size={25}/><span>KL <b>Coding Lab</b></span></button><nav aria-label="Preparation navigation">{practice&&<ReferenceLink/>}<button disabled={busy} onClick={()=>navigate('overview')}>{sectionTitle}</button><button disabled={busy} onClick={()=>navigate('files')}>My files & report</button><button disabled={busy} onClick={()=>{if(onSave(latest.current))onLeave();else setNotice('Download a backup before switching: saving is unavailable.');}}>Change week / student</button></nav></header>
     <div className="prep-student"><span><b>{profile.name}</b> · {profile.className}</span><span role="status">{saved?'Saved in this browser':'Saving unavailable — download a backup'}</span></div>
     {notice&&<div className="prep-notice" role="status">{notice}<button onClick={()=>setNotice('')} aria-label="Dismiss notice"><X size={18}/></button></div>}
     <main id="prep-main" className="prep-main" tabIndex={-1}>
