@@ -227,3 +227,7 @@ A keyboard-accessible board lets learners change N, X and Y, place one block, an
 The supplied source was an output-task PDF, so the course identifies code activities as preparation for making answer files. The source and its official sample are under `public/mcc-sources/block-bishop`. The scored inputs corresponding to out_01.txt through out_10.txt were not provided; additional course inputs use explicit practice filenames and do not claim official marks. Answer checks use BigInt for the source's 10^18 limits, and Python helper checks use exact int. New work uses only `blockBishopWork`; existing course fields and task IDs are preserved. Mixed-course reports label both program and answer-file tasks.
 
 Validation executes all typing examples and 28 reference programs, checks every possible blocked square for all boards up to 12 columns against an independent search, covers 1,000 cases and precision-sensitive 19-digit inputs, and verifies saved-work isolation, answer formats, all lesson views, diagrams and file downloads.
+
+### Block Bishop course landing page
+
+`?week=mcc-practise&problem=block-bishop` opens a dedicated course introduction before profile selection. The site welcome screen and MCC Practise hub feature this page first. It includes the six-stage learning path, an interactive board, an Exercise 1 entry and a resume option for an already-open student profile. Links with `activity` or `exercise` continue to open their specific lesson. Existing classroom query parameters are retained.
