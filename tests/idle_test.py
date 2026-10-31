@@ -4,6 +4,7 @@ import json
 import pathlib
 import runpy
 import unittest
+import builtins
 from unittest.mock import patch
 
 idle = runpy.run_path(str(pathlib.Path(__file__).parents[1] / "public" / "idle.py"))
@@ -43,6 +44,21 @@ class IdleShellTests(unittest.TestCase):
         with patch("builtins.input", side_effect=["", "  雪 café  "]), contextlib.redirect_stdout(output):
             run_module("first = input()\nsecond = input()\nprint(repr(first))\nprint(repr(second))")
         self.assertEqual(output.getvalue(), "''\n'  雪 café  '\n")
+
+    def test_playground_separates_input_prompts_and_restores_input_even_after_errors(self):
+        output, prompts = io.StringIO(), []
+        original_input = builtins.input
+        source = 'value = int(input("Enter a number: "))\nprint(value + 1)'
+        with patch("sys.stdin", io.StringIO("4\n")), contextlib.redirect_stdout(output):
+            result = json.loads(idle["__kl_idle_execute"](source, prompts.append))
+        self.assertIsNone(result["error"])
+        self.assertEqual(prompts, ["Enter a number: "])
+        self.assertEqual(output.getvalue(), "5\n")
+        self.assertIs(builtins.input, original_input)
+        with patch("sys.stdin", io.StringIO("oops\n")):
+            result = json.loads(idle["__kl_idle_execute"](source, prompts.append))
+        self.assertIn("ValueError", result["error"])
+        self.assertIs(builtins.input, original_input)
 
     def test_variables_before_run_error_remain_available_for_debugging(self):
         with self.assertRaises(ZeroDivisionError):

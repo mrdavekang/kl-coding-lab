@@ -16,15 +16,21 @@ function flush() { if (output) { send('output', { text: output, stream: outputSt
 function write(bytes, stream = 'stdout') {
   if (stream !== outputStream) { flush(); outputStream = stream; }
   const text = decoder.decode(bytes, { stream: true });
-  if (outputLength < outputLimit) {
-    const fragment = text.slice(0, outputLimit - outputLength);
+  const remaining = Math.max(0, outputLimit - outputLength);
+  if (remaining > 0) {
+    const fragment = text.slice(0, remaining);
     output += fragment; outputLength += fragment.length;
     if (job?.type === 'trace') traceOutput += fragment;
     if (output.length >= (outputLimit > MAX_OUTPUT ? 8192 : 512)) flush();
-  } else if (!truncated) {
-    truncated = true; flush(); send('output', { text: '\n[Output shortened. Use Stop if your program keeps printing.]\n' });
+  }
+  if (text.length > remaining && !truncated) {
+    truncated = true; flush(); send('output', { text: '\n[Output shortened. Use Stop if your program keeps printing.]\n', stream: 'meta' });
   }
   return bytes.length;
+}
+function inputPrompt(text) {
+  write(new TextEncoder().encode(String(text)), 'prompt');
+  flush();
 }
 function traceStep(json) {
   flush();
@@ -115,7 +121,8 @@ self.onmessage = async ({ data }) => {
       flush(); completion = { type: 'done', more: !!more };
     } else if (data.idle) {
       python.globals.set('__kl_source', data.code);
-      const result = JSON.parse(await python.runPythonAsync('__kl_idle_execute(__kl_source)'));
+      if (data.separateInputPrompts) python.globals.set('__kl_input_prompt', inputPrompt);
+      const result = JSON.parse(await python.runPythonAsync(data.separateInputPrompts ? '__kl_idle_execute(__kl_source, __kl_input_prompt)' : '__kl_idle_execute(__kl_source)'));
       flush(); completion = result.error ? { type: 'error', message: result.error, stopped: result.stopped } : { type: 'done' };
     } else {
       // A fresh namespace avoids carrying variables from a previous task or run.
@@ -133,8 +140,9 @@ self.onmessage = async ({ data }) => {
     if (python.globals.has('__kl_task')) python.globals.delete('__kl_task');
     if (python.globals.has('__kl_emit')) python.globals.delete('__kl_emit');
     if (python.globals.has('__kl_spec')) python.globals.delete('__kl_spec');
+    if (python.globals.has('__kl_input_prompt')) python.globals.delete('__kl_input_prompt');
     job = null;
   }
   // Announce completion only after the worker can accept its next request.
-  self.postMessage({ ...completion, id: data.id });
+  self.postMessage({ ...completion, id: data.id, outputTruncated: truncated });
 };

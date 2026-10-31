@@ -5,8 +5,35 @@ import {readFileSync} from 'node:fs';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {createServer} from 'vite';
+import vm from 'node:vm';
 import {readWeek,pageUrl,pages} from '../src/navigation.js';
 import {examples,newProgram,replaceProgram,restoreProgram,cleanPlayground,savePlayground,loadPlayground,PLAYGROUND_KEY,CODE_LIMIT,INPUT_LIMIT,readPythonFile,readTextFile,pythonFilename} from '../src/playground/state.js';
+import {OUTPUT_LIMIT,textFilename,createOutputCapture,captureRunOutput,finishOutputCapture,outputMatchesProgram} from '../src/playground/runOutput.js';
+
+test('text output downloads preserve the full run exactly and exclude input echoes, Shell history and diagnostics',()=>{
+ const program={...newProgram('blank'),code:'print("results")',mode:'prepared',input:'3\n5 2 2\n1 1 1\n6 1 3\n'},job=createOutputCapture(program);
+ const output='  2  1\n\n3\n>>> printed text\n龙\n'+'12345\n'.repeat(10000);
+ captureRunOutput(job,'RESTART\n','meta');captureRunOutput(job,'5 2 2\n','input');captureRunOutput(job,'Enter N X Y: ','prompt');captureRunOutput(job,'>>> 2 + 3\n','command');captureRunOutput(job,'warning\n','stderr');
+ for(let i=0;i<output.length;i+=8192)captureRunOutput(job,output.slice(i,i+8192),'stdout');
+ const result=finishOutputCapture(job,{type:'done'});assert.equal(result.text,output);assert.ok(result.text.length>30000);assert.ok(outputMatchesProgram(result,program));
+ const consoleJob={...createOutputCapture(program),kind:'console'};captureRunOutput(consoleJob,'5\n');assert.equal(finishOutputCapture(consoleJob,{type:'done'}),null);
+ for(const [name,expected] of [['out_sample_01.txt','out_sample_01.txt'],['out_01','out_01.txt'],['../../out_02.TXT','out_02.txt'],['','output.txt'],['.txt','output.txt']])assert.equal(textFilename(name),expected);
+});
+test('output files require a complete successful run of the current code and input, including empty output',()=>{
+ const program={...newProgram('blank'),code:'value = input()',input:'7\n',mode:'prepared'},job=createOutputCapture(program),result=finishOutputCapture(job,{type:'done'});
+ assert.equal(result.text,'');assert.ok(outputMatchesProgram(result,program));assert.equal(outputMatchesProgram(null,program),false);
+ for(const change of [{code:'print(8)'},{input:'8\n'},{mode:'shell'}])assert.equal(outputMatchesProgram(result,{...program,...change}),false);
+ for(const data of [{type:'error'},{type:'done',stopped:true},{type:'done',outputTruncated:true}])assert.equal(finishOutputCapture(job,data),null);
+ const oversized=createOutputCapture(program);captureRunOutput(oversized,'x'.repeat(OUTPUT_LIMIT));captureRunOutput(oversized,'x');assert.equal(finishOutputCapture(oversized,{type:'done'}),null);
+});
+test('the Python worker reports incomplete output even when its final write crosses the capture limit',()=>{
+ const messages=[],context=vm.createContext({self:{postMessage:message=>messages.push(message)},TextDecoder,TextEncoder});
+ vm.runInContext(readFileSync(new URL('../public/python-worker.js',import.meta.url),'utf8'),context);
+ vm.runInContext('job={id:7,type:"run"};outputLimit=5;write(new TextEncoder().encode("123456"));flush();',context);
+ assert.equal(vm.runInContext('truncated',context),true);assert.equal(messages.filter(m=>m.stream==='stdout').map(m=>m.text).join(''),'12345');assert.equal(messages.filter(m=>m.stream==='meta').length,1);
+ vm.runInContext('write(new TextEncoder().encode("more"));',context);assert.equal(messages.filter(m=>m.stream==='meta').length,1);
+ vm.runInContext('output="";outputLength=0;truncated=false;write(new TextEncoder().encode("12345"));flush();',context);assert.equal(vm.runInContext('truncated',context),false);
+});
 
 test('the default landing is the public playground; explicit lesson and reference deep links keep their routes',()=>{
  for(const search of ['','?classId=class-1','?week=unknown','?week=0'])assert.equal(readWeek(search),'playground');
@@ -47,7 +74,7 @@ test('the public landing renders the editor, Shell, tools, help and course navig
  const server=await createServer({server:{middlewareMode:true,ws:false,watch:null},appType:'custom'});
  try{
   const {PlaygroundApp}=await server.ssrLoadModule('/src/playground/PlaygroundApp.jsx');const html=renderToStaticMarkup(React.createElement(PlaygroundApp));
-  for(const label of ['Python playground','Python Editor','Python Shell','Open…','Download .py','Say hello','Ask a question','Repeat five times','Sample input','MCC Practise','MCO Tryout','Week 1','Week 5'])assert.ok(html.includes(label),label);
+  for(const label of ['Python playground','Python Editor','Python Shell','Open…','Download .py','Download output .txt','Output file name','Say hello','Ask a question','Repeat five times','Sample input','MCC Practise','MCO Tryout','Week 1','Week 5'])assert.ok(html.includes(label),label);
   assert.ok(html.indexOf('Python Editor')<html.indexOf('Python Shell'));assert.ok(!html.includes('Start my lesson'));assert.ok(!html.includes('student-name'));
   const {PlaygroundLink}=await server.ssrLoadModule('/src/playground/PlaygroundLink.jsx');const link=renderToStaticMarkup(React.createElement(PlaygroundLink));assert.match(link,/target="_blank"/);assert.match(link,/noopener/);assert.match(link,/week=playground/);
   const main=readFileSync(new URL('../src/main.jsx',import.meta.url),'utf8');assert.ok(main.indexOf("if(week==='playground')")<main.indexOf('if (!profile)'));

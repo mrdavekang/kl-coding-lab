@@ -3,6 +3,7 @@ import code as _idle_code
 import json as _idle_json
 import linecache as _idle_linecache
 import traceback as _idle_traceback
+import builtins as _idle_builtins
 
 _idle_console = None
 
@@ -19,8 +20,15 @@ def __kl_idle_run(source):
     exec(compile(source, "main.py", "exec"), _idle_console.locals)
 
 
-def __kl_idle_execute(source):
+def __kl_idle_execute(source, input_prompt=None):
+    original_input = _idle_builtins.input
     try:
+        if input_prompt is not None:
+            def read_input(prompt="", /):
+                # Keep input questions visible in the Shell, separate from saved results.
+                input_prompt(str(prompt))
+                return original_input()
+            _idle_builtins.input = read_input
         __kl_idle_run(source)
         return _idle_json.dumps({"error": None})
     except BaseException as error:
@@ -30,6 +38,8 @@ def __kl_idle_execute(source):
             trace = trace.tb_next
         message = "".join(_idle_traceback.format_exception(type(error), error, trace))
         return _idle_json.dumps({"error": message, "stopped": isinstance(error, KeyboardInterrupt)})
+    finally:
+        _idle_builtins.input = original_input
 
 
 def __kl_idle_push(source):
