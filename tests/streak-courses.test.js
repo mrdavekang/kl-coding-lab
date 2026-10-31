@@ -18,10 +18,10 @@ import {createReport} from '../src/report.js';
 const fresh=practiceCourses.filter(c=>c.problemId!=='binary-sorting');
 const source=(folder,name)=>readFileSync(new URL(`../public/mcc-sources/${folder}/${name}`,import.meta.url),'utf8');
 
-test('four distinct tracks preserve Binary Sorting and provide 76 levels with 156 meaning/IPO questions',()=>{
- assert.equal(practiceTotal,76);assert.deepEqual(practiceCourses.map(c=>c.tasks.length),[30,8,30,8]);
- assert.equal(new Set(practiceCourses.flatMap(c=>c.tasks.map(t=>t.id))).size,76);
- assert.equal(practiceCourses.reduce((n,c)=>n+supportTotals(c.tasks).questions,0),156);
+test('five courses preserve the earlier tracks and provide 110 levels with 224 meaning/IPO questions',()=>{
+ assert.equal(practiceTotal,110);assert.deepEqual(practiceCourses.map(c=>c.tasks.length),[30,8,30,8,34]);
+ assert.equal(new Set(practiceCourses.flatMap(c=>c.tasks.map(t=>t.id))).size,110);
+ assert.equal(practiceCourses.reduce((n,c)=>n+supportTotals(c.tasks).questions,0),224);
  assert.equal(practiceCourse('missing'),undefined);
  for(const course of fresh){
   assert.ok(course.tasks.at(-1).original);
@@ -32,7 +32,7 @@ test('four distinct tracks preserve Binary Sorting and provide 76 levels with 15
   }
  }
 });
-test('all 46 added typing examples run and all 30 Winning Streak reference programs pass',()=>{
+test('all added typing examples run and all 30 Winning Streak reference programs pass',()=>{
  const items=fresh.flatMap(c=>c.tasks);
  const runner='import json,sys,io,contextlib\nitems=json.load(sys.stdin)\nfor item in items:\n old=sys.stdin;out=io.StringIO()\n try:\n  sys.stdin=io.StringIO(item["support"]["input"])\n  with contextlib.redirect_stdout(out):exec(item["support"]["code"],{})\n finally:sys.stdin=old\n assert out.getvalue().strip()==item["support"]["output"].strip(),(item["id"],out.getvalue())\nprint("typing verified")';
  const typed=spawnSync('python3',['-c',runner],{input:JSON.stringify(items),encoding:'utf8'});assert.equal(typed.status,0,typed.stdout+typed.stderr);

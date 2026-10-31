@@ -9,11 +9,11 @@ import {topics,topicById,referenceGroups,searchTopics} from '../src/reference/co
 import {REFERENCE_KEY,referenceUrl,practiceUrl,readTopic,cleanReferenceDrafts,saveReferenceDrafts,loadReferenceDrafts} from '../src/reference/state.js';
 import {practiceCourse,practiceCourses} from '../src/practise/catalog.js';
 
-test('26 student reference topics contain working Python examples and valid course/related links',()=>{
- assert.equal(topics.length,26);assert.equal(new Set(topics.map(t=>t.id)).size,26);assert.equal(referenceGroups.length,7);
+test('27 student reference topics contain working Python examples and valid course/related links',()=>{
+ assert.equal(topics.length,27);assert.equal(new Set(topics.map(t=>t.id)).size,27);assert.equal(referenceGroups.length,7);
  for(const item of topics){assert.ok(item.summary&&item.syntax&&item.mistake,item.id);assert.ok(item.explanation.length>=2);assert.ok(item.parts.length>=3);for(const id of item.related)assert.ok(topicById(id),item.id+' → '+id);for(const [course,id] of item.practice)assert.ok(practiceCourse(course)?.taskById(id),item.id+' → '+id);}
- const runner='import json,sys,io,contextlib\nitems=json.load(sys.stdin)\nfor item in items:\n old=sys.stdin;out=io.StringIO()\n try:\n  sys.stdin=io.StringIO(item["example"]["input"])\n  with contextlib.redirect_stdout(out):exec(compile(item["example"]["code"],"reference.py","exec"),{})\n finally:sys.stdin=old\n assert out.getvalue().strip()==item["example"]["output"].strip(),(item["id"],out.getvalue())\nprint("26 examples executed")';
- const result=spawnSync('python3',['-c',runner],{input:JSON.stringify(topics),encoding:'utf8'});assert.equal(result.status,0,result.stdout+result.stderr);assert.match(result.stdout,/26 examples executed/);
+ const runner='import json,sys,io,contextlib\nitems=json.load(sys.stdin)\nfor item in items:\n old=sys.stdin;out=io.StringIO()\n try:\n  sys.stdin=io.StringIO(item["example"]["input"])\n  with contextlib.redirect_stdout(out):exec(compile(item["example"]["code"],"reference.py","exec"),{})\n finally:sys.stdin=old\n assert out.getvalue().strip()==item["example"]["output"].strip(),(item["id"],out.getvalue())\nprint("27 examples executed")';
+ const result=spawnSync('python3',['-c',runner],{input:JSON.stringify(topics),encoding:'utf8'});assert.equal(result.status,0,result.stdout+result.stderr);assert.match(result.stdout,/27 examples executed/);
 });
 test('keyword search finds exact skills, syntax symbols and error clues without case sensitivity',()=>{
  assert.equal(searchTopics('input')[0].id,'input');assert.equal(searchTopics('PRINT')[0].id,'print');assert.equal(searchTopics('range')[0].id,'range');assert.equal(searchTopics('.append()')[0].id,'lists');assert.equal(searchTopics('#')[0].id,'comments');
@@ -32,7 +32,7 @@ test('reference drafts use their own bounded storage and cannot change course pr
  const loaded=loadReferenceDrafts();assert.equal(loaded.print.code,'print("Ada")');assert.equal(loaded.input.code.length,12000);assert.equal(loaded.input.input.length,4000);assert.equal(loaded.unknown,undefined);assert.equal(data.get('kl-coding-lab.student.v2.example'),before);assert.ok(data.has(REFERENCE_KEY));assert.deepEqual(cleanReferenceDrafts([]),{});
  data.set(REFERENCE_KEY,'bad json');assert.deepEqual(loadReferenceDrafts(),{});
 });
-test('the public reference and all 26 articles render with examples, explanations and a lazy separate playground',async()=>{
+test('the public reference and all 27 articles render with examples, explanations and a lazy separate playground',async()=>{
  const server=await createServer({server:{middlewareMode:true,ws:false,watch:null},appType:'custom'});
  try{
   const {ReferenceApp}=await server.ssrLoadModule('/src/reference/ReferenceApp.jsx');
@@ -45,6 +45,6 @@ test('the public reference and all 26 articles render with examples, explanation
  }finally{await server.close();}
 });
 test('every practice course still exposes all tasks after the reference is added',()=>{
- assert.equal(practiceCourses.reduce((n,c)=>n+c.tasks.length,0),76);
+ assert.equal(practiceCourses.reduce((n,c)=>n+c.tasks.length,0),110);
  const lessons=readFileSync(new URL('../src/mcc/PreparationApp.jsx',import.meta.url),'utf8');assert.match(lessons,/practice&&<ReferenceLink/);
 });

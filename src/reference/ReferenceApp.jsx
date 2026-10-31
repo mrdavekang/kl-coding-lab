@@ -36,7 +36,7 @@ export function ReferenceApp({initialTopic=null}){
    </aside>
    <main id="reference-main" className="ref-main">
     <p className="ref-eyebrow">MCC PRACTISE · STUDENT REFERENCE</p><h1 ref={heading} tabIndex={-1}>{topic.title}</h1><p className="ref-lead">{topic.summary}</p>
-    {topic.id==='start'&&<><p className="ref-welcome">Look up a word, read a short example, then try it. These topics follow the Python used in Binary Sorting, Winning Streak and their answer-file practices. No student profile is needed to read this reference.</p><div className="ref-quick-links" aria-label="Popular lookups">{['print','input','indexing','counters','errors'].map(id=><a key={id} href={referenceUrl(currentHref(),id).toString()} onClick={e=>navigate(e,id)}>{topicById(id).title}</a>)}</div></>}
+    {topic.id==='start'&&<><p className="ref-welcome">Look up a word, read a short example, then try it. These topics follow the Python used in Binary Sorting, Winning Streak, Block Bishop and answer-file practice. No student profile is needed to read this reference.</p><div className="ref-quick-links" aria-label="Popular lookups">{['print','input','indexing','counters','errors'].map(id=><a key={id} href={referenceUrl(currentHref(),id).toString()} onClick={e=>navigate(e,id)}>{topicById(id).title}</a>)}</div></>}
     {notice&&<p className="ref-notice" role="status">{notice}</p>}
     <section className="ref-syntax"><h2>{['start','streak-counter','zero-section','errors','files'].includes(topic.id)?'Idea at a glance':'Syntax at a glance'}</h2><Code>{topic.syntax}</Code></section>
     <section className="ref-explanation" aria-label="What it means">{topic.explanation.map(p=><p key={p}>{p}</p>)}</section>

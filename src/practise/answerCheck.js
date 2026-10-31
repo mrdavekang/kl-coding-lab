@@ -1,5 +1,17 @@
+import {bishopCount} from './bishopMath.js';
 const integer=/^[+-]?\d+$/;
 export function parseAnswerInput(type,data){
+ if(type==='bishop'){
+  const tokens=data.trim().split(/\s+/),T=Number(tokens.shift());
+  if(!Number.isInteger(T)||T<1||T>1000||tokens.length!==3*T||tokens.some(token=>!integer.test(token)||token.length>21))throw Error('The input needs T, then exactly T lines of N X Y integers.');
+  const cases=[];
+  for(let i=0;i<T;i++){
+   const [n,x,y]=tokens.slice(3*i,3*i+3).map(BigInt);
+   if(n<1n||n>1000000000000000000n||x<1n||x>2n||y<1n||y>n)throw Error('Use 1 ≤ N ≤ 10^18, row X equal to 1 or 2, and column Y between 1 and N.');
+   cases.push([n,x,y]);
+  }
+  return {T,cases};
+ }
  const parts=data.trim().split(/\s+/),n=Number(parts.shift());
  if(!Number.isInteger(n)||n<1||n>(type==='binary'?200000:500000))throw Error('The input needs a valid number of items on its first line.');
  if(type==='binary'){
@@ -12,6 +24,17 @@ export function parseAnswerInput(type,data){
 export function checkAnswerFile(item,answer,data){
  const fail=message=>({passed:false,message,cases:[]});
  try{
+  if(item.answerFile.type==='bishop'){
+   const {T,cases}=parseAnswerInput('bishop',data),lines=answer.trim().split(/\r?\n/).filter(line=>line.trim()).map(line=>line.trim());
+   if(!answer.trim())return fail('Enter your answer counts first. The answer box contains results, not Python instructions.');
+   if(lines.length!==T)return fail(`Give exactly ${T} answer lines: one count for each test case.`);
+   for(let i=0;i<T;i++){
+    if(!integer.test(lines[i])||lines[i].length>21)return fail(`Line ${i+1} needs one whole number. Remove prompts, labels and Python code.`);
+    const [n,x,y]=cases[i],expected=bishopCount(n,y);
+    if(BigInt(lines[i])!==expected)return fail(`Case ${i+1} needs another look. Count both sides including the start, then choose the smaller count.`);
+   }
+   return {passed:true,message:'All case counts match this fixed input. Download the matching answer text file.',cases:[]};
+  }
   const {n,values}=parseAnswerInput(item.answerFile.type,data);
   const lines=answer.trim().split(/\n/).filter(line=>line.trim()).map(line=>line.trim().split(/\s+/));
   if(!answer.trim())return fail('Enter the answer text first. The answer box is separate from the Python editor.');
