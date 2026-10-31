@@ -33,7 +33,7 @@ test('experiment backups keep the typed match and main draft separate without aw
  const bounded=state.validatePreparation({practiceSupport:{[item.id]:{version:1,text:'',playText:'x'.repeat(5000),playInput:'x'.repeat(5000),answers:{}}}}).practiceSupport[item.id];assert.equal(bounded.playText.length,2500);assert.equal(bounded.playInput.length,3000);
  const old=state.validatePreparation({practiceSupport:{[item.id]:{version:1,text:item.support.code,answers:{}}}});assert.ok(!('playText' in old.practiceSupport[item.id]));
 });
-test('all 76 lessons start with one visible MCQ, preserve review choices and offer real example runs',async()=>{
+test('all lessons show one visible MCQ, preserve review choices and offer real example runs',async()=>{
  const server=await createServer({server:{middlewareMode:true,ws:false,watch:null},appType:'custom'});
  try{
   const {PreparationApp}=await server.ssrLoadModule('/src/mcc/PreparationApp.jsx');
@@ -41,7 +41,7 @@ test('all 76 lessons start with one visible MCQ, preserve review choices and off
    const html=renderToStaticMarkup(React.createElement(PreparationApp,{problem:course,profile:{name:'QA',className:'Preview'},initialWork:{current:item.id,screen:'problem'},onSave:()=>true,onLeave:()=>{}}));
    const fields=html.match(/<fieldset class="practice-question"[^>]*>/g)||[];
    assert.equal(fields.filter(s=>!s.includes('hidden')).length,1,item.id);assert.equal(fields.length,item.support.questions.length,item.id);
-   for(const label of ['Run my example','Try a change','Review all questions','Picture hint'])assert.ok(html.includes(label),item.id+': '+label);
+   for(const label of ['Run my example','Try a change','Review all questions',item.introduction?'FIRST · READ AND LOOK':'Picture hint'])assert.ok(html.includes(label),item.id+': '+label);
    assert.ok(!html.includes('leaderboard'));assert.ok(!html.includes('words per minute'));
   }
  }finally{await server.close();}

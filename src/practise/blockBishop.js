@@ -1,5 +1,6 @@
 import {makeCourse,picture,support,meaning,role} from './courseTools.js';
 import {bishopInput,bishopAnswers,bishopCount} from './bishopMath.js';
+import {bishopIntroductions} from './bishopIntroductions.js';
 export {bishopInput,bishopAnswers,bishopCount} from './bishopMath.js';
 const visual=(name,alt)=>({...picture(name,alt),imageHeight:420});
 const v={
@@ -28,7 +29,7 @@ const only=(values,answer)=>values.map(value=>({input:String(value)+'\n',expecte
 const whole=rows=>({input:bishopInput(rows),expected:bishopAnswers(rows)});
 const exercises=[];
 function task(id,title,goal,input,output,starter,reading,syntax,art,tests,typed,options={}){
- const number=exercises.length+1;exercises.push({id:`bb-${id}`,number,title:`${number}. ${title}`,goal,inputHelp:input?'Read the input shown. Keep its line order and spacing.':'No keyboard input is needed.',sampleInput:input,sampleOutput:output,starter,reading,syntax,visual:art,tests,check:`bishop-${id}`,questions:[],hints:[],support:typed,...options});
+ const number=exercises.length+1;exercises.push({id:`bb-${id}`,introduction:bishopIntroductions[`bb-${id}`],number,title:`${number}. ${title}`,goal,inputHelp:input?'Read the input shown. Keep its line order and spacing.':'No keyboard input is needed.',sampleInput:input,sampleOutput:output,starter,reading,syntax,visual:art,tests,check:`bishop-${id}`,questions:[],hints:[],support:typed,...options});
 }
 const typedPrint=warm('print("Hello")','','Hello','What do the quotes mark?',['Text to display.','A number of moves.','A variable name.'],0,'Quotes mark literal text.',2,'print("Hello")','print displays a result.');
 task('print','Greet the bishop','Make the Shell display BISHOP in capital letters.','','BISHOP','print("bishop")\n',['Type the letters inside the quotes. The brackets and quotes are part of the instruction.'],[['print("BISHOP")','Display BISHOP on one line.']],v.print,[{input:'',expected:'BISHOP'}],typedPrint,{guide:'Change bishop to BISHOP inside the quotes.',guideLine:1});

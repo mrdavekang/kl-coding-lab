@@ -231,3 +231,5 @@ Validation executes all typing examples and 28 reference programs, checks every 
 ### Block Bishop course landing page
 
 `?week=mcc-practise&problem=block-bishop` opens a dedicated course introduction before profile selection. The site welcome screen and MCC Practise hub feature this page first. It includes the six-stage learning path, an interactive board, an Exercise 1 entry and a resume option for an already-open student profile. Links with `activity` or `exercise` continue to open their specific lesson. Existing classroom query parameters are retained.
+
+Every Block Bishop exercise now begins with a visible Read and Look introduction before typing, MCQs and the program/answer task. The 34 introductions teach one skill at a time using short explanations and accessible flow diagrams, index/value cards, range markers, trace tables or board illustrations. Desktop and phone layouts retain code spacing, label zero-based list indices separately from one-based board coordinates, and keep tables within their own scroll area.
